@@ -1,24 +1,44 @@
 package mdad.localdata.intershipsharingapp;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
+    //change this ip address to your machine ip address, or you can use your atspace web address.
+    public static String ipBaseAddress = "http://192.168.0.19/project";
+    Button btnViewItem;
+    Button btnNewProduct;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+// Buttons
+        btnViewItem= (Button) findViewById(R.id.btnViewItem);
+        btnNewProduct = (Button) findViewById(R.id.btnCreateProduct);
+        // view products click event
+        btnViewItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            // Launching All products Activity
+             Intent i = new Intent(getApplicationContext(), AllUserActivity.class);
+             startActivity(i);
+            }
+        });
+        // view products click event
+        btnNewProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            // Create New Product Activity
+            // Intent i = new Intent(getApplicationContext(), NewProductActivity.class);
+            // startActivity(i);
+            }
         });
     }
 }
