@@ -39,6 +39,8 @@ public class NewUserActivity extends AppCompatActivity {
     private static final String urlCreateAccount = MainActivity.ipBaseAddress + "/create_user.php"; // Update as needed
     ArrayList<String> roleNames = new ArrayList<>();
     ArrayList<String> roleIds = new ArrayList<>();
+    ArrayList<Integer> yearsOfStudy = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,38 +60,29 @@ public class NewUserActivity extends AppCompatActivity {
         labelGraduatedYear = findViewById(R.id.labelGraduatedYear);
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
 
-        // Disable spinner initially
-        roleSpinner.setEnabled(false);
+        // Initialize years of study locally
+        initializeYearsOfStudy();
 
-        // Fetch roles from the server
+        // Fetch roles
         fetchRoles();
 
-        // Filter inputs based on role
+        // Set role change behavior
         roleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (roleNames.isEmpty()) {
-                    return; // Don't proceed if roles are not yet loaded
-                }
-
-                selectedRoleId = roleIds.get(position); // Get the selected role ID
-
+                selectedRoleId = roleIds.get(position); // Update selectedRoleId based on the position
+                // Filter inputs based on role
                 if ("Student".equals(roleNames.get(position))) {
-                    // Show Study Year fields
                     labelStudyYear.setVisibility(View.VISIBLE);
                     studyYearSpinner.setVisibility(View.VISIBLE);
-                    // Hide Graduated Year fields
                     labelGraduatedYear.setVisibility(View.GONE);
                     inputGraduatedYear.setVisibility(View.GONE);
                 } else if ("Alumni".equals(roleNames.get(position))) {
-                    // Show Graduated Year fields
                     labelGraduatedYear.setVisibility(View.VISIBLE);
                     inputGraduatedYear.setVisibility(View.VISIBLE);
-                    // Hide Study Year fields
                     labelStudyYear.setVisibility(View.GONE);
                     studyYearSpinner.setVisibility(View.GONE);
                 } else {
-                    // Hide both fields
                     labelStudyYear.setVisibility(View.GONE);
                     studyYearSpinner.setVisibility(View.GONE);
                     labelGraduatedYear.setVisibility(View.GONE);
@@ -98,16 +91,13 @@ public class NewUserActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                Toast.makeText(NewUserActivity.this, "Please select a role.", Toast.LENGTH_SHORT).show();
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         // Handle account creation
         btnCreateAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Get user inputs
                 name = inputName.getText().toString();
                 email = inputEmail.getText().toString();
                 username = inputUsername.getText().toString();
@@ -116,28 +106,79 @@ public class NewUserActivity extends AppCompatActivity {
                 studyYear = studyYearSpinner.getSelectedItem() != null ? studyYearSpinner.getSelectedItem().toString().trim() : "";
                 graduatedYear = inputGraduatedYear.getText() != null ? inputGraduatedYear.getText().toString().trim() : "";
 
-                // Validate inputs
-                if (name.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty() || course.isEmpty() || selectedRoleId == null) {
-                    Toast.makeText(NewUserActivity.this, "All fields are required", Toast.LENGTH_SHORT).show();
+                if (name.isEmpty()) {
+                    Toast.makeText(NewUserActivity.this, "Name field is required", Toast.LENGTH_SHORT).show();
+                    inputName.requestFocus();
                     return;
                 }
 
-                // Prepare parameters
+                if (email.isEmpty()) {
+                    Toast.makeText(NewUserActivity.this, "Email field is required", Toast.LENGTH_SHORT).show();
+                    inputEmail.requestFocus();
+                    return;
+                }
+
+                if (username.isEmpty()) {
+                    Toast.makeText(NewUserActivity.this, "Username field is required", Toast.LENGTH_SHORT).show();
+                    inputUsername.requestFocus();
+                    return;
+                }
+
+                if (password.isEmpty()) {
+                    Toast.makeText(NewUserActivity.this, "Password field is required", Toast.LENGTH_SHORT).show();
+                    inputPassword.requestFocus();
+                    return;
+                }
+
+                if (course.isEmpty()) {
+                    Toast.makeText(NewUserActivity.this, "Course field is required", Toast.LENGTH_SHORT).show();
+                    inputCourse.requestFocus();
+                    return;
+                }
+
+                if (selectedRoleId == null || selectedRoleId.isEmpty()) {
+                    Toast.makeText(NewUserActivity.this, "Role selection is required", Toast.LENGTH_SHORT).show();
+                    roleSpinner.requestFocus();
+                    return;
+                }
+                if (roleSpinner.getSelectedItemPosition() == 0) { // Placeholder is at index 0
+                    Toast.makeText(NewUserActivity.this, "Please select a valid role", Toast.LENGTH_SHORT).show();
+                    roleSpinner.requestFocus();
+                    return;
+                }
+
+                // Use selectedRoleId as the value to send
+                selectedRoleId = roleIds.get(roleSpinner.getSelectedItemPosition());
+
+
                 Map<String, String> params = new HashMap<>();
                 params.put("name", name);
                 params.put("email", email);
                 params.put("username", username);
                 params.put("password", password);
                 params.put("course", course);
-                params.put("role", selectedRoleId); // Use role ID
+                params.put("role", selectedRoleId);
                 params.put("studyYear", studyYear);
                 params.put("graduatedYear", graduatedYear);
 
-                // Post data to create the account
                 postData(urlCreateAccount, params);
             }
         });
     }
+
+    private void initializeYearsOfStudy() {
+
+        yearsOfStudy.add(1);
+        yearsOfStudy.add(2);
+        yearsOfStudy.add(3);
+        yearsOfStudy.add(4);
+        yearsOfStudy.add(5);
+
+        ArrayAdapter<Integer> yearAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, yearsOfStudy);
+        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        studyYearSpinner.setAdapter(yearAdapter);
+    }
+
     //for fetch roleid as a fk
     private void fetchRoles() {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -147,6 +188,12 @@ public class NewUserActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         Log.d("FetchRoles", "Server Response: " + response);
                         try {
+                            roleNames.clear();
+                            roleIds.clear();
+
+                            // Add a placeholder at the start
+                            roleNames.add("Select a Role");
+                            roleIds.add(""); // Add an empty string as a placeholder ID
                             JSONArray rolesArray = new JSONArray(response);
                             for (int i = 0; i < rolesArray.length(); i++) {
                                 JSONObject roleObject = rolesArray.getJSONObject(i);
@@ -179,15 +226,24 @@ public class NewUserActivity extends AppCompatActivity {
     }
 
     private void postData(String url, Map<String, String> params) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            Log.d("PostData", "Key: " + entry.getKey() + ", Value: " + entry.getValue());
+        }
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 response -> {
-                    if ("Success".equals(response)) {
+                    Log.d("RawResponse", "Raw Response: '" + response + "'");
+                    // Clean the response to remove any HTML tags
+                    String cleanResponse = response.trim().replaceAll("<[^>]*>", ""); // Remove HTML tags
+
+                    // Log the cleaned response for debugging purposes
+                    Log.d("CleanedResponse", "Cleaned Response: '" + cleanResponse + "'");
+                    if ("Successful".equals(response.trim())) {
                         Toast.makeText(getApplicationContext(), "Account created successfully", Toast.LENGTH_LONG).show();
                         finish();
                         startActivity(new Intent(getApplicationContext(), AllUserActivity.class));
                     } else {
-                        Toast.makeText(getApplicationContext(), "Error: " + response, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Error: " + cleanResponse, Toast.LENGTH_LONG).show();
                     }
                 },
                 error -> Toast.makeText(getApplicationContext(), "Error: " + error.getMessage(), Toast.LENGTH_LONG).show()
