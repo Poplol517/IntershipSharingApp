@@ -9,12 +9,12 @@
     <Button android:id="@+id/btnViewItem"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="View Internship"
+        android:text="View User"
         android:layout_marginTop="25dip"/>
     <!-- Button to create a new product screen -->
     <Button android:id="@+id/btnCreateProduct"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Products"
+        android:text="Create Account"
         android:layout_marginTop="25dip"/>
 </LinearLayout>
