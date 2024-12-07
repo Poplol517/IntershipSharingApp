@@ -10,7 +10,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
@@ -31,17 +30,17 @@ import com.android.volley.toolbox.Volley;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import com.bumptech.glide.Glide;
 
 public class LoginActivity extends AppCompatActivity {
     //ArrayList to store product list from database
     ArrayList<HashMap<String, String>> userList;
     // url to get all products list via the php file get_all_productsJson.php
-    private static String url_all_products = MainActivity.ipBaseAddress+"/get_all_user.php";
-
+    private static String url_all_products = StaffMainActivity.ipBaseAddress+"/get_all_user.php";
+    private String roleId; // To store the role of the logged-in user
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // ArrayList to store product info in Hashmap for ListView
@@ -119,13 +118,31 @@ public class LoginActivity extends AppCompatActivity {
         dialogLayout.addView(lottieSuccess);
         dialogLayout.addView(messageTextView);
 
+
+
         // Build and show the dialog with the custom view
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Success")
                 .setView(dialogLayout)
                 .setPositiveButton("OK", (dialog, which) -> {dialog.dismiss();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);})
+                    Intent intent;
+                    switch (roleId) {
+                        case "1": // Example Role ID for Students
+                            intent = new Intent(LoginActivity.this, UserMainActivity.class);
+                            break;
+                        case "2": // Example Role ID for Alumni
+                            intent = new Intent(LoginActivity.this, UserMainActivity.class);
+                            break;
+                        case "3": // Example Role ID for Admin
+                            intent = new Intent(LoginActivity.this, StaffMainActivity.class);
+                            break;
+                        default: // Default case if role is undefined
+                            Toast.makeText(this, "Undefined role, unable to navigate.", Toast.LENGTH_SHORT).show();
+                            return;
+                    }
+                    startActivity(intent);
+                    finish();
+                })
                 .show();
     }
 
@@ -167,17 +184,20 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private boolean validateLogin(String username, String email, String password) {
+    public boolean validateLogin(String username, String email, String password) {
         for (HashMap<String, String> user : userList) {
             // Check if the username and password match
             if ((user.containsKey("username") ||user.containsKey("email"))&& user.containsKey("password")) {
                 if ((user.get("username").equals(username) ||user.get("email").equals(email)) && user.get("password").equals(password)) {
+                    roleId = user.get("RoleId"); // Get the user's role ID
+
                     return true;
                 }
             }
         }
         return false;
     }
+
 
 
     public void postData(String url, Map<String, String> params) {

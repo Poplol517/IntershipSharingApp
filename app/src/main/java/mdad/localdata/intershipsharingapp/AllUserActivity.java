@@ -25,7 +25,7 @@ public class AllUserActivity extends AppCompatActivity {
 
     ListView lv;
     ArrayList<HashMap<String, String>> userList;
-    private static String url_all_user = MainActivity.ipBaseAddress + "/get_all_user.php";
+    private static String url_all_user = StaffMainActivity.ipBaseAddress + "/get_all_user.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +87,8 @@ public class AllUserActivity extends AppCompatActivity {
                                 String year_of_study = details.length > 6 ? details[6] : ""; // Handle missing year_of_study
                                 String graduated_year = details.length > 7 ? details[7] : ""; // Handle missing graduated_year
                                 String RoleId = details.length > 8 ? details[8] : "";
+
+                                String header = "Role: " + RoleId;
                                 // Create a new HashMap to store user info
                                 HashMap<String, String> map = new HashMap<>();
                                 map.put("UserId", UserId);

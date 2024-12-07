@@ -8,7 +8,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class StaffMainActivity extends AppCompatActivity {
     //change this ip address to your machine ip address, or you can use your atspace web address.
     public static String ipBaseAddress = "http://192.168.0.19/project";
     Button btnViewItem;
@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_staff_main);
 // Buttons
         btnViewItem= (Button) findViewById(R.id.btnViewItem);
         btnNewProduct = (Button) findViewById(R.id.btnCreateProduct);

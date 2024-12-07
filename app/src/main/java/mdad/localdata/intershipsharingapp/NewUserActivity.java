@@ -43,7 +43,7 @@ public class NewUserActivity extends AppCompatActivity {
     Button btnCreateAccount;
     TextView labelStudyYear, labelGraduatedYear;
     String name, email, username, password, course, selectedRoleId, studyYear, graduatedYear;
-    private static final String urlCreateAccount = MainActivity.ipBaseAddress + "/create_user.php"; // Update as needed
+    private static final String urlCreateAccount = StaffMainActivity.ipBaseAddress + "/create_user.php"; // Update as needed
     ArrayList<String> roleNames = new ArrayList<>();
     ArrayList<String> roleIds = new ArrayList<>();
     ArrayList<String> yearsOfStudy = new ArrayList<>();
