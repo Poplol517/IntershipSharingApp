@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
     public static String ipBaseAddress = "http://192.168.0.19/project";
     Button btnViewItem;
     Button btnNewProduct;
+    Button btnLogin;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -22,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 // Buttons
         btnViewItem= (Button) findViewById(R.id.btnViewItem);
         btnNewProduct = (Button) findViewById(R.id.btnCreateProduct);
-        // view products click event
+        btnLogin = (Button) findViewById(R.id.btnLogin);
         btnViewItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -35,9 +36,18 @@ public class MainActivity extends AppCompatActivity {
         btnNewProduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            // Create New Product Activity
-            Intent i = new Intent(getApplicationContext(), NewUserActivity.class);
-            startActivity(i);
+                // Create New Product Activity
+                Intent i = new Intent(getApplicationContext(), NewUserActivity.class);
+                startActivity(i);
+            }
+        });
+        // view products click event
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Create New Product Activity
+                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(i);
             }
         });
     }

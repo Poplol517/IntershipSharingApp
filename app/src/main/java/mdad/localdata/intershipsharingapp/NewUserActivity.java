@@ -1,13 +1,18 @@
 package mdad.localdata.intershipsharingapp;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,12 +20,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +46,7 @@ public class NewUserActivity extends AppCompatActivity {
     private static final String urlCreateAccount = MainActivity.ipBaseAddress + "/create_user.php"; // Update as needed
     ArrayList<String> roleNames = new ArrayList<>();
     ArrayList<String> roleIds = new ArrayList<>();
-    ArrayList<Integer> yearsOfStudy = new ArrayList<>();
+    ArrayList<String> yearsOfStudy = new ArrayList<>();
 
 
     @Override
@@ -106,6 +113,9 @@ public class NewUserActivity extends AppCompatActivity {
                 studyYear = studyYearSpinner.getSelectedItem() != null ? studyYearSpinner.getSelectedItem().toString().trim() : "";
                 graduatedYear = inputGraduatedYear.getText() != null ? inputGraduatedYear.getText().toString().trim() : "";
 
+                studyYear = studyYear.isEmpty() ? "null" : studyYear;
+                graduatedYear = graduatedYear.isEmpty() ? "null" : graduatedYear;
+
                 if (name.isEmpty()) {
                     Toast.makeText(NewUserActivity.this, "Name field is required", Toast.LENGTH_SHORT).show();
                     inputName.requestFocus();
@@ -166,15 +176,17 @@ public class NewUserActivity extends AppCompatActivity {
         });
     }
 
+
     private void initializeYearsOfStudy() {
+        yearsOfStudy.add("");
+        yearsOfStudy.add("0");
+        yearsOfStudy.add("1");
+        yearsOfStudy.add("2");
+        yearsOfStudy.add("3");
+        yearsOfStudy.add("4");
+        yearsOfStudy.add("5");
 
-        yearsOfStudy.add(1);
-        yearsOfStudy.add(2);
-        yearsOfStudy.add(3);
-        yearsOfStudy.add(4);
-        yearsOfStudy.add(5);
-
-        ArrayAdapter<Integer> yearAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, yearsOfStudy);
+        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, yearsOfStudy);
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         studyYearSpinner.setAdapter(yearAdapter);
     }
@@ -224,6 +236,81 @@ public class NewUserActivity extends AppCompatActivity {
 
         requestQueue.add(stringRequest);
     }
+    public void showCreatedSuccessfulAlert() {
+        // Create LottieAnimationView dynamically
+        LottieAnimationView lottieSuccess = new LottieAnimationView(this);
+        lottieSuccess.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+        lottieSuccess.setAnimation(R.raw.success);  // Reference your Lottie JSON animation
+        lottieSuccess.playAnimation();
+
+        // Create a TextView for the success message
+        TextView messageTextView = new TextView(this);
+        messageTextView.setText("Account Created Successfully!");
+        messageTextView.setTypeface(null, Typeface.BOLD);
+        messageTextView.setTextSize(18);
+        messageTextView.setTextColor(Color.parseColor("#90EE90"));
+        messageTextView.setGravity(Gravity.CENTER);
+
+        // Apply a fade-in animation to the TextView
+        messageTextView.setAlpha(0f);  // Start fully transparent
+        ObjectAnimator animator = ObjectAnimator.ofFloat(messageTextView, "alpha", 0f, 1f);
+        animator.setDuration(1000);  // Duration of the fade-in effect (1 second)
+        animator.start();
+
+        // Create a vertical LinearLayout to hold Lottie and TextView
+        LinearLayout dialogLayout = new LinearLayout(this);
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(50, 50, 50, 50);  // Add padding
+        dialogLayout.setGravity(Gravity.CENTER);
+        dialogLayout.addView(lottieSuccess);
+        dialogLayout.addView(messageTextView);
+
+        // Build and show the dialog with the custom view
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Success")
+                .setView(dialogLayout)
+                .setPositiveButton("OK", (dialog, which) -> {dialog.dismiss();
+                    Intent intent = new Intent(NewUserActivity.this, LoginActivity.class);
+                    startActivity(intent);})
+                .show();
+    }
+
+    public void showCreatedFailedAlert(String cleanresponese) {
+        // Create LottieAnimationView dynamically
+        LottieAnimationView lottieSuccess = new LottieAnimationView(this);
+        lottieSuccess.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+        lottieSuccess.setAnimation(R.raw.denied);  // Reference your Lottie JSON animation
+        lottieSuccess.playAnimation();
+
+        // Create a TextView for the success message
+        TextView messageTextView = new TextView(this);
+        messageTextView.setText("Failed to  create account!\n"+"Responese: "+cleanresponese);
+        messageTextView.setTypeface(null, Typeface.BOLD);
+        messageTextView.setTextSize(18);
+        messageTextView.setTextColor(Color.parseColor("#800000"));
+        messageTextView.setGravity(Gravity.CENTER);
+
+        // Apply a fade-in animation to the TextView
+        messageTextView.setAlpha(0f);  // Start fully transparent
+        ObjectAnimator animator = ObjectAnimator.ofFloat(messageTextView, "alpha", 0f, 1f);
+        animator.setDuration(1000);  // Duration of the fade-in effect (1 second)
+        animator.start();
+
+        // Create a vertical LinearLayout to hold Lottie and TextView
+        LinearLayout dialogLayout = new LinearLayout(this);
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(50, 50, 50, 50);  // Add padding
+        dialogLayout.setGravity(Gravity.CENTER);
+        dialogLayout.addView(lottieSuccess);
+        dialogLayout.addView(messageTextView);
+
+        // Build and show the dialog with the custom view
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Denied!!")
+                .setView(dialogLayout)
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
 
     private void postData(String url, Map<String, String> params) {
         for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -239,11 +326,9 @@ public class NewUserActivity extends AppCompatActivity {
                     // Log the cleaned response for debugging purposes
                     Log.d("CleanedResponse", "Cleaned Response: '" + cleanResponse + "'");
                     if ("Successful".equals(response.trim())) {
-                        Toast.makeText(getApplicationContext(), "Account created successfully", Toast.LENGTH_LONG).show();
-                        finish();
-                        startActivity(new Intent(getApplicationContext(), AllUserActivity.class));
+                        showCreatedSuccessfulAlert();
                     } else {
-                        Toast.makeText(getApplicationContext(), "Error: " + cleanResponse, Toast.LENGTH_LONG).show();
+                        showCreatedFailedAlert(cleanResponse);
                     }
                 },
                 error -> Toast.makeText(getApplicationContext(), "Error: " + error.getMessage(), Toast.LENGTH_LONG).show()
