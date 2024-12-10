@@ -3,6 +3,7 @@ package mdad.localdata.intershipsharingapp;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,8 +63,9 @@ public class UserMainActivity extends AppCompatActivity {
                                     map.put("start_date", details[4]);
                                     map.put("end_date", details[5]);
                                     map.put("date_shared", details[6]);
-                                    map.put("UserID", details.length > 7 ? details[7] : "");
-                                    map.put("LocationID", details.length > 8 ? details[8] : "");
+                                    map.put("user_name", details.length > 7 ? details[7] : "");
+                                    map.put("username", details.length > 8 ? details[8] : "");
+                                    map.put("location_name", details.length > 9 ? details[9] : "");
 
                                     addInternshipToLayout(map);  // Add the data to a new TextView
                                 }
@@ -71,14 +73,16 @@ public class UserMainActivity extends AppCompatActivity {
                         }
                     }
 
-                    private void addInternshipToLayout(HashMap<String, String> item) {
+                    private void addInternshipToLayout(final HashMap<String, String> item) {
+                        // Create a TextView to display the internship details
                         TextView textView = new TextView(UserMainActivity.this);
                         textView.setLayoutParams(new LinearLayout.LayoutParams(
                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                 ViewGroup.LayoutParams.WRAP_CONTENT));
                         textView.setPadding(20, 20, 20, 20);
                         textView.setTextSize(16);
-                        textView.setBackgroundColor(0xFFFFF);  // Light blue background
+                        textView.setBackgroundColor(0xFFFFFFFF);  // White background for text view
+                        textView.setTextColor(0xFF000000);  // Black text color
 
                         String displayText = "Internship ID: " + item.get("InternshipID") +
                                 "\nName: " + item.get("name") +
@@ -86,13 +90,34 @@ public class UserMainActivity extends AppCompatActivity {
                                 "\nStart Date: " + item.get("start_date") +
                                 "\nEnd Date: " + item.get("end_date") +
                                 "\nDate Shared: " + item.get("date_shared") +
-                                "\nUserID: " + item.get("UserID") +
-                                "\nLocationID: " + item.get("LocationID");
+                                "\nUser: " + item.get("user_name") +
+                                "\nUsername: " + item.get("username") +
+                                "\nLocation Name: " + item.get("location_name");
 
                         textView.setText(displayText);
+
+                        // Set click listener on TextView
+                        textView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Toast.makeText(UserMainActivity.this, "Clicked on: " + item.get("company"), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
                         lv.addView(textView);  // Dynamically add TextView to the layout
+
+                        // Add a visual separator after each TextView
+                        View separator = new View(UserMainActivity.this);
+                        LinearLayout.LayoutParams separatorParams = new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, 2);  // Height of the separator line
+                        separator.setLayoutParams(separatorParams);
+                        separator.setBackgroundColor(0xFFCCCCCC);  // Light gray color for separation
+
+                        lv.addView(separator);  // Dynamically add the separator to the layout
                     }
+
                 },
+
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {

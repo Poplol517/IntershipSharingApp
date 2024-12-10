@@ -84,16 +84,21 @@ public class NewUserActivity extends AppCompatActivity {
                     studyYearSpinner.setVisibility(View.VISIBLE);
                     labelGraduatedYear.setVisibility(View.GONE);
                     inputGraduatedYear.setVisibility(View.GONE);
+                    inputGraduatedYear.setText("");
+
                 } else if ("Alumni".equals(roleNames.get(position))) {
                     labelGraduatedYear.setVisibility(View.VISIBLE);
                     inputGraduatedYear.setVisibility(View.VISIBLE);
                     labelStudyYear.setVisibility(View.GONE);
                     studyYearSpinner.setVisibility(View.GONE);
+                    studyYearSpinner.setSelection(0);
                 } else {
                     labelStudyYear.setVisibility(View.GONE);
                     studyYearSpinner.setVisibility(View.GONE);
                     labelGraduatedYear.setVisibility(View.GONE);
                     inputGraduatedYear.setVisibility(View.GONE);
+                    inputGraduatedYear.setText("");
+                    studyYearSpinner.setSelection(0);
                 }
             }
 
@@ -162,7 +167,7 @@ public class NewUserActivity extends AppCompatActivity {
 
 
                 Map<String, String> params = new HashMap<>();
-                params.put("name", name);
+                params.put("user_name", name);
                 params.put("email", email);
                 params.put("username", username);
                 params.put("password", password);
