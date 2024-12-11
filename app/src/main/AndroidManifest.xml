@@ -16,7 +16,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".UserMainActivity"
+            android:name=".StaffMainActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
@@ -28,7 +28,7 @@
             android:name=".AllUserActivity"
             android:exported="false" />
         <activity
-            android:name=".StaffMainActivity"
+            android:name=".UserMainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
