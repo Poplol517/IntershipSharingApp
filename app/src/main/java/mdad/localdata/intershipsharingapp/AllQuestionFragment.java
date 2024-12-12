@@ -1,3 +1,4 @@
+//For view question forum page
 package mdad.localdata.intershipsharingapp;
 
 import android.os.Bundle;
@@ -10,10 +11,10 @@ import android.view.ViewGroup;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link QuestionFragment#newInstance} factory method to
+ * Use the {@link AllQuestionFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class QuestionFragment extends Fragment {
+public class AllQuestionFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,7 +25,7 @@ public class QuestionFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public QuestionFragment() {
+    public AllQuestionFragment() {
         // Required empty public constructor
     }
 
@@ -37,8 +38,8 @@ public class QuestionFragment extends Fragment {
      * @return A new instance of fragment QuestionFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static QuestionFragment newInstance(String param1, String param2) {
-        QuestionFragment fragment = new QuestionFragment();
+    public static AllQuestionFragment newInstance(String param1, String param2) {
+        AllQuestionFragment fragment = new AllQuestionFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -59,6 +60,6 @@ public class QuestionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_question, container, false);
+        return inflater.inflate(R.layout.fragment_all_question, container, false);
     }
 }

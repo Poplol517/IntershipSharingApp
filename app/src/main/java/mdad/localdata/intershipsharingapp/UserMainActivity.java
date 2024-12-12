@@ -1,22 +1,13 @@
 package mdad.localdata.intershipsharingapp;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.HashMap;
@@ -36,7 +27,8 @@ public class UserMainActivity extends AppCompatActivity {
         // Initialize the fragment map
         fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.menu_home, new HomeFragment());
-        fragmentMap.put(R.id.menu_account, new QuestionFragment());
+        //fragmentMap.put(R.id.menu_account, new AllQuestionFragment());
+        fragmentMap.put(R.id.menu_account, new CreatePostFragment());
 
         // Load the default fragment
         if (savedInstanceState == null) {

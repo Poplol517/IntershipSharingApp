@@ -20,6 +20,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class HomeFragment extends Fragment {
@@ -50,10 +51,10 @@ public class HomeFragment extends Fragment {
                     for (String internship : internships) {
                         if (!internship.isEmpty()) {
                             String[] details = internship.split(";");
-                            if (details.length >= 7) {
+                            if (details.length >= 10) {
                                 HashMap<String, String> map = new HashMap<>();
                                 map.put("InternshipID", details[0]);
-                                map.put("name", details[1]);
+                                map.put("title", details[1]);
                                 map.put("description", details[2]);
                                 map.put("company", details[3]);
                                 map.put("start_date", details[4]);
@@ -62,7 +63,8 @@ public class HomeFragment extends Fragment {
                                 map.put("user_name", details.length > 7 ? details[7] : "");
                                 map.put("username", details.length > 8 ? details[8] : "");
                                 map.put("location_name", details.length > 9 ? details[9] : "");
-
+                                map.put("role", details[10]);
+                                Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                 addInternshipToLayout(map);
                             }
                         }
@@ -88,14 +90,15 @@ public class HomeFragment extends Fragment {
         textView.setTextColor(0xFF000000);
 
         String displayText = "Internship ID: " + item.get("InternshipID") +
-                "\nName: " + item.get("name") +
+                "\nTitle: " + item.get("title") +
                 "\nCompany: " + item.get("company") +
                 "\nStart Date: " + item.get("start_date") +
                 "\nEnd Date: " + item.get("end_date") +
                 "\nDate Shared: " + item.get("date_shared") +
                 "\nUser: " + item.get("user_name") +
                 "\nUsername: " + item.get("username") +
-                "\nLocation Name: " + item.get("location_name");
+                "\nLocation Name: " + item.get("location_name")+
+                "\nRole: " + item.get("role");
 
         textView.setText(displayText);
         lv.addView(textView);
