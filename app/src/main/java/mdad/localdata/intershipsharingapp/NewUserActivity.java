@@ -2,6 +2,7 @@ package mdad.localdata.intershipsharingapp;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -214,8 +215,21 @@ public class NewUserActivity extends AppCompatActivity {
                             JSONArray rolesArray = new JSONArray(response);
                             for (int i = 0; i < rolesArray.length(); i++) {
                                 JSONObject roleObject = rolesArray.getJSONObject(i);
-                                roleNames.add(roleObject.getString("name")); // Get role name
-                                roleIds.add(roleObject.getString("RoleId")); // Store corresponding role ID
+                                String roleName = roleObject.getString("name");
+                                String roleId = roleObject.getString("RoleId");
+
+                                if ("Staff".equals(roleName)) {
+                                    SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+                                    String currentUserRoleId = sharedPreferences.getString("roleId", "");
+
+                                    if ("3".equals(currentUserRoleId)) {
+                                        roleNames.add(roleName);
+                                        roleIds.add(roleId);
+                                    }
+                                } else {
+                                    roleNames.add(roleName);
+                                    roleIds.add(roleId);
+                                }
                             }
 
                             // Populate the Spinner
