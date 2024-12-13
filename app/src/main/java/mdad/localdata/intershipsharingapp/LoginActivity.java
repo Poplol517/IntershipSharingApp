@@ -2,6 +2,7 @@ package mdad.localdata.intershipsharingapp;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -89,7 +90,21 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    public void saveLoginSession(String username, String roleId) {
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString("username", username); // Save username
+        editor.putString("roleId", roleId);     // Save role ID
+        editor.putBoolean("isLoggedIn", true);  // Save login status
+        editor.apply();
+    }
+
+
     public void showLoginSuccessfulAlert() {
+        if (isFinishing() || isDestroyed()) {
+            return;  // Prevent showing dialog if the Activity is finishing or destroyed
+        }
         // Create LottieAnimationView dynamically
         LottieAnimationView lottieSuccess = new LottieAnimationView(this);
         lottieSuccess.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
@@ -190,7 +205,8 @@ public class LoginActivity extends AppCompatActivity {
             if ((user.containsKey("username") ||user.containsKey("email"))&& user.containsKey("password")) {
                 if ((user.get("username").equals(username) ||user.get("email").equals(email)) && user.get("password").equals(password)) {
                     roleId = user.get("RoleId"); // Get the user's role ID
-
+                    saveLoginSession(username, roleId); // Save session data
+                    showLoginSuccessfulAlert();
                     return true;
                 }
             }
