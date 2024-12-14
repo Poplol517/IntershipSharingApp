@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -101,6 +103,37 @@ public class HomeFragment extends Fragment {
                 "\nRole: " + item.get("role");
 
         textView.setText(displayText);
+        Button commentButton = new Button(requireContext());
+        commentButton.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        commentButton.setText("Comment");
+        commentButton.setPadding(20, 10, 20, 10);
+        commentButton.setAllCaps(false);
+        commentButton.setBackgroundResource(R.drawable.comment_button);
+
+
+        // Set Click Listener for the Button
+        commentButton.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Comment on " + item.get("title"), Toast.LENGTH_SHORT).show();
+            // Add logic to handle comments, like opening a dialog
+            openCommentDialog(item);
+        });
+
+        // Add the TextView and Button to the Layout
         lv.addView(textView);
+        lv.addView(commentButton);
+    }
+    private void openCommentDialog(HashMap<String, String> item) {
+        // Example Dialog for Comment
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Add Comment")
+                .setMessage("Add a comment for the internship: " + item.get("title"))
+                .setPositiveButton("Submit", (dialog, which) -> {
+                    // Handle comment submission here
+                    Toast.makeText(requireContext(), "Comment submitted for " + item.get("title"), Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }

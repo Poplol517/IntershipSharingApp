@@ -21,14 +21,23 @@
         android:layout_height="wrap_content"
         android:hint="Username/Email"
         android:inputType="textPersonName"
-        android:layout_marginBottom="16dp" />
+        android:background="@drawable/edittext_border"
+        android:layout_marginBottom="16dp"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:textSize="16sp"
+            />
 
     <EditText
         android:id="@+id/passwordInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/edittext_border"
         android:hint="Password"
         android:inputType="textPassword"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:textSize="16sp"
         />
 
 

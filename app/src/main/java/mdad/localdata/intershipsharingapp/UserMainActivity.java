@@ -32,7 +32,7 @@ public class UserMainActivity extends AppCompatActivity {
         fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.menu_home, new HomeFragment());
         //fragmentMap.put(R.id.menu_account, new AllQuestionFragment());
-        fragmentMap.put(R.id.menu_account, new CreatePostFragment());
+        fragmentMap.put(R.id.menu_create_post, new CreatePostFragment());
 
         // Load the default fragment
         if (savedInstanceState == null) {
