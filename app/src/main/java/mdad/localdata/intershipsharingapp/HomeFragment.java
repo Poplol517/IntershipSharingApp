@@ -91,8 +91,8 @@ public class HomeFragment extends Fragment {
         textView.setBackgroundColor(0xFFFFFFFF);
         textView.setTextColor(0xFF000000);
 
-        String displayText = "Internship ID: " + item.get("InternshipID") +
-                "\nTitle: " + item.get("title") +
+        String displayText =
+                "Title: " + item.get("title") +
                 "\nCompany: " + item.get("company") +
                 "\nStart Date: " + item.get("start_date") +
                 "\nEnd Date: " + item.get("end_date") +

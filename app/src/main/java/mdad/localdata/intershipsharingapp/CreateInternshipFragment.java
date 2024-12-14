@@ -3,6 +3,7 @@ package mdad.localdata.intershipsharingapp;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -59,7 +60,7 @@ public class CreateInternshipFragment extends Fragment {
     Button createButton;
     private ChipGroup chipGroupIndustries; // Reference to ChipGroup
     private EditText inputTitle,inputCompany,inputRole,inputDescription,startDateInput, endDateInput;
-    String title, company, role, description, startDate, endDate, selectedLocationId;
+    String title, company, role, description, startDate, endDate, selectedLocationId, userId;
     private Spinner locationSpinner;
     ArrayList<String> locationNames = new ArrayList<>();
     ArrayList<String> locationIds = new ArrayList<>();
@@ -98,6 +99,17 @@ public class CreateInternshipFragment extends Fragment {
 
         // Set up DatePickerDialog for End Date
         endDateInput.setOnClickListener(v -> showDatePickerDialog(endDateInput));
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("my_preferences", Context.MODE_PRIVATE);
+
+// Retrieve userId from SharedPreferences
+        String userId = sharedPreferences.getString("userId", null);
+
+// Print userId to log
+        if (userId != null) {
+            Log.d("SharedPreferences", "Retrieved userId: " + userId);
+        } else {
+            Log.d("SharedPreferences", "userId not found in SharedPreferences");
+        }
 
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +121,53 @@ public class CreateInternshipFragment extends Fragment {
                 startDate = startDateInput.getText().toString();
                 endDate = endDateInput.getText().toString();
 
+                if (title.isEmpty()) {
+                    Toast.makeText(requireContext(), "Name field is required", Toast.LENGTH_SHORT).show();
+                    inputTitle.requestFocus();
+                    return;
+                }
+
+                if (description.isEmpty()) {
+                    Toast.makeText(requireContext(), "Email field is required", Toast.LENGTH_SHORT).show();
+                    inputDescription.requestFocus();
+                    return;
+                }
+
+                if (company.isEmpty()) {
+                    Toast.makeText(requireContext(), "Username field is required", Toast.LENGTH_SHORT).show();
+                    inputCompany.requestFocus();
+                    return;
+                }
+
+                if (role.isEmpty()) {
+                    Toast.makeText(requireContext(), "Password field is required", Toast.LENGTH_SHORT).show();
+                    inputRole.requestFocus();
+                    return;
+                }
+
+                if (startDate.isEmpty()) {
+                    Toast.makeText(requireContext(), "Course field is required", Toast.LENGTH_SHORT).show();
+                    startDateInput.requestFocus();
+                    return;
+                }
+
+                if (endDate == null ) {
+                    Toast.makeText(requireContext(), "Role selection is required", Toast.LENGTH_SHORT).show();
+                    endDateInput.requestFocus();
+                    return;
+                }
+
+                SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("UserSession", Context.MODE_PRIVATE);
+
+                // Retrieve userId from SharedPreferences
+                String userId = sharedPreferences.getString("username", null);
+
+                // Print userId to log
+                if (userId != null) {
+                    Log.d("SharedPreferences", "Retrieved userId: " +  userId);
+                } else {
+                    Log.d("SharedPreferences", "userId not found in SharedPreferences");
+                }
 
                 // Collect selected industry IDs from the ChipGroup
                 ArrayList<String> selectedIndustries = new ArrayList<>();
@@ -127,13 +186,16 @@ public class CreateInternshipFragment extends Fragment {
                 params.put("company", company);
                 params.put("description", description);
                 params.put("role", role);
-                params.put("startDate", startDate);
-                params.put("endDate", endDate);
-                params.put("location", selectedLocationId);
+                params.put("start_date", startDate);
+                params.put("end_date", endDate);
+                params.put("locationId", selectedLocationId);
+                params.put("userId", userId);
 
                 // Convert the selected industries to a comma-separated string
                 String selectedIndustriesStr = TextUtils.join(",", selectedIndustries);
                 params.put("industries", selectedIndustriesStr);
+
+                Log.d("Params", params.toString()); // Log the params for debugging")
 
                 // Send data to the create internship endpoint
                 postData(url_create_internship, params);
@@ -143,7 +205,7 @@ public class CreateInternshipFragment extends Fragment {
             }
         });
         fetchLocations();
-        fetchIndustries(); // Fetch and display industriess
+        fetchIndustries(); // Fetch and display industries
         locationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -427,10 +489,11 @@ public class CreateInternshipFragment extends Fragment {
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                 (view, selectedYear, selectedMonth, selectedDay) -> {
                     // Format and set the selected date in the EditText
-                    String selectedDate = selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear;
+                    String selectedDate =  selectedYear+ "/" + (selectedMonth + 1) + "/" + selectedDay;
                     editText.setText(selectedDate);
                 }, year, month, day);
 
         datePickerDialog.show();
     }
+
 }

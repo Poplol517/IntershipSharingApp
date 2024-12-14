@@ -37,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     ArrayList<HashMap<String, String>> userList;
     // url to get all products list via the php file get_all_productsJson.php
     private static String url_all_products = StaffMainActivity.ipBaseAddress+"/get_all_user.php";
-    private String roleId; // To store the role of the logged-in user
+    private String roleId, username, userId; // To store the role of the logged-in user
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +98,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("roleId", roleId);     // Save role ID
         editor.putBoolean("isLoggedIn", true);  // Save login status
         editor.apply();
+        checkUserSession();
     }
 
 
@@ -201,19 +202,27 @@ public class LoginActivity extends AppCompatActivity {
 
     public boolean validateLogin(String username, String email, String password) {
         for (HashMap<String, String> user : userList) {
-            // Check if the username and password match
-            if ((user.containsKey("username") ||user.containsKey("email"))&& user.containsKey("password")) {
-                if ((user.get("username").equals(username) ||user.get("email").equals(email)) && user.get("password").equals(password)) {
+            // Check if the username/email and password match
+            if ((user.containsKey("username") || user.containsKey("email")) && user.containsKey("password")) {
+                if ((user.get("username").equals(username) || user.get("email").equals(email))
+                        && user.get("password").equals(password)) {
+
+                    // Retrieve the UserId and RoleId of the logged-in user
+                    userId = user.get("UserId");
+                    username = user.get("username");
                     roleId = user.get("RoleId"); // Get the user's role ID
-                    saveLoginSession(username, roleId); // Save session data
+
+                    // Save the session data, including the UserId
+                    saveLoginSession(userId, roleId);
+
                     showLoginSuccessfulAlert();
+                    checkUserSession();
                     return true;
                 }
             }
         }
         return false;
     }
-
 
 
     public void postData(String url, Map<String, String> params) {
@@ -295,4 +304,19 @@ public class LoginActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+    public void checkUserSession() {
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+
+        if (sharedPreferences.getBoolean("isLoggedIn", false)) {
+            String storedUserId = sharedPreferences.getString("username", null);
+            String storedRoleId = sharedPreferences.getString("roleId", null);
+
+            Log.d("SessionCheck", "UserId: " + storedUserId + ", RoleId: " + storedRoleId);
+            Toast.makeText(this, "User logged in as UserId: " + storedUserId + ", RoleId: " + storedRoleId, Toast.LENGTH_LONG).show();
+        } else {
+            Log.d("SessionCheck", "No active session found.");
+            Toast.makeText(this, "No active session.", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
+
