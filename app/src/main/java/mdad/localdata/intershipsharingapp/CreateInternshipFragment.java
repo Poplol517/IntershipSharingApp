@@ -198,10 +198,8 @@ public class CreateInternshipFragment extends Fragment {
                 Log.d("Params", params.toString()); // Log the params for debugging")
 
                 // Send data to the create internship endpoint
-                postData(url_create_internship, params);
+                postData(url_create_internship, params,true);
 
-                // Send data to the industry endpoint
-                postData(url_internshipindustry, params);
             }
         });
         fetchLocations();
@@ -269,22 +267,37 @@ public class CreateInternshipFragment extends Fragment {
         requestQueue.add(stringRequest);
     }
 
-    private void postData(String url, Map<String, String> params) {
+    private void postData(String url, Map<String, String> params, boolean isCreateInternship) {
         RequestQueue requestQueue = Volley.newRequestQueue(requireContext());
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 response -> {
-                    Log.d("ServerResponse", "Response: " + response);
-                    String cleanResponse = response.trim().replaceAll("<[^>]*>", "");
+                    Log.d("ServerResponse", "Raw Response: " + response);
 
-                    if ("Successful".equals(cleanResponse)) {
-                        Toast.makeText(requireContext(), "Data sent successfully", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to send data: " + cleanResponse, Toast.LENGTH_LONG).show();
+                    try {
+                        String cleanResponse = response.trim().replaceAll("<[^>]*>", "");
+
+                        if (isCreateInternship) {
+                            JSONObject jsonResponse = new JSONObject(cleanResponse);
+
+                            if (jsonResponse.has("internshipId")) {
+                                String internshipId = jsonResponse.getString("internshipId");
+                                Log.d("InternshipID", "Retrieved internshipId: " + internshipId);
+
+                                // Now call sendIndustryData with the retrieved internshipId
+                                sendIndustryData(internshipId);
+                            } else {
+                                Log.e("ResponseError", "No 'internship_id' field in the response");
+                                Toast.makeText(requireContext(), "Internship ID not found", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.e("JSONParsingError", "Error parsing response: " + e.getMessage());
                     }
                 },
                 error -> {
-                    Log.e("VolleyError", "Error: " + error.toString());
+                    Log.e("VolleyError", "Network Error: " + error.toString());
                     Toast.makeText(requireContext(), "Network Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
                 }) {
             @Nullable
@@ -296,8 +309,6 @@ public class CreateInternshipFragment extends Fragment {
 
         requestQueue.add(stringRequest);
     }
-
-
 
 
 
@@ -495,5 +506,51 @@ public class CreateInternshipFragment extends Fragment {
 
         datePickerDialog.show();
     }
+
+    private void sendIndustryData(String internshipId) {
+        ArrayList<String> selectedIndustries = new ArrayList<>();
+
+        // Collect selected industries from the chip group
+        for (int i = 0; i < chipGroupIndustries.getChildCount(); i++) {
+            Chip chip = (Chip) chipGroupIndustries.getChildAt(i);
+            if (chip.isChecked() && chip.getTag() != null) {
+                selectedIndustries.add((String) chip.getTag());
+            }
+        }
+
+        // Send a separate request for each industry
+        for (String industryId : selectedIndustries) {
+            Map<String, String> params = new HashMap<>();
+            params.put("internshipId", internshipId);
+            params.put("industryId", industryId);
+
+            Log.d("IndustryData", "Internship ID: " + internshipId + ", Industry ID: " + industryId);
+
+            // Send each industry association separately
+            postData(url_internshipindustry, params, false);
+        }
+    }
+
+    // Method to handle server response and call sendIndustryData()
+    private void handleServerResponse(String response) {
+        try {
+            JSONObject jsonResponse = new JSONObject(response);
+
+            if (jsonResponse.has("internshipId")) {
+                String internshipId = jsonResponse.getString("internshipId");
+                Log.d("Received Internship ID", "Internship ID: " + internshipId);
+
+                // Call sendIndustryData() with the retrieved internshipId
+                sendIndustryData(internshipId);
+            } else {
+                Log.e("Response Error", "No internship ID found in response.");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 
 }
