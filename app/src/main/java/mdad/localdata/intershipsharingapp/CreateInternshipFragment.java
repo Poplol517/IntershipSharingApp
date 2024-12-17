@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -54,6 +56,9 @@ public class CreateInternshipFragment extends Fragment {
     private static String url_internshipindustry = StaffMainActivity.ipBaseAddress + "/create_internship_industry.php";
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private ArrayList<String> selectedIndustryIds = new ArrayList<>();
+    private Map<String, String> industryMap = new HashMap<>();
+
 
     private String mParam1;
     private String mParam2;
@@ -318,43 +323,50 @@ public class CreateInternshipFragment extends Fragment {
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url_all_location,
                 response -> {
-                    if (response.equals("Error")) {
-                        Toast.makeText(requireContext(), "Error in retrieving database", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
+                    chipGroupIndustries.removeAllViews(); // Clear chips
                     String[] industries = response.split(":");
-                    int maxVisibleChips = 4; // Number of chips to display before "..."
+                    int maxVisibleChips = 4;
 
                     for (int i = 0; i < industries.length; i++) {
                         String location = industries[i];
                         if (!location.isEmpty()) {
                             String[] details = location.split(";");
-                            if (details.length >= 2) { // Ensure there are enough details
-                                String locationID = details[0];
-                                String locationName = details[1];
+                            if (details.length >= 2) {
+                                String industryID = details[0];
+                                String industryName = details[1];
 
-                                if (i < maxVisibleChips) {
-                                    // Create chips for the first 4 industries
-                                    Chip chip = new Chip(requireContext());
-                                    chip.setText(locationName);
-                                    chip.setTag(locationID);
-                                    chip.setCheckable(true);
-                                    chipGroupIndustries.addView(chip);
-                                } else if (i == maxVisibleChips) {
-                                    // Create the "..." chip
-                                    Chip moreChip = new Chip(requireContext());
-                                    moreChip.setText("...");
-                                    moreChip.setCheckable(false); // Not selectable
-                                    moreChip.setOnClickListener(v -> showAllIndustriesPopup(industries));
-                                    chipGroupIndustries.addView(moreChip);
-                                    break;
+                                Chip chip = new Chip(requireContext());
+                                chip.setText(industryName);
+                                chip.setTag(industryID);
+                                chip.setCheckable(true);
+
+                                // Check if the industryID is already selected
+                                if (selectedIndustryIds.contains(industryID)) {
+                                    chip.setChecked(true);
                                 }
+
+                                chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                                    if (isChecked) {
+                                        selectedIndustryIds.add(industryID);
+                                    } else {
+                                        selectedIndustryIds.remove(industryID);
+                                    }
+                                });
+
+                                chipGroupIndustries.addView(chip);
+                            }
+
+                            // Add a "..." Chip after 4 items
+                            if (i == maxVisibleChips) {
+                                Chip moreChip = new Chip(requireContext());
+                                moreChip.setText("...");
+                                moreChip.setOnClickListener(v -> showAllIndustriesPopup(industries));
+                                chipGroupIndustries.addView(moreChip);
+                                break;
                             }
                         }
                     }
                 },
-
                 error -> {
                     Log.e("VolleyError", error.toString());
                     Toast.makeText(requireContext(), "Error retrieving database", Toast.LENGTH_LONG).show();
@@ -362,36 +374,21 @@ public class CreateInternshipFragment extends Fragment {
         queue.add(stringRequest);
     }
 
+
     public void showAllIndustriesPopup(String[] industries) {
-        // Create a TextView for the title or instructions
+        populateIndustryMap(industries);
+
         TextView titleTextView = new TextView(requireContext());
         titleTextView.setText("Select Relevant Industry");
         titleTextView.setTextSize(18);
-        titleTextView.setTextColor(Color.BLACK);
-        titleTextView.setPadding(0, 20, 0, 10);
         titleTextView.setGravity(Gravity.CENTER);
 
-        // Create a search bar (EditText)
         EditText searchBar = new EditText(requireContext());
         searchBar.setHint("Search industries...");
-        searchBar.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        searchBar.setPadding(20, 10, 20, 10);
-        searchBar.setBackgroundResource(android.R.drawable.edit_text);
-        searchBar.setSingleLine(true);
-
-        // Create a ChipGroup dynamically
         ChipGroup chipGroup = new ChipGroup(requireContext());
-        chipGroup.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        chipGroup.setPadding(10, 10, 10, 10);
-        chipGroup.setSingleSelection(false); // Allow multiple selections if needed
 
-        // List to track selected chips
-        HashMap<String, Chip> selectedChips = new HashMap<>();
-
-        // Populate the ChipGroup with chips
         HashMap<String, Chip> chipMap = new HashMap<>();
+
         for (String industry : industries) {
             if (!industry.isEmpty()) {
                 String[] details = industry.split(";");
@@ -399,94 +396,70 @@ public class CreateInternshipFragment extends Fragment {
                     String industryID = details[0];
                     String industryName = details[1];
 
-                    // Create a Chip
                     Chip chip = new Chip(requireContext());
                     chip.setText(industryName);
                     chip.setTag(industryID);
-                    chip.setCheckable(true); // Allow selection
-                    chip.setPadding(20, 10, 20, 10);
+                    chip.setCheckable(true);
 
-                    // Store chip in the map for filtering
-                    chipMap.put(industryName.toLowerCase(), chip);
+                    chip.setChecked(selectedIndustryIds.contains(industryID));
 
-                    // Add a listener to track selections
                     chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
                         if (isChecked) {
-                            // Add to selected chips
-                            selectedChips.put(industryName.toLowerCase(), chip);
+                            selectedIndustryIds.add(industryID);
                         } else {
-                            // Remove from selected chips
-                            selectedChips.remove(industryName.toLowerCase());
+                            selectedIndustryIds.remove(industryID);
                         }
-                        refreshChips(searchBar.getText().toString(), chipGroup, chipMap, selectedChips);
+                        refreshMainChipGroup();  // Refresh main UI whenever chip changes
                     });
 
-                    // Add the chip to the ChipGroup initially
                     chipGroup.addView(chip);
+                    chipMap.put(industryName.toLowerCase(), chip);
                 }
             }
         }
 
-        // Add a TextWatcher to the search bar to filter chips dynamically
-        searchBar.addTextChangedListener(new android.text.TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                refreshChips(s.toString(), chipGroup, chipMap, selectedChips);
-            }
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {
-            }
-        });
-
-        // Create a vertical layout for the popup
         LinearLayout dialogLayout = new LinearLayout(requireContext());
         dialogLayout.setOrientation(LinearLayout.VERTICAL);
-        dialogLayout.setPadding(50, 20, 50, 20);
-        dialogLayout.setGravity(Gravity.CENTER);
         dialogLayout.addView(titleTextView);
-        dialogLayout.addView(searchBar); // Add the search bar below the title
+        dialogLayout.addView(searchBar);
         dialogLayout.addView(chipGroup);
 
-        // Show the dialog with the custom view
         new MaterialAlertDialogBuilder(requireContext())
                 .setView(dialogLayout)
                 .setPositiveButton("OK", (dialog, which) -> {
-                    // Handle user selections
-                    for (int i = 0; i < chipGroup.getChildCount(); i++) {
-                        Chip chip = (Chip) chipGroup.getChildAt(i);
-                        if (chip.isChecked()) {
-                            String selectedIndustry = chip.getText().toString();
-                            // Handle the selected industry (e.g., store or log it)
-                            Log.d("SelectedIndustry", "Selected: " + selectedIndustry);
-                        }
-                    }
+                    dialog.dismiss();
+                    refreshMainChipGroup();  // Ensure chips on main page are updated
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
-    // Refresh the ChipGroup to show selected chips first
-    private void refreshChips(String query, ChipGroup chipGroup, HashMap<String, Chip> chipMap, HashMap<String, Chip> selectedChips) {
-        chipGroup.removeAllViews(); // Clear existing chips
+    private void refreshMainChipGroup() {
+        chipGroupIndustries.removeAllViews();
 
-        // Add selected chips first
-        for (String key : selectedChips.keySet()) {
-            if (key.contains(query.toLowerCase())) {
-                chipGroup.addView(selectedChips.get(key));
-            }
+        for (String industryID : selectedIndustryIds) {
+            String industryName = industryMap.get(industryID);
+
+            Chip chip = new Chip(requireContext());
+            chip.setText(industryName != null ? industryName : "Unknown Industry");
+            chip.setTag(industryID);
+            chip.setCheckable(true);
+            chip.setChecked(true);
+
+            chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (!isChecked) {
+                    selectedIndustryIds.remove(industryID);
+                    refreshMainChipGroup();  // Sync UI if chip is unselected
+                }
+            });
+
+            chipGroupIndustries.addView(chip);
         }
 
-        // Add unselected chips
-        for (String key : chipMap.keySet()) {
-            if (!selectedChips.containsKey(key) && key.contains(query.toLowerCase())) {
-                chipGroup.addView(chipMap.get(key));
-            }
-        }
+        Chip moreChip = new Chip(requireContext());
+        moreChip.setText("...");
+        moreChip.setOnClickListener(v -> showAllIndustriesPopup(getIndustriesArray()));
+        chipGroupIndustries.addView(moreChip);
     }
 
     private void showDatePickerDialog(EditText editText) {
@@ -523,12 +496,12 @@ public class CreateInternshipFragment extends Fragment {
             Map<String, String> params = new HashMap<>();
             params.put("internshipId", internshipId);
             params.put("industryId", industryId);
-
-            Log.d("IndustryData", "Internship ID: " + internshipId + ", Industry ID: " + industryId);
+            Log.d("IndustryParams", params.toString());
 
             // Send each industry association separately
             postData(url_internshipindustry, params, false);
         }
+        refreshMainChipGroup();
     }
 
     // Method to handle server response and call sendIndustryData()
@@ -550,7 +523,24 @@ public class CreateInternshipFragment extends Fragment {
         }
     }
 
-
-
-
+    private void populateIndustryMap(String[] industries) {
+        for (String industry : industries) {
+            if (!industry.isEmpty()) {
+                String[] details = industry.split(";");
+                if (details.length >= 2) {
+                    String industryID = details[0];
+                    String industryName = details[1];
+                    industryMap.put(industryID, industryName);
+                }
+            }
+        }
+    }
+    private String[] getIndustriesArray() {
+        String[] industries = new String[industryMap.size()];
+        int i = 0;
+        for (Map.Entry<String, String> entry : industryMap.entrySet()) {
+            industries[i++] = entry.getKey() + ";" + entry.getValue();
+        }
+        return industries;
+    }
 }
