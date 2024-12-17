@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -385,38 +386,56 @@ public class CreateInternshipFragment extends Fragment {
 
         EditText searchBar = new EditText(requireContext());
         searchBar.setHint("Search industries...");
+        searchBar.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        searchBar.setPadding(20, 10, 20, 10);
+        searchBar.setBackgroundResource(android.R.drawable.edit_text);
+        searchBar.setSingleLine(true);
+
         ChipGroup chipGroup = new ChipGroup(requireContext());
 
-        HashMap<String, Chip> chipMap = new HashMap<>();
+        // Sort industries alphabetically by industry name
+        List<Map.Entry<String, String>> sortedIndustries = new ArrayList<>(industryMap.entrySet());
+        sortedIndustries.sort(Map.Entry.comparingByValue());
 
-        for (String industry : industries) {
-            if (!industry.isEmpty()) {
-                String[] details = industry.split(";");
-                if (details.length >= 2) {
-                    String industryID = details[0];
-                    String industryName = details[1];
+        for (Map.Entry<String, String> entry : sortedIndustries) {
+            String industryID = entry.getKey();
+            String industryName = entry.getValue();
 
-                    Chip chip = new Chip(requireContext());
-                    chip.setText(industryName);
-                    chip.setTag(industryID);
-                    chip.setCheckable(true);
+            Chip chip = new Chip(requireContext());
+            chip.setText(industryName);
+            chip.setTag(industryID);
+            chip.setCheckable(true);
 
-                    chip.setChecked(selectedIndustryIds.contains(industryID));
-
-                    chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        if (isChecked) {
-                            selectedIndustryIds.add(industryID);
-                        } else {
-                            selectedIndustryIds.remove(industryID);
-                        }
-                        refreshMainChipGroup();  // Refresh main UI whenever chip changes
-                    });
-
-                    chipGroup.addView(chip);
-                    chipMap.put(industryName.toLowerCase(), chip);
-                }
+            if (selectedIndustryIds.contains(industryID)) {
+                chip.setChecked(true);
             }
+
+            chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    selectedIndustryIds.add(industryID);
+                } else {
+                    selectedIndustryIds.remove(industryID);
+                }
+                refreshMainChipGroup();
+            });
+
+            chipGroup.addView(chip);
         }
+
+        // Search functionality to dynamically filter chips
+        searchBar.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterChips(s.toString(), chipGroup, sortedIndustries);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {}
+        });
 
         LinearLayout dialogLayout = new LinearLayout(requireContext());
         dialogLayout.setOrientation(LinearLayout.VERTICAL);
@@ -428,11 +447,12 @@ public class CreateInternshipFragment extends Fragment {
                 .setView(dialogLayout)
                 .setPositiveButton("OK", (dialog, which) -> {
                     dialog.dismiss();
-                    refreshMainChipGroup();  // Ensure chips on main page are updated
+                    refreshMainChipGroup();
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
 
     private void refreshMainChipGroup() {
         chipGroupIndustries.removeAllViews();
@@ -542,5 +562,36 @@ public class CreateInternshipFragment extends Fragment {
             industries[i++] = entry.getKey() + ";" + entry.getValue();
         }
         return industries;
+    }
+
+    private void filterChips(String query, ChipGroup chipGroup, List<Map.Entry<String, String>> industries) {
+        chipGroup.removeAllViews();
+
+        for (Map.Entry<String, String> entry : industries) {
+            String industryID = entry.getKey();
+            String industryName = entry.getValue();
+
+            if (industryName.toLowerCase().contains(query.toLowerCase())) {
+                Chip chip = new Chip(requireContext());
+                chip.setText(industryName);
+                chip.setTag(industryID);
+                chip.setCheckable(true);
+
+                if (selectedIndustryIds.contains(industryID)) {
+                    chip.setChecked(true);
+                }
+
+                chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (isChecked) {
+                        selectedIndustryIds.add(industryID);
+                    } else {
+                        selectedIndustryIds.remove(industryID);
+                    }
+                    refreshMainChipGroup();
+                });
+
+                chipGroup.addView(chip);
+            }
+        }
     }
 }
