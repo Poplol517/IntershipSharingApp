@@ -82,48 +82,38 @@ public class HomeFragment extends Fragment {
     }
 
     private void addInternshipToLayout(final HashMap<String, String> item) {
-        TextView textView = new TextView(requireContext());
-        textView.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        textView.setPadding(20, 20, 20, 20);
-        textView.setTextSize(16);
-        textView.setBackgroundColor(0xFFFFFFFF);
-        textView.setTextColor(0xFF000000);
+        // Inflate the custom layout
+        View postView = LayoutInflater.from(requireContext()).inflate(R.layout.internship_post_item, lv, false);
 
-        String displayText =
-                "Title: " + item.get("title") +
-                "\nCompany: " + item.get("company") +
-                "\nStart Date: " + item.get("start_date") +
-                "\nEnd Date: " + item.get("end_date") +
-                "\nDate Shared: " + item.get("date_shared") +
-                "\nUser: " + item.get("user_name") +
-                "\nUsername: " + item.get("username") +
-                "\nLocation Name: " + item.get("location_name")+
-                "\nRole: " + item.get("role");
+        // Set data for user info
+        TextView userName = postView.findViewById(R.id.post_user_name);
+        TextView userRole = postView.findViewById(R.id.post_user_role);
+        TextView postContent = postView.findViewById(R.id.post_content);
+        TextView postHashtags = postView.findViewById(R.id.post_hashtags);
+        Button commentButton = postView.findViewById(R.id.comment_button);
 
-        textView.setText(displayText);
-        Button commentButton = new Button(requireContext());
-        commentButton.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        commentButton.setText("Comment");
-        commentButton.setPadding(20, 10, 20, 10);
-        commentButton.setAllCaps(false);
-        commentButton.setBackgroundResource(R.drawable.comment_button);
+        // Populate the fields with dynamic data
+        userName.setText(item.get("user_name"));
+        userRole.setText(item.get("company") + " | " + item.get("role"));
+        postContent.setText(item.get("description"));
 
+        // Check if description contains a hashtag
+        String description = item.get("description");
+        if (description != null && description.contains("#")) {
+            postHashtags.setVisibility(View.VISIBLE);  // Ensure it's visible
+        } else {
+            postHashtags.setVisibility(View.GONE);  // Hide it if no hashtags are present
+        }
 
-        // Set Click Listener for the Button
-        commentButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Comment on " + item.get("title"), Toast.LENGTH_SHORT).show();
-            // Add logic to handle comments, like opening a dialog
-            openCommentDialog(item);
-        });
+        // Comment button click listener
+        commentButton.setOnClickListener(v -> openCommentDialog(item));
 
-        // Add the TextView and Button to the Layout
-        lv.addView(textView);
-        lv.addView(commentButton);
+        // Add the postView to the parent layout
+        lv.addView(postView);
     }
+
+
+
     private void openCommentDialog(HashMap<String, String> item) {
         // Example Dialog for Comment
         new MaterialAlertDialogBuilder(requireContext())

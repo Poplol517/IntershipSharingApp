@@ -3,7 +3,11 @@ package mdad.localdata.intershipsharingapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +22,7 @@ import java.util.Map;
 
 public class UserMainActivity extends AppCompatActivity {
     private LinearLayout lv;  // Reference to LinearLayout to dynamically add TextViews
+    private SearchView searchView;
     private static String url_all_internship = StaffMainActivity.ipBaseAddress + "/get_all_internship.php";
     private Map<Integer, Fragment> fragmentMap;
 
@@ -27,12 +32,16 @@ public class UserMainActivity extends AppCompatActivity {
         checkLoginSession();
         setContentView(R.layout.activity_user_main);
 
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         // Initialize the fragment map
         fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.menu_home, new HomeFragment());
         //fragmentMap.put(R.id.menu_account, new AllQuestionFragment());
         fragmentMap.put(R.id.menu_create_post, new CreatePostFragment());
+        searchView = findViewById(R.id.search_view);
 
         // Load the default fragment
         if (savedInstanceState == null) {
@@ -52,8 +61,22 @@ public class UserMainActivity extends AppCompatActivity {
             }
             return false;
         });
-    }
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Handle search query submission
+                Toast.makeText(UserMainActivity.this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
+                // You can add logic to filter content in fragments or make API calls here
+                return true;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Handle live search suggestions or filtering (optional)
+                return false;
+            }
+        });
+    }
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();

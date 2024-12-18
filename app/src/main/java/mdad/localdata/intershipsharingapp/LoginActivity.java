@@ -312,10 +312,10 @@ public class LoginActivity extends AppCompatActivity {
             String storedRoleId = sharedPreferences.getString("roleId", null);
 
             Log.d("SessionCheck", "UserId: " + storedUserId + ", RoleId: " + storedRoleId);
-            Toast.makeText(this, "User logged in as UserId: " + storedUserId + ", RoleId: " + storedRoleId, Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "User logged in as UserId: " + storedUserId + ", RoleId: " + storedRoleId, Toast.LENGTH_LONG).show();
         } else {
             Log.d("SessionCheck", "No active session found.");
-            Toast.makeText(this, "No active session.", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "No active session.", Toast.LENGTH_SHORT).show();
         }
     }
 }
