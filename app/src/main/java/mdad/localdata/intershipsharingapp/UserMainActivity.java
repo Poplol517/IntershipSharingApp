@@ -3,9 +3,6 @@ package mdad.localdata.intershipsharingapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -39,8 +36,7 @@ public class UserMainActivity extends AppCompatActivity {
         // Initialize the fragment map
         fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.menu_home, new HomeFragment());
-        //fragmentMap.put(R.id.menu_account, new AllQuestionFragment());
-        fragmentMap.put(R.id.menu_create_post, new CreatePostFragment());
+        // Add other fragments here if necessary
         searchView = findViewById(R.id.search_view);
 
         // Load the default fragment
@@ -53,6 +49,11 @@ public class UserMainActivity extends AppCompatActivity {
             if (item.getItemId() == R.id.menu_logout) {
                 logoutUser();  // Handle logout directly
                 return true;
+            } else if (item.getItemId() == R.id.menu_create_post) {
+                // Launch CreatePostActivity as an Intent
+                Intent intent = new Intent(UserMainActivity.this, CreatePostActivity.class);
+                startActivity(intent);
+                return true;
             }
             Fragment selectedFragment = fragmentMap.get(item.getItemId());
             if (selectedFragment != null) {
@@ -61,6 +62,7 @@ public class UserMainActivity extends AppCompatActivity {
             }
             return false;
         });
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -77,6 +79,7 @@ public class UserMainActivity extends AppCompatActivity {
             }
         });
     }
+
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -134,4 +137,3 @@ public class UserMainActivity extends AppCompatActivity {
         navigateToLogin();
     }
 }
-

@@ -63,6 +63,8 @@ public class CreateInternshipFragment extends Fragment {
 
     private String mParam1;
     private String mParam2;
+    private static final int DESCRIPTION_MAX_LENGTH = 1000;
+    private TextView charCountText;
     Button createButton;
     private ChipGroup chipGroupIndustries; // Reference to ChipGroup
     private EditText inputTitle,inputCompany,inputRole,inputDescription,startDateInput, endDateInput;
@@ -94,6 +96,7 @@ public class CreateInternshipFragment extends Fragment {
         inputCompany = view.findViewById(R.id.inputCompany);
         inputRole = view.findViewById(R.id.inputRole);
         inputDescription = view.findViewById(R.id.inputDescription);
+        charCountText = view.findViewById(R.id.charCountText);
         startDateInput = view.findViewById(R.id.startDateInput);
         endDateInput = view.findViewById(R.id.endDateInput);
         createButton = view.findViewById(R.id.createButton);
@@ -102,6 +105,8 @@ public class CreateInternshipFragment extends Fragment {
 
         // Set up DatePickerDialog for Start Date
         startDateInput.setOnClickListener(v -> showDatePickerDialog(startDateInput));
+
+        charCountText.setText("0/" + DESCRIPTION_MAX_LENGTH);
 
         // Set up DatePickerDialog for End Date
         endDateInput.setOnClickListener(v -> showDatePickerDialog(endDateInput));
@@ -116,6 +121,40 @@ public class CreateInternshipFragment extends Fragment {
         } else {
             Log.d("SharedPreferences", "userId not found in SharedPreferences");
         }
+        inputDescription.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                // Update the character count display
+                int charCount = charSequence.length();
+                charCountText.setText(charCount + "/" + DESCRIPTION_MAX_LENGTH);
+
+                // Check if the character limit is reached
+                if (charCount > DESCRIPTION_MAX_LENGTH) {
+                    // Trim the input to the max length if it exceeds the limit
+                    inputDescription.setText(charSequence.subSequence(0, DESCRIPTION_MAX_LENGTH));
+                    inputDescription.setSelection(DESCRIPTION_MAX_LENGTH); // Move cursor to the end
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+
+        // Handle create button click
+        createButton.setOnClickListener(v -> {
+            String description = inputDescription.getText().toString();
+
+            if (description.isEmpty()) {
+                Toast.makeText(requireContext(), "Description is required", Toast.LENGTH_SHORT).show();
+                inputDescription.requestFocus();
+                return;
+            }
+
+            // Continue with your existing logic...
+        });
 
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -12,10 +12,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class StaffMainActivity extends AppCompatActivity {
     //change this ip address to your machine ip address, or you can use your atspace web address.
-    public static String ipBaseAddress = "http://192.168.0.19/project";
+    public static String ipBaseAddress = "http://172.30.60.206/project";
     Button btnViewItem;
     Button btnNewProduct;
-    Button btnLogin;
     Button btnLogout;
 
     @SuppressLint("MissingInflatedId")
@@ -26,7 +25,6 @@ public class StaffMainActivity extends AppCompatActivity {
 // Buttons
         btnViewItem= (Button) findViewById(R.id.btnViewItem);
         btnNewProduct = (Button) findViewById(R.id.btnCreateProduct);
-        btnLogin = (Button) findViewById(R.id.btnLogin);
         btnLogout = (Button) findViewById(R.id.btnLogout);
         btnViewItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,15 +43,7 @@ public class StaffMainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-        // view products click event
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Create New Product Activity
-                Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(i);
-            }
-        });
+
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -22,6 +22,9 @@
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
+            android:name=".CreatePostActivity"
+            android:exported="false" />
+        <activity
             android:name=".NewUserActivity"
             android:exported="false" />
         <activity

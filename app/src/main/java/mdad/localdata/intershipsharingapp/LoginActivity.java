@@ -36,6 +36,8 @@ public class LoginActivity extends AppCompatActivity {
     //ArrayList to store product list from database
     ArrayList<HashMap<String, String>> userList;
     // url to get all products list via the php file get_all_productsJson.php
+
+    // remeber to change the IP address on different laptop after pulling
     private static String url_all_products = StaffMainActivity.ipBaseAddress+"/get_all_user.php";
     private String roleId, username, userId; // To store the role of the logged-in user
 

@@ -1,21 +1,19 @@
 package mdad.localdata.intershipsharingapp;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-public class CreatePostFragment extends Fragment {
+public class CreatePostActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
@@ -24,29 +22,29 @@ public class CreatePostFragment extends Fragment {
     private String[] titles = new String[]{"Internship", "Question"};
     private static final int NUM_PAGES = 2;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_create_post, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_create_post);
 
         // Get references to views
-        viewPager = rootView.findViewById(R.id.mypager);
-        tabLayout = rootView.findViewById(R.id.tab_layout);
+        viewPager = findViewById(R.id.mypager);
+        tabLayout = findViewById(R.id.tab_layout);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // Set up the ViewPager2 Adapter
-        pagerAdapter = new MyPagerAdapter(getActivity());
+        pagerAdapter = new MyPagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Use TabLayoutMediator to link TabLayout with ViewPager2
         TabLayoutMediator tlm = new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> tab.setText(titles[position]));
         tlm.attach();
-
-        return rootView;
     }
 
     private class MyPagerAdapter extends FragmentStateAdapter {
-        public MyPagerAdapter(FragmentActivity fa) {
+        public MyPagerAdapter(@NonNull AppCompatActivity fa) {
             super(fa);
         }
 
@@ -67,5 +65,20 @@ public class CreatePostFragment extends Fragment {
         public int getItemCount() {
             return NUM_PAGES;
         }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle the back button press
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed(); // This will call the back stack and finish the activity
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed(); // Ensure the default back press behavior occurs
+        // This will navigate back to the previous activity in the stack
     }
 }
