@@ -53,13 +53,21 @@
             android:layout_marginBottom="15dip"
             android:layout_gravity="center"
             android:gravity="top|start"
-            android:hint="Enter a detailed description (max 500 characters)"
+            android:hint="Enter a detailed description (max 1000 characters)"
             android:inputType="textMultiLine"
             android:minLines="5"
             android:scrollbars="vertical"
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:background="@drawable/edittext_border"/>
+        <TextView
+            android:id="@+id/charCountText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0/1000"
+            android:textColor="@android:color/darker_gray"
+            android:paddingLeft="23dp"
+            />
         <!-- Description Label -->
         <TextView
             android:layout_width="fill_parent"
