@@ -3,11 +3,14 @@ package mdad.localdata.intershipsharingapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -18,9 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserMainActivity extends AppCompatActivity {
-    private LinearLayout lv;  // Reference to LinearLayout to dynamically add TextViews
     private SearchView searchView;
-    private static String url_all_internship = StaffMainActivity.ipBaseAddress + "/get_all_internship.php";
+    private Toolbar toolbar;
+    private ImageView accountIcon;
+    private static final String url_all_internship = StaffMainActivity.ipBaseAddress + "/get_all_internship.php";
     private Map<Integer, Fragment> fragmentMap;
 
     @Override
@@ -29,14 +33,18 @@ public class UserMainActivity extends AppCompatActivity {
         checkLoginSession();
         setContentView(R.layout.activity_user_main);
 
-        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        // Initialize toolbar and account icon
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        accountIcon = findViewById(R.id.account_icon);
+        accountIcon.setOnClickListener(v -> showAccountDropdown(accountIcon));
+
+        // Initialize bottom navigation and fragments
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
-        // Initialize the fragment map
         fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.menu_home, new HomeFragment());
-        // Add other fragments here if necessary
+        // Add other fragments if necessary
         searchView = findViewById(R.id.search_view);
 
         // Load the default fragment
@@ -47,7 +55,7 @@ public class UserMainActivity extends AppCompatActivity {
         // Handle bottom navigation item selection
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.menu_logout) {
-                logoutUser();  // Handle logout directly
+                logoutUser();
                 return true;
             } else if (item.getItemId() == R.id.menu_create_post) {
                 // Launch CreatePostActivity as an Intent
@@ -63,12 +71,13 @@ public class UserMainActivity extends AppCompatActivity {
             return false;
         });
 
+        // SearchView query listener
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 // Handle search query submission
                 Toast.makeText(UserMainActivity.this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
-                // You can add logic to filter content in fragments or make API calls here
+                // Add logic to filter content or make API calls here
                 return true;
             }
 
@@ -80,6 +89,36 @@ public class UserMainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays a dropdown menu for account actions when the account icon is clicked.
+     */
+    private void showAccountDropdown(ImageView accountIcon) {
+        // Create and show a PopupMenu
+        PopupMenu popupMenu = new PopupMenu(this, accountIcon);
+        popupMenu.getMenuInflater().inflate(R.menu.account_menu, popupMenu.getMenu());
+
+        // Handle menu item clicks
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.account_settings) {
+                replaceFragment(new ViewAccountFragment());
+                // Add logic for account settings
+                return true;
+            } else if (itemId == R.id.account_logout) {
+                logoutUser(); // Logout when clicked
+                return true;
+            } else {
+                return false;
+            }
+        });
+
+        popupMenu.show(); // Display the dropdown menu
+    }
+
+    /**
+     * Replaces the current fragment with the specified fragment.
+     */
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -87,6 +126,9 @@ public class UserMainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
+    /**
+     * Checks if the user is logged in and redirects if necessary.
+     */
     private void checkLoginSession() {
         SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
         boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
@@ -104,7 +146,7 @@ public class UserMainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             } else {
-                // Handle undefined roles (optional)
+                // Handle undefined roles
                 Toast.makeText(this, "Undefined role, unable to navigate.", Toast.LENGTH_SHORT).show();
                 navigateToLogin();
             }
@@ -124,16 +166,18 @@ public class UserMainActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Logs out the user and redirects to the LoginActivity.
+     */
     private void logoutUser() {
         // Clear the login session
         SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();  // Clears all saved session data
+        editor.clear();
         editor.apply();
 
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-
-        // Redirect to LoginActivity
         navigateToLogin();
     }
 }
+

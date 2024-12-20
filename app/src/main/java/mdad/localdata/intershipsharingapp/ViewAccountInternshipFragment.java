@@ -1,6 +1,12 @@
 package mdad.localdata.intershipsharingapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,14 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -25,22 +25,70 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class HomeFragment extends Fragment {
-
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link ViewAccountInternshipFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class ViewAccountInternshipFragment extends Fragment {
     private LinearLayout lv;
+
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+
+    public ViewAccountInternshipFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment ViewAccountFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static ViewAccountInternshipFragment newInstance(String param1, String param2) {
+        ViewAccountInternshipFragment fragment = new ViewAccountInternshipFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        View view = inflater.inflate(R.layout.fragment_view_account_internship, container, false);
         lv = view.findViewById(R.id.list);
         fetchInternships();
         return view;
     }
 
+
     private void fetchInternships() {
         String url_all_internship = StaffMainActivity.ipBaseAddress + "/get_all_internship.php";
         RequestQueue queue = Volley.newRequestQueue(requireContext());
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", getContext().MODE_PRIVATE);
+        String currentUserId = sharedPreferences.getString("username", "");
+        Log.d("CurrentUserId", "Current User ID: " + currentUserId);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url_all_internship,
                 response -> {
@@ -54,20 +102,25 @@ public class HomeFragment extends Fragment {
                         if (!internship.isEmpty()) {
                             String[] details = internship.split(";");
                             if (details.length >= 10) {
-                                HashMap<String, String> map = new HashMap<>();
-                                map.put("InternshipID", details[0]);
-                                map.put("title", details[1]);
-                                map.put("description", details[2]);
-                                map.put("company", details[3]);
-                                map.put("start_date", details[4]);
-                                map.put("end_date", details[5]);
-                                map.put("date_shared", details[6]);
-                                map.put("user_name", details.length > 8 ? details[8] : "");
-                                map.put("username", details.length > 9 ? details[9] : "");
-                                map.put("location_name", details.length > 10 ? details[10] : "");
-                                map.put("role", details[11]);
-                                Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
-                                addInternshipToLayout(map);
+                                String postUserId = details[7];
+
+                                if (currentUserId.equals(postUserId)) {
+                                    HashMap<String, String> map = new HashMap<>();
+                                    map.put("InternshipID", details[0]);
+                                    map.put("title", details[1]);
+                                    map.put("description", details[2]);
+                                    map.put("company", details[3]);
+                                    map.put("start_date", details[4]);
+                                    map.put("end_date", details[5]);
+                                    map.put("date_shared", details[6]);
+                                    map.put("UserID", details.length > 7 ? details[7] : "");
+                                    map.put("user_name", details.length > 8 ? details[8] : "");
+                                    map.put("username", details.length > 9 ? details[9] : "");
+                                    map.put("location_name", details.length > 10 ? details[10] : "");
+                                    map.put("role", details[11]);
+                                    Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
+                                    addInternshipToLayout(map);
+                                }
                             }
                         }
                     }

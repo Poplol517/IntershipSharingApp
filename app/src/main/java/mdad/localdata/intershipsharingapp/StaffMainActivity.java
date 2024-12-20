@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class StaffMainActivity extends AppCompatActivity {
     //change this ip address to your machine ip address, or you can use your atspace web address.
-    public static String ipBaseAddress = "http://172.30.60.206/project";
+    public static String ipBaseAddress = "http://192.168.0.19/project";
     Button btnViewItem;
     Button btnNewProduct;
     Button btnLogout;
