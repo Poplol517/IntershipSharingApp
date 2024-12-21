@@ -77,9 +77,6 @@
         android:layout_height="wrap_content"
         android:padding="0dp"
         android:layout_margin="0dp"
-        app:tabIndicatorColor="@android:color/holo_blue_dark"
-        app:tabSelectedTextColor="@android:color/holo_blue_dark"
-        app:tabTextColor="@android:color/darker_gray"
         android:elevation="4dp"
         app:tabMode="fixed"/>
 

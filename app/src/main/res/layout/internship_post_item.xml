@@ -1,4 +1,6 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/user_info_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -24,6 +26,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingRight="8dp"
             android:orientation="vertical">
 
             <TextView
@@ -41,6 +44,17 @@
                 android:text="Google LLC | Year 3 Student in Computer Engineering"
                 android:textSize="12sp" />
         </LinearLayout>
+        <ImageView
+            android:id="@+id/options_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:src="@drawable/option"
+            android:contentDescription="Options Menu"
+            android:padding="8dp"
+            android:layout_gravity="end|center_vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone" />
     </LinearLayout>
 
     <!-- Post Content -->

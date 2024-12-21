@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Toolbar with back button -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:title="Create Post"
+        android:titleTextColor="#ffffff"
+        android:elevation="4dp"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/loginTitle"
+                android:layout_width="236dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="105dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="10dp"
+                android:text="Edit Your Experience"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <!-- Input Name -->
+            <EditText android:id="@+id/inputTitle"
+                android:hint="Enter Post Title"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dip"
+                android:layout_marginBottom="15dip"
+                android:singleLine="true"
+                android:background="@drawable/edittext_border"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:padding="12dp"/>
+            <!-- Input email -->
+            <EditText android:id="@+id/inputCompany"
+                android:hint="Enter Company Name"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dip"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/edittext_border"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                />
+            <EditText android:id="@+id/inputRole"
+                android:hint="Enter Job Role"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dip"
+                android:layout_marginBottom="15dip"
+                android:singleLine="true"
+                android:background="@drawable/edittext_border"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:padding="12dp"/>
+            <!-- Location Label -->
+            <TextView android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:paddingLeft="10dip"
+                android:paddingRight="10dip"
+                android:paddingTop="10dip"
+                android:textSize="17dip"/>
+            <!-- Input usernmae -->
+            <Spinner
+                android:id="@+id/location"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown"
+                android:layout_marginBottom="15dip"/>
+            <EditText
+                android:id="@+id/startDateInput"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:hint="Select Start Date"
+                android:focusable="false"
+                android:background="@drawable/edittext_border"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                android:layout_marginBottom="15dip"
+                />
+            <EditText
+                android:id="@+id/endDateInput"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:hint="Select End Date"
+                android:focusable="false"
+                android:background="@drawable/edittext_border"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                />
+            <!-- Description Label -->
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Description"
+                android:paddingLeft="10dip"
+                android:paddingRight="10dip"
+                android:paddingTop="10dip"
+                android:textSize="17dip"/>
+            <!-- Description Input -->
+            <EditText
+                android:id="@+id/inputDescription"
+                android:layout_width="370dp"
+                android:layout_height="150dp"
+                android:layout_margin="5dip"
+                android:layout_marginBottom="15dip"
+                android:layout_gravity="center"
+                android:gravity="top|start"
+                android:hint="Enter a detailed description (max 1000 characters)"
+                android:inputType="textMultiLine"
+                android:minLines="5"
+                android:scrollbars="vertical"
+                android:paddingLeft="5dp"
+                android:paddingTop="5dp"
+                android:background="@drawable/edittext_border"/>
+            <TextView
+                android:id="@+id/charCountText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0/1000"
+                android:textColor="@android:color/darker_gray"
+                android:paddingLeft="23dp"
+                />
+            <!-- Description Label -->
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Select Relevent Fields"
+                android:paddingLeft="10dip"
+                android:paddingRight="10dip"
+                android:paddingTop="10dip"
+                android:textSize="17dip"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupIndustries"
+                android:layout_width="370dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:padding="10dp"
+                app:selectionRequired="false"
+                app:singleSelection="false">
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <Button
+                android:id="@+id/updateButton"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Update Post" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

@@ -1,10 +1,12 @@
 package mdad.localdata.intershipsharingapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -144,6 +147,8 @@ public class ViewAccountInternshipFragment extends Fragment {
         TextView postContent = postView.findViewById(R.id.post_content);
         TextView postHashtags = postView.findViewById(R.id.post_hashtags);
         Button commentButton = postView.findViewById(R.id.comment_button);
+        ImageView optionsMenu = postView.findViewById(R.id.options_menu);
+        optionsMenu.setVisibility(View.VISIBLE);
 
         // Populate the fields with dynamic data
         userName.setText(item.get("user_name"));
@@ -158,6 +163,24 @@ public class ViewAccountInternshipFragment extends Fragment {
             postHashtags.setVisibility(View.GONE);  // Hide it if no hashtags are present
         }
 
+        // Set up the options menu for each post
+        optionsMenu.setOnClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(requireContext(), optionsMenu);
+            popupMenu.inflate(R.menu.post_option_menu); // Inflate menu resource file
+
+            // Set click listeners for menu items
+            popupMenu.setOnMenuItemClickListener(menuItem -> {
+                if (menuItem.getItemId() == R.id.edit_post) {
+                    editPost(item);
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            popupMenu.show();
+        });
+
         // Comment button click listener
         commentButton.setOnClickListener(v -> openCommentDialog(item));
 
@@ -165,6 +188,32 @@ public class ViewAccountInternshipFragment extends Fragment {
         lv.addView(postView);
     }
 
+    private void editPost(HashMap<String, String> item) {
+        Intent intent = new Intent(requireContext(), EditInternshipActivity.class);
+
+        // Pass internship details to the EditInternshipActivity
+        intent.putExtra("InternshipID", item.get("InternshipID"));
+        intent.putExtra("title", item.get("title"));
+        intent.putExtra("description", item.get("description"));
+        intent.putExtra("company", item.get("company"));
+        intent.putExtra("start_date", item.get("start_date"));
+        intent.putExtra("end_date", item.get("end_date"));
+        intent.putExtra("date_shared", item.get("date_shared"));
+        intent.putExtra("location_name", item.get("location_name"));
+        intent.putExtra("role", item.get("role"));
+        Log.d("EditPost", "InternshipID: " + item.get("InternshipID"));
+        Log.d("EditPost", "Title: " + item.get("title"));
+        Log.d("EditPost", "Description: " + item.get("description"));
+        Log.d("EditPost", "Company: " + item.get("company"));
+        Log.d("EditPost", "Start Date: " + item.get("start_date"));
+        Log.d("EditPost", "End Date: " + item.get("end_date"));
+        Log.d("EditPost", "Date Shared: " + item.get("date_shared"));
+        Log.d("EditPost", "Location Name: " + item.get("location_name"));
+        Log.d("EditPost", "Role: " + item.get("role"));
+
+        // Start the EditInternshipActivity
+        startActivity(intent);
+    }
 
 
     private void openCommentDialog(HashMap<String, String> item) {
