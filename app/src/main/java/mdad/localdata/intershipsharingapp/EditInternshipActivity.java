@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class EditInternshipActivity extends AppCompatActivity {
@@ -48,6 +49,8 @@ public class EditInternshipActivity extends AppCompatActivity {
     private static final String url_all_industry = StaffMainActivity.ipBaseAddress + "/get_all_industry.php";
     private Map<String, String> industryMap = new HashMap<>();
     private List<String> selectedIndustryIds = new ArrayList<>();
+    private ArrayList<String> locationNames = new ArrayList<>();
+    private ArrayList<String> locationIds = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +90,9 @@ public class EditInternshipActivity extends AppCompatActivity {
         endDateField.setText(endDate);
         roleField.setText(role);
 
+        startDateField.setOnClickListener(v -> showDatePickerDialog(startDateField));
+        endDateField.setOnClickListener(v -> showDatePickerDialog(endDateField));
+
         // Fetch industries associated with this internship
         fetchIndustries();
 
@@ -97,20 +103,39 @@ public class EditInternshipActivity extends AppCompatActivity {
             String updatedCompany = companyField.getText().toString();
             String updatedStartDate = startDateField.getText().toString();
             String updatedEndDate = endDateField.getText().toString();
-            String updatedLocation = locationSpinner.getSelectedItem().toString();
+            String updatedLocationName = locationSpinner.getSelectedItem().toString();
             String updatedRole = roleField.getText().toString();
 
-            updateInternship(internshipId, updatedTitle, updatedDescription, updatedCompany, updatedStartDate, updatedEndDate, updatedLocation, updatedRole);
+            // Get the index of the selected location name and use it to get the LocationID
+            int selectedLocationIndex = locationSpinner.getSelectedItemPosition();
+            String updatedLocationId = "";
+            if (selectedLocationIndex > 0 && selectedLocationIndex < locationIds.size()) {
+                updatedLocationId = locationIds.get(selectedLocationIndex); // Get LocationID based on selected position
+            }
+
+            Map<String, String> params_update = new HashMap<>();
+            params_update.put("internshipId", internshipId);
+            Log.d("internshipId", internshipId);
+            params_update.put("title", updatedTitle);
+            params_update.put("description", updatedDescription);
+            params_update.put("company", updatedCompany);
+            params_update.put("start_date", updatedStartDate);
+            params_update.put("end_date", updatedEndDate);
+            params_update.put("locationId", updatedLocationId);  // Use locationId here
+            params_update.put("role", updatedRole);
+            Log.d("params", params_update.toString());
+            updateInternship(url_edit_internship, params_update);
         });
     }
 
-    private void updateInternship(String internshipId, String title, String description, String company, String startDate, String endDate, String location, String role) {
+    private void updateInternship(String url, Map<String, String> params) {
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url_edit_internship,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        Log.d("ServerResponse", "Raw Response: " + response);
                         Toast.makeText(EditInternshipActivity.this, "Internship updated successfully!", Toast.LENGTH_SHORT).show();
                         finish(); // Close the activity after the update
                     }
@@ -121,19 +146,9 @@ public class EditInternshipActivity extends AppCompatActivity {
                         Toast.makeText(EditInternshipActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }) {
-
             @Override
             protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("internshipId", internshipId);
-                params.put("title", title);
-                params.put("description", description);
-                params.put("company", company);
-                params.put("start_date", startDate);
-                params.put("end_date", endDate);
-                params.put("locationId", location); // Assuming locationId is a string
-                params.put("role", role);
-                return params;
+                return params; // Send the parameters to the server
             }
         };
 
@@ -148,11 +163,11 @@ public class EditInternshipActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         try {
                             JSONArray locationsArray = new JSONArray(response);
-                            ArrayList<String> locationNames = new ArrayList<>();
-                            ArrayList<String> locationIds = new ArrayList<>();
+                            locationNames.clear();  // Clear the existing list before adding new data
+                            locationIds.clear();    // Clear the existing IDs
 
                             locationNames.add("Select a Location");
-                            locationIds.add("");
+                            locationIds.add("");  // Empty string to match the "Select a Location" option
 
                             for (int i = 0; i < locationsArray.length(); i++) {
                                 JSONObject locationObject = locationsArray.getJSONObject(i);
@@ -508,5 +523,22 @@ public class EditInternshipActivity extends AppCompatActivity {
                 chipGroup.addView(chip);
             }
         }
+    }
+    private void showDatePickerDialog(EditText dateField) {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, selectedYear, selectedMonth, selectedDay) -> {
+                    // Format and set the selected date
+                    String formattedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay);
+                    dateField.setText(formattedDate);
+                },
+                year, month, day
+        );
+        datePickerDialog.show();
     }
 }
