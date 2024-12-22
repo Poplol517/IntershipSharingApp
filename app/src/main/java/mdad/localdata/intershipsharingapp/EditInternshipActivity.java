@@ -5,6 +5,7 @@ import static androidx.core.content.ContentProviderCompat.requireContext;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ArrayAdapter;
@@ -113,6 +114,9 @@ public class EditInternshipActivity extends AppCompatActivity {
                 updatedLocationId = locationIds.get(selectedLocationIndex); // Get LocationID based on selected position
             }
 
+
+
+
             Map<String, String> params_update = new HashMap<>();
             params_update.put("internshipId", internshipId);
             Log.d("internshipId", internshipId);
@@ -124,7 +128,15 @@ public class EditInternshipActivity extends AppCompatActivity {
             params_update.put("locationId", updatedLocationId);  // Use locationId here
             params_update.put("role", updatedRole);
             Log.d("params", params_update.toString());
+            String selectedIndustriesStr = TextUtils.join(",", selectedIndustryIds);
+            params_update.put("industries", selectedIndustriesStr);
+
+
+
             updateInternship(url_edit_internship, params_update);
+            postData(url_edit_internship, params_update, true);
+            Log.d("Params", params_update.toString()); // Log the params for debugging")
+
         });
     }
 
@@ -277,9 +289,11 @@ public class EditInternshipActivity extends AppCompatActivity {
                                 // If the InternshipID matches the selected internship, add the IndustryID
                                 if (currentInternshipId.equals(internshipId)) {
                                     selectedIndustryIds.add(industryID);
-                                    Log.d("SelectedIndustry", "IndustryID: " + industryID);
+                                    Log.d("SelectedIndustryIds", selectedIndustryIds.toString());
                                 }
                             }
+
+
 
                             // Now refresh the chip group with the selected industries
                             refreshMainChipGroup();
@@ -311,8 +325,6 @@ public class EditInternshipActivity extends AppCompatActivity {
         for (Map.Entry<String, String> entry : industryMap.entrySet()) {
             String industryID = entry.getKey();  // Original ID from response
             String industryName = entry.getValue();
-
-            Log.d("Industry Details", "IndustryID: " + industryID + " | IndustryName: " + industryName);
 
             // Create a chip for each selected industry
             if (selectedIndustryIds.contains(industryID)) {
@@ -422,7 +434,7 @@ public class EditInternshipActivity extends AppCompatActivity {
             public void afterTextChanged(android.text.Editable s) {}
         });
     }
-    private void postData(String url, Map<String, String> params, boolean isUpdateInternshipIndustry) {
+    private void postData(String url, Map<String, String> params, boolean isUpdateInternship) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -432,16 +444,17 @@ public class EditInternshipActivity extends AppCompatActivity {
                     try {
                         String cleanResponse = response.trim().replaceAll("<[^>]*>", "");
 
-                        if (isUpdateInternshipIndustry) {
+                        if (isUpdateInternship) {
                             JSONObject jsonResponse = new JSONObject(cleanResponse);
+                            Log.d("Response", jsonResponse.toString());
+                            if (jsonResponse.has("internshipId")) {
+                                String internshipId = jsonResponse.getString("internshipId");
+                                Log.d("InternshipID", "Retrieved internshipId: " + internshipId);
 
-                            if (jsonResponse.has("success")) {
-                                String successMessage = jsonResponse.getString("success");
-                                Log.d("IndustryUpdate", "Industry Update Success: " + successMessage);
-
-                                // Optionally handle the success response or refresh UI
-                                Toast.makeText(this, "Internship industry updated successfully!", Toast.LENGTH_SHORT).show();
-                            } else {
+                                // Now call sendIndustryData with the retrieved internshipId
+                                sendIndustryData(internshipId);
+                            }
+                            else {
                                 Log.e("ResponseError", "No success message in the response");
                                 Toast.makeText(this, "Error updating internship industries", Toast.LENGTH_SHORT).show();
                             }
@@ -466,31 +479,37 @@ public class EditInternshipActivity extends AppCompatActivity {
     }
 
     private void sendIndustryData(String internshipId) {
-        ArrayList<String> selectedIndustries = new ArrayList<>();
+        // Create a list to hold all the industryIds
+        List<String> industryIds = new ArrayList<>(selectedIndustryIds);  // Assuming selectedIndustryIds is a set of strings
 
-        // Collect selected industries from the chip group
-        for (int i = 0; i < chipGroupIndustries.getChildCount(); i++) {
-            Chip chip = (Chip) chipGroupIndustries.getChildAt(i);
-            if (chip.isChecked() && chip.getTag() != null) {
-                selectedIndustries.add((String) chip.getTag());
-            }
-        }
-
-        // Now update the internship with the new industries
+        // Create a map to hold the parameters
         Map<String, String> params = new HashMap<>();
         params.put("internshipId", internshipId);
 
-        // Clear the existing industries and add the selected ones
-        for (String industryId : selectedIndustries) {
-            params.put("industryId", industryId);
-            Log.d("IndustryParams", "Updating industry: " + industryId);
-
-            // Send each industry association to update the internship
-            postData(url_edit_internship, params, true);
+        // Convert industryIds list to a comma-separated string (or use JSON array if needed)
+        StringBuilder industryIdsString = new StringBuilder();
+        for (int i = 0; i < industryIds.size(); i++) {
+            industryIdsString.append(industryIds.get(i));
+            if (i < industryIds.size() - 1) {
+                industryIdsString.append(","); // Separate values by commas
+            }
         }
 
-        refreshMainChipGroup(); // Optionally refresh the UI with updated industries
+        // Add the industryIds string to the params
+        params.put("industryIds", industryIdsString.toString());
+
+        // Add any other parameters you need, e.g., deleteOnce flag if required
+        params.put("deleteOnce", "true");
+
+        Log.d("IndustryParams", params.toString());
+
+        // Send the data in one POST request
+        postData(url_internship_industry, params, false);
+
+        // Refresh UI or perform any post-action tasks
+        refreshMainChipGroup();
     }
+
 
 
     private void filterChips(String query, ChipGroup chipGroup, List<Map.Entry<String, String>> sortedIndustries) {
