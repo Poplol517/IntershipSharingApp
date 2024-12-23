@@ -119,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
         messageTextView.setText("Login Successful!");
         messageTextView.setTypeface(null, Typeface.BOLD);
         messageTextView.setTextSize(18);
-        messageTextView.setTextColor(Color.parseColor("#90EE90"));
+        messageTextView.setTextColor(Color.parseColor("#228B22"));
         messageTextView.setGravity(Gravity.CENTER);
 
         // Apply a fade-in animation to the TextView
@@ -140,7 +140,6 @@ public class LoginActivity extends AppCompatActivity {
 
         // Build and show the dialog with the custom view
         new MaterialAlertDialogBuilder(this)
-                .setTitle("Success")
                 .setView(dialogLayout)
                 .setPositiveButton("OK", (dialog, which) -> {dialog.dismiss();
                     Intent intent;

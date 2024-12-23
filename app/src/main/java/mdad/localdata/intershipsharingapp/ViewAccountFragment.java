@@ -118,12 +118,13 @@ public class ViewAccountFragment extends Fragment {
                                     HashMap<String, String> userDetails = new HashMap<>();
                                     userDetails.put("name", details[1]);
                                     userDetails.put("username", details[3]);
-                                    userDetails.put("role", details[8]);
+                                    userDetails.put("role", details[9]);
                                     userDetails.put("course", details[5]);
                                     userDetails.put("study_year", details[6]);
+                                    userDetails.put("graduated_year", details[7]);
 
                                     Log.d("UserDetails", "Fetched Details: " + userDetails);
-                                    displayUserDetails(userDetails);
+                                    displayUserDetails(userDetails, details[8]);
                                     break; // Exit loop after finding the user
                                 }
                             }
@@ -138,11 +139,18 @@ public class ViewAccountFragment extends Fragment {
         queue.add(stringRequest);
     }
 
-    private void displayUserDetails(HashMap<String, String> userDetails) {
-        tvName.setText(userDetails.get("name"));
-        tvRole.setText(userDetails.get("role"));
-        tvCourse.setText(userDetails.get("course"));
-        tvStudyYear.setText("Year of Study: "+userDetails.get("study_year"));
+    private void displayUserDetails(HashMap<String, String> userDetails, String role) {
+        if ("1".equals(role)) { // Role 1 - Student
+            tvName.setText(userDetails.get("name"));
+            tvRole.setText(userDetails.get("role"));
+            tvCourse.setText(userDetails.get("course"));
+            tvStudyYear.setText("Year of Study: "+userDetails.get("study_year"));
+        } else if ("2".equals(role)) { // Role 2 - Alumni
+            tvName.setText(userDetails.get("name"));
+            tvRole.setText(userDetails.get("role"));
+            tvCourse.setText(userDetails.get("course"));
+            tvStudyYear.setText("Graduated Year: "+userDetails.get("graduated_year"));
+        }
     }
 
 
