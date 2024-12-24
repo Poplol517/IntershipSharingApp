@@ -19,6 +19,9 @@
             android:name=".EditInternshipActivity"
             android:exported="false" />
         <activity
+            android:name=".EditQuestionActivity"
+            android:exported="false" />
+        <activity
             android:name=".StaffMainActivity"
             android:exported="false" />
         <activity

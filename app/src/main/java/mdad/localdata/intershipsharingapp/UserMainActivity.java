@@ -25,6 +25,7 @@ public class UserMainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ImageView accountIcon;
     private static final String url_all_internship = StaffMainActivity.ipBaseAddress + "/get_all_internship.php";
+    private static final String url_all_user = StaffMainActivity.ipBaseAddress + "/get_all_user.php";
     private Map<Integer, Fragment> fragmentMap;
 
     @Override
