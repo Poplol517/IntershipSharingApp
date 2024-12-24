@@ -11,9 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        android:title="Create Post"
         android:titleTextColor="#ffffff"
-        android:elevation="4dp"/>
+        android:elevation="4dp">
+    <!-- Add a custom TextView for centered title -->
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit Question Post"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:textSize="22dp"
+            android:layout_gravity="center" />
+    </androidx.appcompat.widget.Toolbar>
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -25,16 +35,13 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/loginTitle"
-                android:layout_width="236dp"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginHorizontal="105dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="10dp"
-                android:text="Edit Your Experience"
-                android:textSize="24sp"
-                android:textStyle="bold" />
+                android:text="Title"
+                android:paddingLeft="10dip"
+                android:paddingRight="10dip"
+                android:paddingTop="10dip"
+                android:textSize="17dip"/>
 
             <!-- Input Name -->
             <EditText android:id="@+id/inputTitle"

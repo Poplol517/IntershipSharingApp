@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -51,12 +53,18 @@ public class EditQuestionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_question);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Retrieve data from the intent
         Intent intent = getIntent();
         String questionId = intent.getStringExtra("QuestionID");
         String title = intent.getStringExtra("title");
         String description = intent.getStringExtra("description");
+
+
+        getSupportActionBar().setTitle("");
 
 
         // Populate other fields with retrieved data
@@ -121,6 +129,15 @@ public class EditQuestionActivity extends AppCompatActivity {
         };
 
         queue.add(stringRequest);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle the back button click
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();  // This will call the back button functionality
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void fetchIndustries() {

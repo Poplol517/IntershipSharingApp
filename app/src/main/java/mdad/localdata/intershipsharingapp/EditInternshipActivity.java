@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.ViewCompat;
 
@@ -57,6 +59,11 @@ public class EditInternshipActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_internship);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
 
         // Retrieve data from the intent
         Intent intent = getIntent();
@@ -138,6 +145,16 @@ public class EditInternshipActivity extends AppCompatActivity {
             Log.d("Params", params_update.toString()); // Log the params for debugging")
 
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle the back button click
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();  // This will call the back button functionality
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void updateInternship(String url, Map<String, String> params) {
