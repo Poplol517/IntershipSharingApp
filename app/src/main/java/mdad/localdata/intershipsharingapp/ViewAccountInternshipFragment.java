@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -196,6 +198,7 @@ public class ViewAccountInternshipFragment extends Fragment {
 
             popupMenu.show();
         });
+
 
         // Comment button click listener
         commentButton.setOnClickListener(v -> openCommentDialog(item));
@@ -390,17 +393,14 @@ public class ViewAccountInternshipFragment extends Fragment {
     }
 
     private void openCommentDialog(HashMap<String, String> item) {
-        // Example Dialog for Comment
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Add Comment")
-                .setMessage("Add a comment for the internship: " + item.get("title"))
-                .setPositiveButton("Submit", (dialog, which) -> {
-                    // Handle comment submission here
-                    Toast.makeText(requireContext(), "Comment submitted for " + item.get("title"), Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        // Create an Intent to open ViewCommentActivity
+        Intent intent = new Intent(requireContext(), ViewCommentActivity.class);
+
+        // Pass the item details to the activity using Intent extras
+        intent.putExtra("itemDetails", item);
+        Log.d("ItemDetails", item.toString());
+
+        // Start the ViewCommentActivity
+        startActivity(intent);
     }
-
-
 }

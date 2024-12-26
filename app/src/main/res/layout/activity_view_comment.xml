@@ -1,0 +1,199 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ViewCommentActivity">
+
+    <!-- Top Navigation Bar (Toolbar) -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/top_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:titleTextColor="@android:color/white"
+        app:title="Post Details"
+        android:elevation="4dp"
+        >
+
+        <!-- Search bar inside the toolbar -->
+        <EditText
+            android:id="@+id/search_comment"
+            android:layout_width="match_parent"
+            android:hint="Search Comments"
+            android:inputType="text"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_height="wrap_content"
+            android:textColor="#FDFDFD"
+            android:textColorHint="#FFFFFF"
+            />
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- Main content area -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Selected Post Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:elevation="2dp"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp">
+
+                <!-- Horizontal layout for profile image, name, and role -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Profile Image -->
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/account"
+                        android:contentDescription="Profile Icon"
+                        android:layout_marginEnd="16dp" />
+
+                    <!-- Name and Role section -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- User Name -->
+                        <TextView
+                            android:id="@+id/post_user_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mark Goh"
+                            android:textStyle="bold"
+                            android:textSize="14sp" />
+
+                        <!-- User Role -->
+                        <TextView
+                            android:id="@+id/post_user_role"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Google LLC | Year 3 Student in Computer Engineering"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Post Content -->
+                <TextView
+                    android:id="@+id/post_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Post Content Here"
+                    android:textSize="14sp" />
+
+                <!-- Hashtags -->
+                <TextView
+                    android:id="@+id/post_hashtags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="#InternshipExperience #CareerGrowth"
+                    android:textColor="#1E88E5"
+                    android:textSize="12sp" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#BDBDBD" />
+            </LinearLayout>
+
+
+
+            <!-- Comments Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Comments"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:textSize="16sp" />
+
+            <!-- Manually Added Comments -->
+            <LinearLayout
+                android:id="@+id/comments_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp">
+
+                <!-- Example Comment 1 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="User 1: This is a comment."
+                    android:textSize="14sp"
+                    android:layout_marginBottom="4dp" />
+
+                <!-- Example Comment 2 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="User 2: Another comment!"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="4dp" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:layout_gravity="bottom"
+        android:background="#FFFFFF"
+        android:elevation="6dp">
+
+        <!-- Text Input for new comment -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Add a comment">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/new_comment_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:background="@android:color/white"
+                android:textColor="#000000"
+                android:textColorHint="#BDBDBD" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Send Button -->
+        <Button
+            android:id="@+id/send_comment_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center_vertical" />
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+
