@@ -393,6 +393,9 @@ public class ViewAccountInternshipFragment extends Fragment {
     }
 
     private void openCommentDialog(HashMap<String, String> item) {
+        // Add an internship flag to the HashMap
+        item.put("isInternship", "true"); // You can set this value based on your condition
+
         // Create an Intent to open ViewCommentActivity
         Intent intent = new Intent(requireContext(), ViewCommentActivity.class);
 
@@ -403,4 +406,5 @@ public class ViewAccountInternshipFragment extends Fragment {
         // Start the ViewCommentActivity
         startActivity(intent);
     }
+
 }

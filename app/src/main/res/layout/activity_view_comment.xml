@@ -16,20 +16,11 @@
         android:elevation="4dp"
         >
 
-        <!-- Search bar inside the toolbar -->
-        <EditText
-            android:id="@+id/search_comment"
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_view"
             android:layout_width="match_parent"
-            android:hint="Search Comments"
-            android:inputType="text"
-            android:padding="8dp"
-            android:textSize="14sp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
             android:layout_height="wrap_content"
-            android:textColor="#FDFDFD"
-            android:textColorHint="#FFFFFF"
-            />
+            android:queryHint="Search comments" />
     </androidx.appcompat.widget.Toolbar>
 
     <!-- Main content area -->

@@ -29,8 +29,11 @@ import java.util.Map;
  * A simple {@link } subclass for viewing comments on a post.
  */
 public class ViewCommentActivity extends AppCompatActivity {
-    private static String url_view_comment = StaffMainActivity.ipBaseAddress + "/get_all_internship_comment.php";
-    private static String url_create_comment = StaffMainActivity.ipBaseAddress + "/create_comment.php";
+    private static String url_view_internship_comment = StaffMainActivity.ipBaseAddress + "/get_all_internship_comment.php";
+
+    private static String url_view_question_comment = StaffMainActivity.ipBaseAddress + "/get_all_question_comment.php";
+    private static String url_create_internship_comment = StaffMainActivity.ipBaseAddress + "/create_internship_comment.php";
+    private static String url_create_question_comment = StaffMainActivity.ipBaseAddress + "/create_question_comment.php";
 
     private HashMap<String, String> itemDetails;
     private List<HashMap<String, String>> commentList; // List to store comment data
@@ -87,34 +90,60 @@ public class ViewCommentActivity extends AppCompatActivity {
             postHashtags.setText(itemDetails.get("hashtags"));
         }
 
+        // Determine the correct URL based on the "isInternship" flag
+        String isInternshipFlag = itemDetails.get("isInternship");
+        Log.d("ViewCommentActivity", "isInternship Flag: " + isInternshipFlag);
+
+        String urlToUse;
+        if ("true".equals(isInternshipFlag)) {
+            urlToUse = url_view_internship_comment;
+        } else if ("false".equals(isInternshipFlag)) {
+            urlToUse = url_view_question_comment;
+        } else {
+            Log.e("ViewCommentActivity", "Invalid isInternship flag value: " + isInternshipFlag);
+            Toast.makeText(this, "Invalid data received. Cannot load comments.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Log.d("ViewCommentActivity", "URL Selected: " + urlToUse);
+
         // Fetch comments from the server
-        postData(url_view_comment, null);
+        postData(urlToUse, null);
     }
+
 
     // Method to create a new comment and send it to the server
     private void createComment(String commentText) {
         String userId = itemDetails.get("UserID"); // Retrieve the user ID
         Log.d("ViewCommentActivity", "User ID: " + userId);
-        String internshipId = itemDetails.get("InternshipID"); // Retrieve the internship ID
+
+        // Check the flag and decide which ID to use
+        boolean isInternship = "true".equals(itemDetails.get("isInternship"));
+        String idKey = isInternship ? "internshipId" : "questionId";
+        String itemId = itemDetails.get(isInternship ? "InternshipID" : "QuestionID"); // Retrieve the appropriate ID
 
         // Create a map of parameters to send to the server
         Map<String, String> params = new HashMap<>();
         params.put("userId", userId);
-        params.put("internshipId", internshipId);
+        params.put(idKey, itemId);
         params.put("description", commentText);
 
-        // Send a POST request using Volley to the create_comment.php endpoint
+        // Use the appropriate URL for creating comments
+        String url = isInternship ? url_create_internship_comment : url_create_question_comment;
+
+        // Send a POST request using Volley to the correct endpoint
         RequestQueue queue = Volley.newRequestQueue(this);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url_create_comment,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         Log.d("ViewCommentActivity", "Create Comment Response: " + response);
-                        if (response.equals("Success")) {
+                        if (response.equals("success")) {
                             // If the comment is created successfully, update the UI
                             Toast.makeText(getApplicationContext(), "Comment posted successfully", Toast.LENGTH_SHORT).show();
-                            // Optionally, reload the comments
-                            postData(url_view_comment, null);
+                            // Reload comments dynamically based on the flag
+                            String reloadUrl = isInternship ? url_view_internship_comment : url_view_question_comment;
+                            postData(reloadUrl, null);
                         } else {
                             Toast.makeText(getApplicationContext(), "Failed to post comment", Toast.LENGTH_SHORT).show();
                         }
@@ -136,9 +165,11 @@ public class ViewCommentActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+
     public void postData(String url, Map params) {
         // Create a RequestQueue for Volley
         RequestQueue queue = Volley.newRequestQueue(this);
+        Log.d("ViewCommentActivity", "URL: " + url);
 
         // Create a StringRequest for HTTP Post
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -154,7 +185,7 @@ public class ViewCommentActivity extends AppCompatActivity {
                         // Parse the response and populate the commentList
                         parseComments(response);
 
-                        // Generate views for the comments
+                        // Generate views for the comments dynamically based on the flag
                         generateCommentViews(LayoutInflater.from(ViewCommentActivity.this));
                     }
                 },
@@ -170,6 +201,7 @@ public class ViewCommentActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+
     private void parseComments(String response) {
         commentList.clear(); // Clear existing comments
         Log.d("ViewCommentActivity", "Raw Response: " + response);
@@ -184,6 +216,9 @@ public class ViewCommentActivity extends AppCompatActivity {
         String[] comments = response.split(":");
         Log.d("ViewCommentActivity", "Parsed Comments Array: " + Arrays.toString(comments));
 
+        boolean isInternshipFlag = "true".equals(itemDetails.get("isInternship"));
+        Log.d("ViewCommentActivity", "isInternshipFlag: " + isInternshipFlag);
+
         for (String commentData : comments) {
             String[] details = commentData.split(";");
             Log.d("ViewCommentActivity", "Parsed Details Array: " + Arrays.toString(details));
@@ -193,7 +228,13 @@ public class ViewCommentActivity extends AppCompatActivity {
                 map.put("comment_id", details[0]);
                 map.put("description", details[1]);
                 map.put("userId", details[2]);
-                map.put("internshipId", details.length > 3 ? details[3] : "");
+
+                // Add conditional mapping based on isInternshipFlag
+                if (isInternshipFlag) {
+                    map.put("internshipId", details.length > 3 ? details[3] : "");
+                } else {
+                    map.put("questionId", details.length > 3 ? details[3] : "");
+                }
                 map.put("user_name", details[4]);
                 map.put("role", details[5]);
                 map.put("course", details[6]);
@@ -204,32 +245,33 @@ public class ViewCommentActivity extends AppCompatActivity {
                 Log.e("ViewCommentActivity", "Invalid Comment Data: " + Arrays.toString(details));
             }
         }
-
         Log.d("ViewCommentActivity", "Final Comment List: " + commentList);
     }
+
 
     // Method to generate TextViews for each comment dynamically using the custom layout
     private void generateCommentViews(LayoutInflater inflater) {
         commentsLinearLayout.removeAllViews(); // Clear existing comments
 
-        // Retrieve the internship ID of the current post from itemDetails
-        String currentInternshipId = itemDetails.get("InternshipID");
-        Log.d("ViewCommentActivity", "Current Internship ID: " + currentInternshipId);
+        // Determine the ID key and value dynamically
+        boolean isInternship = "true".equals(itemDetails.get("isInternship"));
+        String idKey = isInternship ? "internshipId" : "questionId";
+        String currentId = itemDetails.get(isInternship ? "InternshipID" : "QuestionID");
+        Log.d("ViewCommentActivity", "Current ID (" + idKey + "): " + currentId);
 
-        // Filter the comments to only display those with the same internship ID
+        // Filter the comments based on the ID
         List<HashMap<String, String>> filteredComments = new ArrayList<>();
-        for (int i = 0; i < commentList.size(); i++) {
-            HashMap<String, String> commentData = commentList.get(i);
-            String commentInternshipId = commentData.get("internshipId");
+        for (HashMap<String, String> commentData : commentList) {
+            String commentId = commentData.get(idKey);
 
-            // Only add comments that match the internship ID
-            if (currentInternshipId != null && currentInternshipId.equals(commentInternshipId)) {
+            // Only add comments that match the current ID
+            if (currentId != null && currentId.equals(commentId)) {
                 filteredComments.add(commentData);
             }
         }
 
         // Generate views for the filtered comments
-        for (int i = 0; i < filteredComments.size(); i++) {
+        for (HashMap<String, String> commentData : filteredComments) {
             // Inflate the comment_layout.xml for each filtered comment
             View commentView = inflater.inflate(R.layout.comment_layout, commentsLinearLayout, false);
 
@@ -237,10 +279,6 @@ public class ViewCommentActivity extends AppCompatActivity {
             TextView commentUserName = commentView.findViewById(R.id.comment_user_name);
             TextView commentRole = commentView.findViewById(R.id.comment_role);
             TextView commentContent = commentView.findViewById(R.id.comment_content);
-
-            // Get filtered comment data
-            HashMap<String, String> commentData = filteredComments.get(i);
-            Log.d("ViewCommentActivity", "Filtered Comment Data: " + commentData);
 
             // Set the comment content
             commentUserName.setText(commentData.get("user_name")); // Set user ID or name
@@ -251,4 +289,5 @@ public class ViewCommentActivity extends AppCompatActivity {
             commentsLinearLayout.addView(commentView);
         }
     }
+
 }

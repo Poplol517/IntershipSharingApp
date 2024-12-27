@@ -336,6 +336,7 @@ public class ViewAccountQuestionFragment extends Fragment {
                 }) {
             @Override
             protected Map<String, String> getParams() {
+
                 Map<String, String> params = new HashMap<>();
                 params.put("questionId", questionID);
                 Log.d("QuestionParams", params.toString());
@@ -388,16 +389,16 @@ public class ViewAccountQuestionFragment extends Fragment {
     }
 
     private void openCommentDialog(HashMap<String, String> item) {
-        // Example Dialog for Comment
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Add Comment")
-                .setMessage("Add a comment for the internship: " + item.get("title"))
-                .setPositiveButton("Submit", (dialog, which) -> {
-                    // Handle comment submission here
-                    Toast.makeText(requireContext(), "Comment submitted for " + item.get("title"), Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        item.put("isInternship", "false");
+        // Create an Intent to open ViewCommentActivity
+        Intent intent = new Intent(requireContext(), ViewCommentActivity.class);
+
+        // Pass the item details to the activity using Intent extras
+        intent.putExtra("itemDetails", item);
+        Log.d("ItemDetails", item.toString());
+
+        // Start the ViewCommentActivity
+        startActivity(intent);
     }
 
 
