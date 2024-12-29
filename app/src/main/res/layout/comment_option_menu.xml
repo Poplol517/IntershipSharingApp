@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:id="@+id/optionsPage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_edit_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Edit Comment" />
+
+        <Button
+            android:id="@+id/btn_delete_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Comment" />
+
+    </LinearLayout>
+
+    <!-- Second Page: Edit Comment -->
+    <LinearLayout
+        android:id="@+id/editCommentPage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"> <!-- Initially hidden -->
+        <!-- Your content for editing a comment -->
+        <EditText
+            android:id="@+id/edit_comment_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/save_edited_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Comment" />
+    </LinearLayout>
+
+</LinearLayout>
+

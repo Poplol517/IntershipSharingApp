@@ -9,6 +9,19 @@
     android:elevation="2dp"
     android:layout_margin="8dp">
 
+    <TextView
+        android:id="@+id/post_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Internship Post"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:background="@drawable/internship_tag_background"
+        android:padding="4dp"
+        android:layout_marginBottom="8dp"
+        android:layout_gravity="start" />
+
     <!-- User Info -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,16 +59,29 @@
         </LinearLayout>
         <ImageView
             android:id="@+id/options_menu"
-            android:layout_width="wrap_content"
+            android:layout_width="35dp"
             android:layout_height="35dp"
             android:src="@drawable/option"
             android:contentDescription="Options Menu"
             android:padding="8dp"
-            android:layout_gravity="end|center_vertical"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
             android:clickable="true"
             android:focusable="true"
-            android:visibility="gone" />
+            android:visibility="gone"/>
+
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/post_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textStyle="bold"
+        android:text="Post Content Here"
+        android:textSize="14sp" />
 
     <!-- Post Content -->
     <TextView

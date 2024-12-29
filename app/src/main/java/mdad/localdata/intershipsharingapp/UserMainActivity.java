@@ -45,6 +45,7 @@ public class UserMainActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.menu_home, new HomeFragment());
+        fragmentMap.put(R.id.menu_account, new ViewAccountFragment());
         // Add other fragments if necessary
         searchView = findViewById(R.id.search_view);
 
@@ -55,10 +56,7 @@ public class UserMainActivity extends AppCompatActivity {
 
         // Handle bottom navigation item selection
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.menu_logout) {
-                logoutUser();
-                return true;
-            } else if (item.getItemId() == R.id.menu_create_post) {
+            if (item.getItemId() == R.id.menu_create_post) {
                 // Launch CreatePostActivity as an Intent
                 Intent intent = new Intent(UserMainActivity.this, CreatePostActivity.class);
                 startActivity(intent);

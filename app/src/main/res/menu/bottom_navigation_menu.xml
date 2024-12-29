@@ -7,16 +7,10 @@
         android:id="@+id/menu_create_post"
         android:title="Create Post"
         android:icon="@drawable/create" />
-    <!--<item
+    <item
        android:id="@+id/menu_account"
        android:title="Account"
-       android:icon="@drawable/account" /> -->
+       android:icon="@drawable/account" />
 
-
-   <!-- To be remove after account page is created -->
-    <item
-        android:id="@+id/menu_logout"
-        android:icon="@drawable/account"
-        android:title="Logout" />
 </menu>
 

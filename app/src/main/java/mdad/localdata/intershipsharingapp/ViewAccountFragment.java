@@ -1,5 +1,6 @@
 package mdad.localdata.intershipsharingapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -41,7 +42,7 @@ public class ViewAccountFragment extends Fragment {
     private ViewPager2 viewPager;
 
     private TextView tvName, tvRole, tvCourse, tvStudyYear;
-    private Button btnEditProfile;
+    private Button btnEditProfile, btnLogout;
     private LinearLayout accountSection;
 
     public ViewAccountFragment() {
@@ -58,6 +59,7 @@ public class ViewAccountFragment extends Fragment {
         tvCourse = view.findViewById(R.id.tvCourse);
         tvStudyYear = view.findViewById(R.id.tvStudyYear);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
+        btnLogout = view.findViewById(R.id.btnLogout);
         accountSection = view.findViewById(R.id.accountSection);
 
         // Initialize TabLayout and ViewPager2
@@ -84,8 +86,30 @@ public class ViewAccountFragment extends Fragment {
         // Fetch and display logged-in user account details
         fetchUserDetails();
 
+        btnLogout.setOnClickListener(v -> {
+            // Clear SharedPreferences
+            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", getContext().MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+            editor.apply();
+
+            // Display a logout confirmation message
+            Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+
+            // Redirect to the Login Activity (assuming LoginActivity is the name of the login screen)
+            navigateToLogin();
+        });
+
         return view;
     }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(requireContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        requireActivity().finish();
+    }
+
 
     private void fetchUserDetails() {
         String url_view_account = StaffMainActivity.ipBaseAddress + "/get_all_user.php";
