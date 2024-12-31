@@ -159,6 +159,7 @@ public class ViewAccountInternshipFragment extends Fragment {
         // Set data for user info
         TextView userName = postView.findViewById(R.id.post_user_name);
         TextView userRole = postView.findViewById(R.id.post_user_role);
+        TextView postTitle = postView.findViewById(R.id.post_title);
         TextView postContent = postView.findViewById(R.id.post_content);
         TextView postHashtags = postView.findViewById(R.id.post_hashtags);
         Button commentButton = postView.findViewById(R.id.comment_button);
@@ -167,6 +168,7 @@ public class ViewAccountInternshipFragment extends Fragment {
 
         // Populate the fields with dynamic data
         userName.setText(item.get("user_name"));
+        postTitle.setText(item.get("title"));
         userRole.setText(item.get("company") + " | " + item.get("role"));
         postContent.setText(item.get("description"));
 

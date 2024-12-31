@@ -86,6 +86,20 @@ public class ViewAccountFragment extends Fragment {
         // Fetch and display logged-in user account details
         fetchUserDetails();
 
+        btnEditProfile.setOnClickListener(v -> {
+            // Navigate to EditProfileFragment
+            EditAccountFragment editProfileFragment = new EditAccountFragment();
+
+            // Start the fragment transaction
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, editProfileFragment) // Replace with your container ID
+                    .addToBackStack(null) // Adds the transaction to the back stack
+                    .commit();
+        });
+
+
         btnLogout.setOnClickListener(v -> {
             // Clear SharedPreferences
             SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", getContext().MODE_PRIVATE);

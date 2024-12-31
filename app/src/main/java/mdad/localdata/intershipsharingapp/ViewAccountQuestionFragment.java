@@ -157,19 +157,17 @@ public class ViewAccountQuestionFragment extends Fragment {
         // Set data for user info
         TextView userName = postView.findViewById(R.id.post_user_name);
         TextView userRole = postView.findViewById(R.id.post_user_role);
+        TextView postTitle = postView.findViewById(R.id.post_title);
         TextView postContent = postView.findViewById(R.id.post_content);
         TextView postHashtags = postView.findViewById(R.id.post_hashtags);
         Button commentButton = postView.findViewById(R.id.comment_button);
         ImageView optionsMenu = postView.findViewById(R.id.options_menu);
         optionsMenu.setVisibility(View.VISIBLE);
-        Log.d("QuestionItem", item.toString());
         // Populate the fields with dynamic data
         userName.setText(item.get("user_name"));
-        Log.d("UserName", item.get("user_name"));
+        postTitle.setText(item.get("title"));
         userRole.setText(item.get("role") + " | " + item.get("course"));
-        Log.d("UserRole", item.get("role") + " | " + item.get("course"));
         postContent.setText(item.get("description"));
-        Log.d("PostContent", item.get("description"));
 
         // Check if description contains a hashtag
         String description = item.get("description");

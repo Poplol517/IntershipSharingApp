@@ -142,7 +142,7 @@ public class HomeFragment extends Fragment {
                                 map.put("UserID", details[4]);
                                 map.put("user_name", details.length > 5 ? details[5] : "");
                                 map.put("course", details.length > 6 ? details[6] : "");
-                                map.put("name", details[7]);
+                                map.put("role", details[7]);
                                 Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                 addQuestionToLayout(map);
                             }
@@ -172,7 +172,7 @@ public class HomeFragment extends Fragment {
         // Populate the fields with dynamic data
         userName.setText(item.get("user_name"));
         postTitle.setText(item.get("title"));
-        userRole.setText(item.get("name") + " | " + item.get("course"));
+        userRole.setText(item.get("role") + " | " + item.get("course"));
         postContent.setText(item.get("description"));
 
         // Check if description contains a hashtag
@@ -190,8 +190,6 @@ public class HomeFragment extends Fragment {
         // Add the postView to the parent layout
         lv.addView(postView);
     }
-
-
 
 
     private void openCommentDialog(HashMap<String, String> item) {
