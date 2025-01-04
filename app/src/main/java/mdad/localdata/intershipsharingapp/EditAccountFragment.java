@@ -2,7 +2,10 @@ package mdad.localdata.intershipsharingapp;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.animation.ObjectAnimator;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,16 +22,19 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -400,10 +407,10 @@ public class EditAccountFragment extends Fragment {
 
                         // Check the status and act accordingly
                         if ("Success".equals(status)) {
-                            Toast.makeText(getContext(), "User details updated successfully", Toast.LENGTH_SHORT).show();
+                            showCreateSuccessfulAlert();
                             // You can redirect the user or update the UI as needed after successful update
                         } else {
-                            Toast.makeText(getContext(), "Failed to update user details", Toast.LENGTH_LONG).show();
+                            showCreateFailedAlert();
                         }
 
                     } catch (JSONException e) {
@@ -422,5 +429,83 @@ public class EditAccountFragment extends Fragment {
         };
 
         queue.add(stringRequest);
+    }
+
+    public void showCreateSuccessfulAlert() {
+        // Create LottieAnimationView dynamically
+        LottieAnimationView lottieSuccess = new LottieAnimationView(requireContext());
+        lottieSuccess.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+        lottieSuccess.setAnimation(R.raw.success);  // Reference your Lottie JSON animation
+        lottieSuccess.playAnimation();
+
+        // Create a TextView for the success message
+        TextView messageTextView = new TextView(requireContext());
+        messageTextView.setText("Updated Profile Details Successfully!");
+        messageTextView.setTypeface(null, Typeface.BOLD);
+        messageTextView.setTextSize(18);
+        messageTextView.setTextColor(Color.parseColor("#228B22"));
+        messageTextView.setGravity(Gravity.CENTER);
+
+        // Apply a fade-in animation to the TextView
+        messageTextView.setAlpha(0f);  // Start fully transparent
+        ObjectAnimator animator = ObjectAnimator.ofFloat(messageTextView, "alpha", 0f, 1f);
+        animator.setDuration(1000);  // Duration of the fade-in effect (1 second)
+        animator.start();
+
+        // Create a vertical LinearLayout to hold Lottie and TextView
+        LinearLayout dialogLayout = new LinearLayout(requireContext());
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(50, 50, 50, 50);  // Add padding
+        dialogLayout.setGravity(Gravity.CENTER);
+        dialogLayout.addView(lottieSuccess);
+        dialogLayout.addView(messageTextView);
+
+
+
+        // Build and show the dialog with the custom view
+        new MaterialAlertDialogBuilder(requireContext())
+                .setView(dialogLayout)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss();
+                    requireActivity().onBackPressed();
+                })
+                .show();
+    }
+
+    public void showCreateFailedAlert() {
+        // Create LottieAnimationView dynamically
+        LottieAnimationView lottieSuccess = new LottieAnimationView(requireContext());
+        lottieSuccess.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+        lottieSuccess.setAnimation(R.raw.denied);  // Reference your Lottie JSON animation
+        lottieSuccess.playAnimation();
+
+        // Create a TextView for the success message
+        TextView messageTextView = new TextView(requireContext());
+        messageTextView.setText("Fail to Update Profile Details. Please try again!");
+        messageTextView.setTypeface(null, Typeface.BOLD);
+        messageTextView.setTextSize(18);
+        messageTextView.setTextColor(Color.parseColor("#800000"));
+        messageTextView.setGravity(Gravity.CENTER);
+
+        // Apply a fade-in animation to the TextView
+        messageTextView.setAlpha(0f);  // Start fully transparent
+        ObjectAnimator animator = ObjectAnimator.ofFloat(messageTextView, "alpha", 0f, 1f);
+        animator.setDuration(1000);  // Duration of the fade-in effect (1 second)
+        animator.start();
+
+        // Create a vertical LinearLayout to hold Lottie and TextView
+        LinearLayout dialogLayout = new LinearLayout(requireContext());
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(50, 50, 50, 50);  // Add padding
+        dialogLayout.setGravity(Gravity.CENTER);
+        dialogLayout.addView(lottieSuccess);
+        dialogLayout.addView(messageTextView);
+
+        // Build and show the dialog with the custom view
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Denied!!")
+                .setView(dialogLayout)
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }

@@ -1,12 +1,15 @@
 package mdad.localdata.intershipsharingapp;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +26,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -69,6 +74,7 @@ public class HomeFragment extends Fragment {
                                 map.put("username", details.length > 9 ? details[9] : "");
                                 map.put("location_name", details.length > 10 ? details[10] : "");
                                 map.put("role", details[11]);
+                                map.put("photo", details[12]);
                                 Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                 addInternshipToLayout(map);
                             }
@@ -89,6 +95,7 @@ public class HomeFragment extends Fragment {
         View postView = LayoutInflater.from(requireContext()).inflate(R.layout.internship_post_item, lv, false);
 
         // Set data for user info
+        ImageView profile_icon = postView.findViewById(R.id.profile_icon);
         TextView userName = postView.findViewById(R.id.post_user_name);
         TextView userRole = postView.findViewById(R.id.post_user_role);
         TextView postTitle = postView.findViewById(R.id.post_title);
@@ -109,6 +116,22 @@ public class HomeFragment extends Fragment {
         } else {
             postHashtags.setVisibility(View.GONE);  // Hide it if no hashtags are present
         }
+        String photoData = item.get("photo");
+        Log.d("UserDetails", "Photo Data: " + item.get("photo"));
+        if (photoData != null && !photoData.isEmpty()) {
+            saveBase64ToFile(photoData, file -> {
+                // Once the image is saved, decode the file to Bitmap
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                if (bitmap != null) {
+                    profile_icon.setImageBitmap(bitmap);
+                } else {
+                    Log.e("ImageError", "Failed to decode bitmap from file.");
+                    profile_icon.setImageResource(R.drawable.account); // Default image
+                }
+            });
+        } else {
+            profile_icon.setImageResource(R.drawable.account); // Default image
+        }
         item.put("isInternship", "true");
         Log.d("ItemDetails", item.toString());
         // Comment button click listener
@@ -116,6 +139,24 @@ public class HomeFragment extends Fragment {
 
         // Add the postView to the parent layout
         lv.addView(postView);
+    }
+    private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
+        try {
+            byte[] decodedBytes = android.util.Base64.decode(base64Data, android.util.Base64.DEFAULT);
+
+            // Save the decoded bytes to a file in cache directory
+            File cacheDir = requireContext().getCacheDir();
+            File imageFile = new File(cacheDir, "profile_image.jpg");
+
+            FileOutputStream fos = new FileOutputStream(imageFile);
+            fos.write(decodedBytes);
+            fos.close();
+
+            // Notify that the file has been saved
+            listener.onFileSaved(imageFile);
+        } catch (Exception e) {
+            Log.e("FileSaveError", "Error saving Base64 to file: " + e.getMessage());
+        }
     }
 
     private void fetchQuestions() {
@@ -143,6 +184,7 @@ public class HomeFragment extends Fragment {
                                 map.put("user_name", details.length > 5 ? details[5] : "");
                                 map.put("course", details.length > 6 ? details[6] : "");
                                 map.put("role", details[7]);
+                                map.put("photo", details[8]);
                                 Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                 addQuestionToLayout(map);
                             }
@@ -162,6 +204,7 @@ public class HomeFragment extends Fragment {
         View postView = LayoutInflater.from(requireContext()).inflate(R.layout.question_post_item, lv, false);
 
         // Set data for user info
+        ImageView profile_icon = postView.findViewById(R.id.profile_icon);
         TextView userName = postView.findViewById(R.id.post_user_name);
         TextView userRole = postView.findViewById(R.id.post_user_role);
         TextView postTitle = postView.findViewById(R.id.post_title);
@@ -181,6 +224,23 @@ public class HomeFragment extends Fragment {
             postHashtags.setVisibility(View.VISIBLE);  // Ensure it's visible
         } else {
             postHashtags.setVisibility(View.GONE);  // Hide it if no hashtags are present
+        }
+
+        String photoData = item.get("photo");
+        Log.d("UserDetails", "Photo Data: " + item.get("photo"));
+        if (photoData != null && !photoData.isEmpty()) {
+            saveBase64ToFile(photoData, file -> {
+                // Once the image is saved, decode the file to Bitmap
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                if (bitmap != null) {
+                    profile_icon.setImageBitmap(bitmap);
+                } else {
+                    Log.e("ImageError", "Failed to decode bitmap from file.");
+                    profile_icon.setImageResource(R.drawable.account); // Default image
+                }
+            });
+        } else {
+            profile_icon.setImageResource(R.drawable.account); // Default image
         }
         item.put("isInternship", "false");
         Log.d("ItemDetails", item.toString());

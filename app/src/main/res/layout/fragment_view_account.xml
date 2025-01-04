@@ -17,10 +17,11 @@
 
         <!-- Profile Icon -->
         <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/account"
+            android:id="@+id/profileIcon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_marginEnd="16dp"
+            android:background="@drawable/circular_background"
             android:contentDescription="Profile Icon" />
 
         <!-- Profile Info -->
@@ -65,6 +66,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <Button
+                android:id="@+id/btnEditProfilePic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit Profile Picture" />
 
             <!-- Edit Profile Button -->
             <Button

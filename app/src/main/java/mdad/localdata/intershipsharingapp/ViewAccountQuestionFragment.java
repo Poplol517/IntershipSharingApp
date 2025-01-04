@@ -3,6 +3,8 @@ package mdad.localdata.intershipsharingapp;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -27,6 +29,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -119,7 +124,7 @@ public class ViewAccountQuestionFragment extends Fragment {
                     for (String question : questions) {
                         if (!question.isEmpty()) {
                             String[] details = question.split(";");
-                            if (details.length >= 7) {
+                            if (details.length >= 8 ) {
                                 String postUserId = details[4];
                                 Log.d("QuestionUserId", postUserId);
 
@@ -133,6 +138,7 @@ public class ViewAccountQuestionFragment extends Fragment {
                                     map.put("user_name", details[5]);
                                     map.put("course", details.length > 6 ? details[6] : "");
                                     map.put("role", details.length > 7 ? details[7] : "");
+                                    map.put("photo", details[8]);
                                     Log.d("QuestionDetails", map.toString());
                                     addQuestionToLayout(map);
                                     Log.d("QuestionDetails", map.toString());
@@ -155,6 +161,7 @@ public class ViewAccountQuestionFragment extends Fragment {
         View postView = LayoutInflater.from(requireContext()).inflate(R.layout.question_post_item, lv, false);
 
         // Set data for user info
+        ImageView profile_icon = postView.findViewById(R.id.profile_icon);
         TextView userName = postView.findViewById(R.id.post_user_name);
         TextView userRole = postView.findViewById(R.id.post_user_role);
         TextView postTitle = postView.findViewById(R.id.post_title);
@@ -175,6 +182,23 @@ public class ViewAccountQuestionFragment extends Fragment {
             postHashtags.setVisibility(View.VISIBLE);  // Ensure it's visible
         } else {
             postHashtags.setVisibility(View.GONE);  // Hide it if no hashtags are present
+        }
+
+        String photoData = item.get("photo");
+        Log.d("UserDetails", "Photo Data: " + item.get("photo"));
+        if (photoData != null && !photoData.isEmpty()) {
+            saveBase64ToFile(photoData, file -> {
+                // Once the image is saved, decode the file to Bitmap
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                if (bitmap != null) {
+                    profile_icon.setImageBitmap(bitmap);
+                } else {
+                    Log.e("ImageError", "Failed to decode bitmap from file.");
+                    profile_icon.setImageResource(R.drawable.account); // Default image
+                }
+            });
+        } else {
+            profile_icon.setImageResource(R.drawable.account); // Default image
         }
 
         // Set up the options menu for each post
@@ -203,6 +227,25 @@ public class ViewAccountQuestionFragment extends Fragment {
 
         // Add the postView to the parent layout
         lv.addView(postView);
+    }
+
+    private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
+        try {
+            byte[] decodedBytes = android.util.Base64.decode(base64Data, android.util.Base64.DEFAULT);
+
+            // Save the decoded bytes to a file in cache directory
+            File cacheDir = requireContext().getCacheDir();
+            File imageFile = new File(cacheDir, "profile_image.jpg");
+
+            FileOutputStream fos = new FileOutputStream(imageFile);
+            fos.write(decodedBytes);
+            fos.close();
+
+            // Notify that the file has been saved
+            listener.onFileSaved(imageFile);
+        } catch (Exception e) {
+            Log.e("FileSaveError", "Error saving Base64 to file: " + e.getMessage());
+        }
     }
 
     private void confirmDelete(HashMap<String, String> item) {

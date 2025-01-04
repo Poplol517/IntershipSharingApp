@@ -1,7 +1,8 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <!-- ScrollView that holds the content -->
     <ScrollView
@@ -16,4 +17,4 @@
             android:orientation="vertical" />
     </ScrollView>
 
-</LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

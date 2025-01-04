@@ -3,6 +3,8 @@ package mdad.localdata.intershipsharingapp;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -11,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 
 import android.util.Log;
 import android.view.Gravity;
@@ -29,6 +33,9 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +47,7 @@ import java.util.Map;
  */
 public class ViewAccountInternshipFragment extends Fragment {
     private LinearLayout lv;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -90,6 +98,16 @@ public class ViewAccountInternshipFragment extends Fragment {
         lv = view.findViewById(R.id.list);
         // Optionally, you can also fetch internships here if you want an initial fetch when the fragment is created
         fetchInternships();
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+
+        // Set up the refresh listener
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Handle the refresh logic here
+                fetchInternships();
+            }
+        });
         return view;
     }
 
@@ -119,7 +137,7 @@ public class ViewAccountInternshipFragment extends Fragment {
                     for (String internship : internships) {
                         if (!internship.isEmpty()) {
                             String[] details = internship.split(";");
-                            if (details.length >= 10) {
+                            if (details.length >= 12) {
                                 String postUserId = details[7];
 
                                 if (currentUserId.equals(postUserId)) {
@@ -136,12 +154,14 @@ public class ViewAccountInternshipFragment extends Fragment {
                                     map.put("username", details.length > 9 ? details[9] : "");
                                     map.put("location_name", details.length > 10 ? details[10] : "");
                                     map.put("role", details[11]);
+                                    map.put("photo", details[12]);
                                     Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                     addInternshipToLayout(map);
                                 }
                             }
                         }
                     }
+                    swipeRefreshLayout.setRefreshing(false);
                 },
 
                 error -> {
@@ -157,6 +177,7 @@ public class ViewAccountInternshipFragment extends Fragment {
         View postView = LayoutInflater.from(requireContext()).inflate(R.layout.internship_post_item, lv, false);
 
         // Set data for user info
+        ImageView profile_icon = postView.findViewById(R.id.profile_icon);
         TextView userName = postView.findViewById(R.id.post_user_name);
         TextView userRole = postView.findViewById(R.id.post_user_role);
         TextView postTitle = postView.findViewById(R.id.post_title);
@@ -178,6 +199,22 @@ public class ViewAccountInternshipFragment extends Fragment {
             postHashtags.setVisibility(View.VISIBLE);  // Ensure it's visible
         } else {
             postHashtags.setVisibility(View.GONE);  // Hide it if no hashtags are present
+        }
+        String photoData = item.get("photo");
+        Log.d("UserDetails", "Photo Data: " + item.get("photo"));
+        if (photoData != null && !photoData.isEmpty()) {
+            saveBase64ToFile(photoData, file -> {
+                // Once the image is saved, decode the file to Bitmap
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                if (bitmap != null) {
+                    profile_icon.setImageBitmap(bitmap);
+                } else {
+                    Log.e("ImageError", "Failed to decode bitmap from file.");
+                    profile_icon.setImageResource(R.drawable.account); // Default image
+                }
+            });
+        } else {
+            profile_icon.setImageResource(R.drawable.account); // Default image
         }
 
         // Set up the options menu for each post
@@ -207,6 +244,25 @@ public class ViewAccountInternshipFragment extends Fragment {
 
         // Add the postView to the parent layout
         lv.addView(postView);
+    }
+
+    private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
+        try {
+            byte[] decodedBytes = android.util.Base64.decode(base64Data, android.util.Base64.DEFAULT);
+
+            // Save the decoded bytes to a file in cache directory
+            File cacheDir = requireContext().getCacheDir();
+            File imageFile = new File(cacheDir, "profile_image.jpg");
+
+            FileOutputStream fos = new FileOutputStream(imageFile);
+            fos.write(decodedBytes);
+            fos.close();
+
+            // Notify that the file has been saved
+            listener.onFileSaved(imageFile);
+        } catch (Exception e) {
+            Log.e("FileSaveError", "Error saving Base64 to file: " + e.getMessage());
+        }
     }
 
     private void confirmDelete(HashMap<String, String> item) {

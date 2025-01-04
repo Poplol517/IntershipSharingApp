@@ -2,6 +2,8 @@ package mdad.localdata.intershipsharingapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -33,6 +35,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +46,8 @@ public class ViewAccountFragment extends Fragment {
     private ViewPager2 viewPager;
 
     private TextView tvName, tvRole, tvCourse, tvStudyYear;
-    private Button btnEditProfile, btnLogout;
+    private ImageView profileIcon;
+    private Button btnEditProfile, btnLogout,btnEditProfilePic;
     private LinearLayout accountSection;
 
     public ViewAccountFragment() {
@@ -54,11 +59,13 @@ public class ViewAccountFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_view_account, container, false);
 
         // Initialize UI components for account section
+        profileIcon = view.findViewById(R.id.profileIcon);
         tvName = view.findViewById(R.id.tvName);
         tvRole = view.findViewById(R.id.tvRole);
         tvCourse = view.findViewById(R.id.tvCourse);
         tvStudyYear = view.findViewById(R.id.tvStudyYear);
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
+        btnEditProfilePic = view.findViewById(R.id.btnEditProfilePic);
         btnLogout = view.findViewById(R.id.btnLogout);
         accountSection = view.findViewById(R.id.accountSection);
 
@@ -85,6 +92,19 @@ public class ViewAccountFragment extends Fragment {
 
         // Fetch and display logged-in user account details
         fetchUserDetails();
+
+        btnEditProfilePic.setOnClickListener(v -> {
+            // Navigate to EditProfileFragment
+            UpdateProfilePictureFragment updateProfilePictureFragment = new UpdateProfilePictureFragment();
+
+            // Start the fragment transaction
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, updateProfilePictureFragment) // Replace with your container ID
+                    .addToBackStack(null) // Adds the transaction to the back stack
+                    .commit();
+        });
 
         btnEditProfile.setOnClickListener(v -> {
             // Navigate to EditProfileFragment
@@ -160,6 +180,7 @@ public class ViewAccountFragment extends Fragment {
                                     userDetails.put("course", details[5]);
                                     userDetails.put("study_year", details[6]);
                                     userDetails.put("graduated_year", details[7]);
+                                    userDetails.put("photo", details.length > 10 ? details[10] : "");
 
                                     Log.d("UserDetails", "Fetched Details: " + userDetails);
                                     displayUserDetails(userDetails, details[8]);
@@ -178,19 +199,85 @@ public class ViewAccountFragment extends Fragment {
     }
 
     private void displayUserDetails(HashMap<String, String> userDetails, String role) {
+        Log.d("UserDetails", "Displaying Details: " + userDetails);
         if ("1".equals(role)) { // Role 1 - Student
             tvName.setText(userDetails.get("name"));
             tvRole.setText(userDetails.get("role"));
             tvCourse.setText(userDetails.get("course"));
-            tvStudyYear.setText("Year of Study: "+userDetails.get("study_year"));
+            tvStudyYear.setText("Year of Study: " + userDetails.get("study_year"));
+
+            String photoData = userDetails.get("photo");
+            Log.d("UserDetails", "Photo Data: " + userDetails.get("photo"));
+            if (photoData != null && !photoData.isEmpty()) {
+                saveBase64ToFile(photoData, file -> {
+                    // Once the image is saved, decode the file to Bitmap
+                    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                    if (bitmap != null) {
+                        profileIcon.setImageBitmap(bitmap);
+                    } else {
+                        Log.e("ImageError", "Failed to decode bitmap from file.");
+                        profileIcon.setImageResource(R.drawable.account); // Default image
+                    }
+                });
+            } else {
+                profileIcon.setImageResource(R.drawable.account); // Default image
+            }
+
         } else if ("2".equals(role)) { // Role 2 - Alumni
             tvName.setText(userDetails.get("name"));
             tvRole.setText(userDetails.get("role"));
             tvCourse.setText(userDetails.get("course"));
-            tvStudyYear.setText("Graduated Year: "+userDetails.get("graduated_year"));
+            tvStudyYear.setText("Graduated Year: " + userDetails.get("graduated_year"));
+
+            String photoData = userDetails.get("photo");
+            if (photoData != null && !photoData.isEmpty()) {
+                try {
+                    photoData = photoData.replace("\n", "").replace("\r", "");
+                    Log.d("UserDetails", "Photo Data: " + photoData);
+                    saveBase64ToFile(photoData, file -> {
+                        // Once the image is saved, decode the file to Bitmap
+                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        if (bitmap != null) {
+                            profileIcon.setImageBitmap(bitmap);
+                        } else {
+                            Log.e("ImageError", "Failed to decode bitmap from file.");
+                            profileIcon.setImageResource(R.drawable.account); // Default image
+                        }
+                    });
+                } catch (IllegalArgumentException e) {
+                    Log.e("Base64Error", "Invalid Base64 data: " + e.getMessage());
+                    profileIcon.setImageResource(R.drawable.account); // Default image
+                }
+            } else {
+                profileIcon.setImageResource(R.drawable.account); // Default image
+            }
         }
     }
 
+    // Method to decode Base64 string and save it to a file
+    private void saveBase64ToFile(String base64Data, OnFileSavedListener listener) {
+        try {
+            byte[] decodedBytes = android.util.Base64.decode(base64Data, android.util.Base64.DEFAULT);
+
+            // Save the decoded bytes to a file in cache directory
+            File cacheDir = requireContext().getCacheDir();
+            File imageFile = new File(cacheDir, "profile_image.jpg");
+
+            FileOutputStream fos = new FileOutputStream(imageFile);
+            fos.write(decodedBytes);
+            fos.close();
+
+            // Notify that the file has been saved
+            listener.onFileSaved(imageFile);
+        } catch (Exception e) {
+            Log.e("FileSaveError", "Error saving Base64 to file: " + e.getMessage());
+        }
+    }
+
+    // Callback interface for file saving completion
+    public interface OnFileSavedListener {
+        void onFileSaved(File file);
+    }
 
     private static class FragmentAdapter extends FragmentStateAdapter {
         public FragmentAdapter(@NonNull FragmentActivity fragmentActivity) {
