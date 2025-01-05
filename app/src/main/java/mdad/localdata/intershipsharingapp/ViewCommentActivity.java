@@ -284,13 +284,14 @@ public class ViewCommentActivity extends AppCompatActivity {
         if (response.endsWith(":")) {
             response = response.substring(0, response.length() - 1);
         }
-        Log.d("ViewCommentActivity", "Cleaned Response: " + response);
+
 
         String[] comments = response.split(":");
-        Log.d("ViewCommentActivity", "Parsed Comments Array: " + Arrays.toString(comments));
 
-        boolean isInternshipFlag = "true".equals(itemDetails.get("isInternship"));
-        Log.d("ViewCommentActivity", "isInternshipFlag: " + isInternshipFlag);
+
+        boolean isInternship = "true".equals(itemDetails.get("isInternship"));
+        String targetId = itemDetails.get(isInternship ? "InternshipID" : "QuestionID");
+        Log.d("ViewCommentActivity", "isInternshipFlag: " + isInternship + ", Target ID: " + targetId);
 
         for (String commentData : comments) {
             String[] details = commentData.split(";");
@@ -303,19 +304,27 @@ public class ViewCommentActivity extends AppCompatActivity {
                 map.put("userId", details[2]);
 
                 // Add conditional mapping based on isInternshipFlag
-                if (isInternshipFlag) {
-                    map.put("internshipId", details.length > 3 ? details[3] : "");
+                String id = "";
+                if (isInternship) {
+                    id = details.length > 3 ? details[3] : "";
+                    map.put("internshipId", id);
                 } else {
-                    map.put("questionId", details.length > 3 ? details[3] : "");
+                    id = details.length > 3 ? details[3] : "";
+                    map.put("questionId", id);
                 }
-                map.put("user_name", details[4]);
-                map.put("role", details[5]);
-                map.put("course", details[6]);
-                map.put("date_shared", details.length > 7 ? details[7] : "");
 
+                // Check if the comment matches the target internshipId or questionId
+                if (id.equals(targetId)) {
+                    map.put("user_name", details[4]);
+                    map.put("role", details[5]);
+                    map.put("course", details[6]);
+                    map.put("date_shared", details.length > 7 ? details[7] : "");
 
-                commentList.add(map);
-                Log.d("ViewCommentActivity", "Comment Added: " + map);
+                    commentList.add(map);
+                    Log.d("ViewCommentActivity", "Comment Added: " + map);
+                } else {
+                    Log.d("ViewCommentActivity", "Comment Skipped (ID doesn't match): " + Arrays.toString(details));
+                }
             } else {
                 Log.e("ViewCommentActivity", "Invalid Comment Data: " + Arrays.toString(details));
             }
@@ -344,6 +353,7 @@ public class ViewCommentActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
     // Method to generate TextViews for each comment dynamically using the custom layout
@@ -553,19 +563,17 @@ public class ViewCommentActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
-
-
-
     private void filterComments(String query) {
         // If the query is empty, show all comments
         if (query.isEmpty()) {
-            generateCommentViews(LayoutInflater.from(this)); // Show all comments
+            generateCommentViews(LayoutInflater.from(this)); // Show all comments again
             return;
         }
 
         // Create a filtered list based on the query
         List<HashMap<String, String>> filteredList = new ArrayList<>();
         for (HashMap<String, String> comment : commentList) {
+            Log.d("ViewCommentActivity", "Processing Comment: " + comment);
             String description = comment.get("description");
             String userName = comment.get("user_name");
             String role = comment.get("role");
@@ -583,7 +591,7 @@ public class ViewCommentActivity extends AppCompatActivity {
             }
         }
 
-        // Update the commentsLinearLayout with the filtered list
+        // Clear the comment section and add filtered comments
         commentsLinearLayout.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
         for (HashMap<String, String> comment : filteredList) {
@@ -600,4 +608,5 @@ public class ViewCommentActivity extends AppCompatActivity {
             commentsLinearLayout.addView(commentView);
         }
     }
+
 }
