@@ -73,6 +73,12 @@
                 android:layout_height="wrap_content"
                 android:text="Edit Profile Picture" />
 
+            <Button
+                android:id="@+id/btnRemoveProfilePic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove Profile Picture" />
+
             <!-- Edit Profile Button -->
             <Button
                 android:id="@+id/btnEditProfile"

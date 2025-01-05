@@ -74,7 +74,7 @@ public class HomeFragment extends Fragment {
                                 map.put("username", details.length > 9 ? details[9] : "");
                                 map.put("location_name", details.length > 10 ? details[10] : "");
                                 map.put("role", details[11]);
-                                map.put("photo", details[12]);
+                                map.put("photo", details.length > 12 ? details[12] : "");
                                 Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                 addInternshipToLayout(map);
                             }
@@ -174,7 +174,7 @@ public class HomeFragment extends Fragment {
                     for (String question : questions) {
                         if (!question.isEmpty()) {
                             String[] details = question.split(";");
-                            if (details.length >= 7) {
+                            if (details.length >= 8) {
                                 HashMap<String, String> map = new HashMap<>();
                                 map.put("QuestionID", details[0]);
                                 map.put("title", details[1]);
@@ -184,7 +184,7 @@ public class HomeFragment extends Fragment {
                                 map.put("user_name", details.length > 5 ? details[5] : "");
                                 map.put("course", details.length > 6 ? details[6] : "");
                                 map.put("role", details[7]);
-                                map.put("photo", details[8]);
+                                map.put("photo", details.length > 8 ? details[8] : "");
                                 Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                 addQuestionToLayout(map);
                             }

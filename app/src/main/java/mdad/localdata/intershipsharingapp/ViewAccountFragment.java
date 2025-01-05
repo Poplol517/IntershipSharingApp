@@ -47,7 +47,7 @@ public class ViewAccountFragment extends Fragment {
 
     private TextView tvName, tvRole, tvCourse, tvStudyYear;
     private ImageView profileIcon;
-    private Button btnEditProfile, btnLogout,btnEditProfilePic;
+    private Button btnEditProfile, btnLogout,btnEditProfilePic,btnRemoveProfilePic;
     private LinearLayout accountSection;
 
     public ViewAccountFragment() {
@@ -67,6 +67,7 @@ public class ViewAccountFragment extends Fragment {
         btnEditProfile = view.findViewById(R.id.btnEditProfile);
         btnEditProfilePic = view.findViewById(R.id.btnEditProfilePic);
         btnLogout = view.findViewById(R.id.btnLogout);
+        btnRemoveProfilePic = view.findViewById(R.id.btnRemoveProfilePic);
         accountSection = view.findViewById(R.id.accountSection);
 
         // Initialize TabLayout and ViewPager2
@@ -104,6 +105,10 @@ public class ViewAccountFragment extends Fragment {
                     .replace(R.id.fragment_container, updateProfilePictureFragment) // Replace with your container ID
                     .addToBackStack(null) // Adds the transaction to the back stack
                     .commit();
+        });
+
+        btnRemoveProfilePic.setOnClickListener(v -> {
+            removeProfilePicture();
         });
 
         btnEditProfile.setOnClickListener(v -> {
@@ -302,4 +307,40 @@ public class ViewAccountFragment extends Fragment {
             return 2; // Adjust based on number of tabs
         }
     }
+
+    private void removeProfilePicture() {
+        String urlRemoveProfilePicture = StaffMainActivity.ipBaseAddress + "/delete_profile_picture.php";
+        RequestQueue queue = Volley.newRequestQueue(requireContext());
+
+        // Get the logged-in user's ID from SharedPreferences
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", getContext().MODE_PRIVATE);
+        String currentUserId = sharedPreferences.getString("username", ""); // Assuming 'username' is used as userID
+
+        // Create a POST request
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, urlRemoveProfilePicture,
+                response -> {
+                    if (response.equals("Success")) {
+                        Toast.makeText(requireContext(), "Profile picture removed successfully", Toast.LENGTH_SHORT).show();
+                        profileIcon.setImageResource(R.drawable.account); // Reset to default image
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to remove profile picture", Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    Log.e("VolleyError", error.toString());
+                    Toast.makeText(requireContext(), "Error communicating with the server", Toast.LENGTH_LONG).show();
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+                // Send userID as a POST parameter
+                Map<String, String> params = new HashMap<>();
+                params.put("userId", currentUserId);
+                return params;
+            }
+        };
+
+        // Add the request to the queue
+        queue.add(stringRequest);
+    }
+
 }

@@ -1,6 +1,8 @@
 package mdad.localdata.intershipsharingapp;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +28,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -104,11 +108,13 @@ public class ViewCommentActivity extends AppCompatActivity {
                 } else {
                     // Send the new comment to the server
                     createComment(newCommentText);
+                    newCommentEditText.setText("");
                 }
             }
         });
 
         // Populate post data
+        ImageView profile_icon = findViewById(R.id.profile_icon);
         TextView userName = findViewById(R.id.post_user_name);
         TextView userRole = findViewById(R.id.post_user_role);
         TextView postContent = findViewById(R.id.post_content);
@@ -137,11 +143,46 @@ public class ViewCommentActivity extends AppCompatActivity {
             Toast.makeText(this, "Invalid data received. Cannot load comments.", Toast.LENGTH_SHORT).show();
             return;
         }
+        String photoData = itemDetails.get("photo");
+        Log.d("UserDetails", "Photo Data: " + itemDetails.get("photo"));
+        if (photoData != null && !photoData.isEmpty()) {
+            saveBase64ToFile(photoData, file -> {
+                // Once the image is saved, decode the file to Bitmap
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                if (bitmap != null) {
+                    profile_icon.setImageBitmap(bitmap);
+                } else {
+                    Log.e("ImageError", "Failed to decode bitmap from file.");
+                    profile_icon.setImageResource(R.drawable.account); // Default image
+                }
+            });
+        } else {
+            profile_icon.setImageResource(R.drawable.account); // Default image
+        }
 
         Log.d("ViewCommentActivity", "URL Selected: " + urlToUse);
 
         // Fetch comments from the server
         postData(urlToUse, null);
+    }
+
+    private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
+        try {
+            byte[] decodedBytes = android.util.Base64.decode(base64Data, android.util.Base64.DEFAULT);
+
+            // Save the decoded bytes to a file in cache directory
+            File cacheDir = this.getCacheDir();
+            File imageFile = new File(cacheDir, "profile_image.jpg");
+
+            FileOutputStream fos = new FileOutputStream(imageFile);
+            fos.write(decodedBytes);
+            fos.close();
+
+            // Notify that the file has been saved
+            listener.onFileSaved(imageFile);
+        } catch (Exception e) {
+            Log.e("FileSaveError", "Error saving Base64 to file: " + e.getMessage());
+        }
     }
 
 
@@ -174,12 +215,10 @@ public class ViewCommentActivity extends AppCompatActivity {
                         Log.d("ViewCommentActivity", "Create Comment Response: " + response);
                         if (response.equals("success")) {
                             // If the comment is created successfully, update the UI
-                            Toast.makeText(getApplicationContext(), "Comment posted successfully", Toast.LENGTH_SHORT).show();
                             // Reload comments dynamically based on the flag
                             String reloadUrl = isInternship ? url_view_internship_comment : url_view_question_comment;
                             postData(reloadUrl, null);
                         } else {
-                            Toast.makeText(getApplicationContext(), "Failed to post comment", Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -273,6 +312,7 @@ public class ViewCommentActivity extends AppCompatActivity {
                 map.put("role", details[5]);
                 map.put("course", details[6]);
                 map.put("date_shared", details.length > 7 ? details[7] : "");
+
 
                 commentList.add(map);
                 Log.d("ViewCommentActivity", "Comment Added: " + map);

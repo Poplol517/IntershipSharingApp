@@ -2,10 +2,12 @@ package mdad.localdata.intershipsharingapp;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.animation.ObjectAnimator;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -28,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -226,10 +229,12 @@ public class CreateQuestionFragment extends Fragment {
                             if (jsonResponse.has("questionId")) {
                                 String questionId = jsonResponse.getString("questionId");
                                 Log.d("QuestionID", "Retrieved questionId: " + questionId);
+                                showCreateSuccessfulAlert();
 
                                 // Now call sendIndustryData with the retrieved internshipId
                                 sendIndustryData(questionId);
                             } else {
+                                showCreateFailedAlert();
                                 Log.e("ResponseError", "No 'internship_id' field in the response");
                                 Toast.makeText(requireContext(), "Internship ID not found", Toast.LENGTH_SHORT).show();
                             }
@@ -512,5 +517,82 @@ public class CreateQuestionFragment extends Fragment {
                 chipGroup.addView(chip);
             }
         }
+    }
+    public void showCreateSuccessfulAlert() {
+        // Create LottieAnimationView dynamically
+        LottieAnimationView lottieSuccess = new LottieAnimationView(requireContext());
+        lottieSuccess.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+        lottieSuccess.setAnimation(R.raw.success);  // Reference your Lottie JSON animation
+        lottieSuccess.playAnimation();
+
+        // Create a TextView for the success message
+        TextView messageTextView = new TextView(requireContext());
+        messageTextView.setText("Created Post Successfully!");
+        messageTextView.setTypeface(null, Typeface.BOLD);
+        messageTextView.setTextSize(18);
+        messageTextView.setTextColor(Color.parseColor("#228B22"));
+        messageTextView.setGravity(Gravity.CENTER);
+
+        // Apply a fade-in animation to the TextView
+        messageTextView.setAlpha(0f);  // Start fully transparent
+        ObjectAnimator animator = ObjectAnimator.ofFloat(messageTextView, "alpha", 0f, 1f);
+        animator.setDuration(1000);  // Duration of the fade-in effect (1 second)
+        animator.start();
+
+        // Create a vertical LinearLayout to hold Lottie and TextView
+        LinearLayout dialogLayout = new LinearLayout(requireContext());
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(50, 50, 50, 50);  // Add padding
+        dialogLayout.setGravity(Gravity.CENTER);
+        dialogLayout.addView(lottieSuccess);
+        dialogLayout.addView(messageTextView);
+
+
+
+        // Build and show the dialog with the custom view
+        new MaterialAlertDialogBuilder(requireContext())
+                .setView(dialogLayout)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss();
+                    requireActivity().onBackPressed();
+                })
+                .show();
+    }
+
+    public void showCreateFailedAlert() {
+        // Create LottieAnimationView dynamically
+        LottieAnimationView lottieSuccess = new LottieAnimationView(requireContext());
+        lottieSuccess.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+        lottieSuccess.setAnimation(R.raw.denied);  // Reference your Lottie JSON animation
+        lottieSuccess.playAnimation();
+
+        // Create a TextView for the success message
+        TextView messageTextView = new TextView(requireContext());
+        messageTextView.setText("Fail to Post Question. Please try again!");
+        messageTextView.setTypeface(null, Typeface.BOLD);
+        messageTextView.setTextSize(18);
+        messageTextView.setTextColor(Color.parseColor("#800000"));
+        messageTextView.setGravity(Gravity.CENTER);
+
+        // Apply a fade-in animation to the TextView
+        messageTextView.setAlpha(0f);  // Start fully transparent
+        ObjectAnimator animator = ObjectAnimator.ofFloat(messageTextView, "alpha", 0f, 1f);
+        animator.setDuration(1000);  // Duration of the fade-in effect (1 second)
+        animator.start();
+
+        // Create a vertical LinearLayout to hold Lottie and TextView
+        LinearLayout dialogLayout = new LinearLayout(requireContext());
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setPadding(50, 50, 50, 50);  // Add padding
+        dialogLayout.setGravity(Gravity.CENTER);
+        dialogLayout.addView(lottieSuccess);
+        dialogLayout.addView(messageTextView);
+
+        // Build and show the dialog with the custom view
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Denied!!")
+                .setView(dialogLayout)
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }

@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -43,6 +45,7 @@ import java.util.Map;
  */
 public class ViewAccountQuestionFragment extends Fragment {
     private LinearLayout lv;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -89,10 +92,19 @@ public class ViewAccountQuestionFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_view_account_internship, container, false);
+        View view = inflater.inflate(R.layout.fragment_view_account_question, container, false);
         lv = view.findViewById(R.id.list);
         // Optionally, you can also fetch internships here if you want an initial fetch when the fragment is created
-        fetchQuestions();
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+
+        // Set up the refresh listener
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Handle the refresh logic here
+                fetchQuestions();
+            }
+        });
         return view;
     }
 
@@ -138,7 +150,7 @@ public class ViewAccountQuestionFragment extends Fragment {
                                     map.put("user_name", details[5]);
                                     map.put("course", details.length > 6 ? details[6] : "");
                                     map.put("role", details.length > 7 ? details[7] : "");
-                                    map.put("photo", details[8]);
+                                    map.put("photo", details.length > 8 ? details[8] : "");
                                     Log.d("QuestionDetails", map.toString());
                                     addQuestionToLayout(map);
                                     Log.d("QuestionDetails", map.toString());
@@ -146,6 +158,7 @@ public class ViewAccountQuestionFragment extends Fragment {
                             }
                         }
                     }
+                    swipeRefreshLayout.setRefreshing(false);
                 },
 
                 error -> {

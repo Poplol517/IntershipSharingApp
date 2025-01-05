@@ -154,7 +154,7 @@ public class ViewAccountInternshipFragment extends Fragment {
                                     map.put("username", details.length > 9 ? details[9] : "");
                                     map.put("location_name", details.length > 10 ? details[10] : "");
                                     map.put("role", details[11]);
-                                    map.put("photo", details[12]);
+                                    map.put("photo", details.length > 12 ? details[12] : "");
                                     Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                     addInternshipToLayout(map);
                                 }
