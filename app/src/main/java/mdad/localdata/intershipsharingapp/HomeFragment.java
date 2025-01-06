@@ -120,6 +120,7 @@ public class HomeFragment extends Fragment {
         Log.d("UserDetails", "Photo Data: " + item.get("photo"));
         if (photoData != null && !photoData.isEmpty()) {
             saveBase64ToFile(photoData, file -> {
+                Log.d("UserDetails", "File Path: " + file.getAbsolutePath());
                 // Once the image is saved, decode the file to Bitmap
                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                 if (bitmap != null) {

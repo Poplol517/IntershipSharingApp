@@ -4,6 +4,10 @@
         android:title="Home"
         android:icon="@drawable/home" />
     <item
+        android:id="@+id/menu_chat"
+        android:title="Community"
+        android:icon="@drawable/community" />
+    <item
         android:id="@+id/menu_create_post"
         android:title="Create Post"
         android:icon="@drawable/create" />

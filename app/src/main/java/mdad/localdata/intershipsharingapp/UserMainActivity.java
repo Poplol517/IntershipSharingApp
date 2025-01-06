@@ -46,6 +46,7 @@ public class UserMainActivity extends AppCompatActivity {
         fragmentMap = new HashMap<>();
         fragmentMap.put(R.id.menu_home, new HomeFragment());
         fragmentMap.put(R.id.menu_account, new ViewAccountFragment());
+        fragmentMap.put(R.id.menu_chat, new ViewCommunityFragment());
         // Add other fragments if necessary
         searchView = findViewById(R.id.search_view);
 
