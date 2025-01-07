@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,12 +60,25 @@ public class ViewAllCommunityFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.carouselRecyclerView);  // Ensure recyclerView is initialized
         items = new ArrayList<>();
-        adapter = new CarouselAdapter(items);
+        adapter = new CarouselAdapter(items, item -> {
+            // When an item is clicked, navigate to the detail fragment
+
+            // Create a new instance of the CommunityDetailFragment
+            ViewSelectedCommunityFragment detailFragment =ViewSelectedCommunityFragment.newInstance(item.getTitle(),item.getDescription(), item.getChatID(),item.getImageBitmap());
+
+            // Begin the fragment transaction
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, detailFragment); // Use your container ID
+            transaction.addToBackStack(null); // Add to back stack for navigation
+            transaction.commit(); // Commit the transaction
+        });
 
         recyclerView.setAdapter(adapter);
 
         // Use LinearLayoutManager for vertical scrolling
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2); // 2 columns
+        recyclerView.setLayoutManager(gridLayoutManager);
+
 
         // Remove PagerSnapHelper since you don't need snapping behavior anymore
         // PagerSnapHelper snapHelper = new PagerSnapHelper();
@@ -95,11 +110,11 @@ public class ViewAllCommunityFragment extends Fragment {
                             if (details.length >= 3) {
                                 HashMap<String, String> map = new HashMap<>();
                                 map.put("communityId", details[0]);
-                                map.put("name", details[1]);
+                                map.put("title", details[1]);
                                 map.put("description", details[2]);
                                 map.put("photo", details.length > 3 ? details[3] : "");
                                 Log.d("CommunityDetails", "Size: " + details.length + ", Content: " + Arrays.toString(details));
-                                addCommunityToList(map);
+                                addCommunityToCarousel(map);
                             }
                         }
                     }
@@ -115,18 +130,22 @@ public class ViewAllCommunityFragment extends Fragment {
         queue.add(stringRequest);
     }
 
-    private void addCommunityToList(final HashMap<String, String> item) {
+    private void addCommunityToCarousel(final HashMap<String, String> item) {
         // Create a CarouselItem for each community and add it to the list
         String imageData = item.get("photo");
+        Log.d("CommunityDetails", "Photo Data: " + item.get("photo"));
         int imageResId = R.drawable.no_image; // Set default image
 
         if (imageData != null && !imageData.isEmpty()) {
             saveBase64ToFile(imageData, file -> {
                 // Once the image is saved, decode the file to Bitmap
+                Log.d("CommunityDetails", "File Path: " + file.getAbsolutePath());
                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                Log.d("CommunityDetails", "Bitmap: " + bitmap);
                 if (bitmap != null) {
                     // Add new CarouselItem with the image and title
-                    items.add(new CarouselAdapter.CarouselItem(bitmap, item.get("name")));  // use name as title
+                    items.add(new CarouselAdapter.CarouselItem(bitmap, item.get("title"), item.get("description"),item.get("communityId")));
+                    Log.d("CommunityDetails", "Item Added: " + item.get("communityId"));
                     adapter.notifyDataSetChanged();
                 } else {
                     Log.e("ImageError", "Failed to decode bitmap from file.");
@@ -134,31 +153,31 @@ public class ViewAllCommunityFragment extends Fragment {
             });
         } else {
             // Add a default item if no image is available
-            items.add(new CarouselAdapter.CarouselItem(imageResId, item.get("name")));  // use name as title
+            items.add(new CarouselAdapter.CarouselItem( imageResId , item.get("title"), item.get("description"),item.get("communityId")));
             adapter.notifyDataSetChanged();
         }
     }
 
+
     private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
         try {
+            // Decode the base64 data into a byte array
             byte[] decodedBytes = android.util.Base64.decode(base64Data, android.util.Base64.DEFAULT);
+            Log.d("Base64Decode", "Decoded bytes length: " + decodedBytes.length);
 
-            // Save the decoded bytes to a file in the cache directory
+            // Create the PNG file in the cache directory
             File cacheDir = requireContext().getCacheDir();
-            File imageFile = new File(cacheDir, "community_image.jpg");
+            File imageFile = new File(cacheDir, "community_image.png");  // PNG extension
 
-            FileOutputStream fos = new FileOutputStream(imageFile);
-            fos.write(decodedBytes);
-            fos.close();
+            // Save the decoded bytes to the file
+            try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+                fos.write(decodedBytes);
+                fos.flush();  // Ensure all data is written
+                listener.onFileSaved(imageFile);  // Notify when file is saved
+            }
 
-            // Notify that the file has been saved
-            listener.onFileSaved(imageFile);
         } catch (Exception e) {
             Log.e("FileSaveError", "Error saving Base64 to file: " + e.getMessage());
         }
-    }
-
-    private interface OnFileSavedListener {
-        void onFileSaved(File file);
     }
 }

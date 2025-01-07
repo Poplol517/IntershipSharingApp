@@ -44,7 +44,18 @@ public class ViewCommunityFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.carouselRecyclerView);
         items = new ArrayList<>();
-        adapter = new CarouselAdapter(items);
+        adapter = new CarouselAdapter(items, item -> {
+            // When an item is clicked, navigate to the detail fragment
+
+            // Create a new instance of the CommunityDetailFragment
+            ViewSelectedCommunityFragment detailFragment =ViewSelectedCommunityFragment.newInstance(item.getTitle(), item.getDescription(), item.getChatID(), item.getImageBitmap());
+
+            // Begin the fragment transaction
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, detailFragment); // Use your container ID
+            transaction.addToBackStack(null); // Add to back stack for navigation
+            transaction.commit(); // Commit the transaction
+        });
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -126,8 +137,8 @@ public class ViewCommunityFragment extends Fragment {
                 Log.d("CommunityDetails", "Bitmap: " + bitmap);
                 if (bitmap != null) {
                     // Add new CarouselItem with the image and title
-                    items.add(new CarouselAdapter.CarouselItem(bitmap, item.get("title")));
-                    Log.d("CommunityDetails", "Items: " + "succesful");
+                    items.add(new CarouselAdapter.CarouselItem(bitmap, item.get("title"), item.get("description"),item.get("communityId")));
+                    Log.d("CommunityDetails", "Item Added: " + item.get("communityId"));
                     adapter.notifyDataSetChanged();
                 } else {
                     Log.e("ImageError", "Failed to decode bitmap from file.");
@@ -135,7 +146,7 @@ public class ViewCommunityFragment extends Fragment {
             });
         } else {
             // Add a default item if no image is available
-            items.add(new CarouselAdapter.CarouselItem( imageResId , item.get("title")));
+            items.add(new CarouselAdapter.CarouselItem( imageResId , item.get("title"), item.get("description"),item.get("communityId")));
             adapter.notifyDataSetChanged();
         }
     }

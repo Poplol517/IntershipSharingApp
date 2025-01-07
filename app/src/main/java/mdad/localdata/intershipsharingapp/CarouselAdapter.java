@@ -14,11 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHolder> {
-
     private final List<CarouselItem> items;
+    private final OnItemClickListener onItemClickListener;
 
-    public CarouselAdapter(List<CarouselItem> items) {
+    // Constructor with listener
+    public CarouselAdapter(List<CarouselItem> items, OnItemClickListener onItemClickListener) {
         this.items = items;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -33,20 +35,28 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CarouselItem item = items.get(position);
 
-        // If the item contains a Bitmap, set the ImageView with the Bitmap
+        // Set image
         if (item.getImageBitmap() != null) {
             holder.imageView.setImageBitmap(item.getImageBitmap());
         } else {
-            // If the item contains a resource ID, set the ImageView with the resource
             holder.imageView.setImageResource(item.getImageResId());
         }
 
+        // Set title
         holder.textView.setText(item.getTitle());
+
+        // Set click listener
+        holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(item));
+        Log.d("CarouselAdapter", "onBindViewHolder called with item: " + item.getChatID());
     }
 
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(CarouselItem item);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -63,20 +73,31 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHo
     public static class CarouselItem {
         private int imageResId; // For resource ID (e.g., default image)
         private Bitmap imageBitmap; // For Bitmap images
-        private String title;
+        private String title, description;
+        private String communityId;
+
 
         // Constructor for resource ID
-        public CarouselItem(int imageResId, String title) {
+        public CarouselItem(int imageResId, String title, String description,String communityId) {
             this.imageResId = imageResId;
             this.imageBitmap = null; // Not used when using resource ID
             this.title = title;
+            this.description = description;
+            this.communityId = communityId;
         }
 
         // Constructor for Bitmap image
-        public CarouselItem(Bitmap imageBitmap, String title) {
+        public CarouselItem(Bitmap imageBitmap, String title, String description,String communityId) {
             this.imageResId = 0; // Not used when using Bitmap
             this.imageBitmap = imageBitmap;
             this.title = title;
+            this.description = description;
+            this.communityId = communityId;
+
+        }
+
+        public String getChatID() {
+            return communityId;  // Use getCommunityId instead of getChatID
         }
 
         public int getImageResId() {
@@ -90,5 +111,9 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHo
         public String getTitle() {
             return title;
         }
+        public String getDescription() {
+            return description;
+        }
     }
 }
+
