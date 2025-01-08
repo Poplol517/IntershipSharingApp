@@ -4,16 +4,22 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Message {
+    private String id;
     private String userId;
     private String text, name;
     private String timestamp;  // Store timestamp as string
 
     // Constructor for initializing the message
-    public Message(String userId, String text, String timestamp, String name) {
+    public Message(String id,String userId, String text, String timestamp, String name) {
+        this.id = id;
         this.userId = userId;
         this.text = text;
         this.timestamp = timestamp;
         this.name = name;
+    }
+
+    public String getId() {
+        return id;
     }
 
     // Getter methods

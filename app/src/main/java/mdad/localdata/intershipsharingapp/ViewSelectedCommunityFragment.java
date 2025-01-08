@@ -18,6 +18,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +53,8 @@ public class ViewSelectedCommunityFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String url_get_message = StaffMainActivity.ipBaseAddress + "/get_all_message.php";
+    private static final String url_create_message = StaffMainActivity.ipBaseAddress + "/create_message.php";
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -99,6 +103,8 @@ public class ViewSelectedCommunityFragment extends Fragment {
         TextView titleTextView = view.findViewById(R.id.tvName);
         TextView descriptionTextView = view.findViewById(R.id.tvDescription);
         ImageView imageView = view.findViewById(R.id.communityPhoto);
+        EditText editText = view.findViewById(R.id.editMessage);
+        Button sendButton = view.findViewById(R.id.btnSendMessage);
 
         sharedPreferences = getActivity().getSharedPreferences("UserSession", MODE_PRIVATE);
         String currentUserId = sharedPreferences.getString("username", "");
@@ -124,6 +130,21 @@ public class ViewSelectedCommunityFragment extends Fragment {
         layoutManager.setReverseLayout(false);
         chatRecyclerView.setLayoutManager(layoutManager);
         chatRecyclerView.setAdapter(chatAdapter);
+
+        sendButton.setOnClickListener(v -> {
+            String messageText = editText.getText().toString().trim();
+            if (!messageText.isEmpty()) {
+                String communityId = getArguments() != null ? getArguments().getString(ARG_CHATID) : null;
+                if (communityId != null && !communityId.isEmpty()) {
+                    createMessage(currentUserId, communityId, messageText);
+                    editText.setText(""); // Clear the message input field
+                } else {
+                    Toast.makeText(getContext(), "Community ID is missing", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "Message cannot be empty", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Start the polling for new messages
         startPolling();
@@ -182,6 +203,7 @@ public class ViewSelectedCommunityFragment extends Fragment {
 
                                     // Ensure there are at least 6 details (chatId, userId, communityId, text, timestamp, name)
                                     if (messageDetails.length >= 6) {
+                                        String messageId = messageDetails[0];
                                         String chatId = messageDetails[2];
                                         String userId = messageDetails[1];  // userId
                                         String text = messageDetails[3];    // text
@@ -194,7 +216,7 @@ public class ViewSelectedCommunityFragment extends Fragment {
                                             LocalDateTime timestamp = LocalDateTime.parse(timestampStr, formatter);
 
                                             // Add the message with the parsed timestamp
-                                            messages.add(new Message(userId, text, timestampStr, name));
+                                            messages.add(new Message(messageId,userId, text, timestampStr, name));
 
                                             // Update last fetched time to the latest message timestamp
                                             if (timestamp.isAfter(LocalDateTime.parse(lastFetchedTime, formatter))) {
@@ -236,6 +258,47 @@ public class ViewSelectedCommunityFragment extends Fragment {
             queue.add(stringRequest);
         } else {
             Log.w("FragmentError", "Fragment is not attached to a context, skipping fetchMessages call.");
+        }
+    }
+
+    // Add this method in your ViewSelectedCommunityFragment class
+    private void createMessage(String userId, String communityId, String messageText) {
+        if (getContext() != null) {
+            // API endpoint for creating a message
+
+            // Use Volley to make the POST request
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url_create_message,
+                    response -> {
+                        Log.d("CreateMessageResponse", response);
+
+                        if (response.trim().equals("Error")) {
+                            Toast.makeText(getContext(), "Error sending message", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "Message sent successfully", Toast.LENGTH_SHORT).show();
+                            // Optionally, refresh messages after sending
+                            fetchMessages();
+                        }
+                    },
+                    error -> {
+                        Log.e("VolleyError", "Error sending message: " + error.getMessage());
+                        Toast.makeText(getContext(), "Error sending message", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Add POST parameters to the request
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userId", userId);
+                    params.put("chatId", communityId);
+                    params.put("description", messageText);
+                    return params;
+                }
+            };
+
+            // Add the request to the Volley request queue
+            RequestQueue queue = Volley.newRequestQueue(requireContext());
+            queue.add(stringRequest);
+        } else {
+            Log.w("FragmentError", "Fragment is not attached to a context, skipping createMessage call.");
         }
     }
 }

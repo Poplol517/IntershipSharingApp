@@ -1,5 +1,6 @@
 package mdad.localdata.intershipsharingapp;
 
+
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -17,6 +19,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     private final List<Message> messages;
     private final String currentUserId;
+    private static final String url_delete_message = StaffMainActivity.ipBaseAddress + "/delete_message.php";
 
     public ChatAdapter(List<Message> messages, String currentUserId) {
         this.messages = messages;
@@ -49,6 +52,23 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             holder.nameTextView.setGravity(Gravity.START); // Align the name to the left
             holder.messageTextView.setGravity(Gravity.START); // Align message text to the left
             holder.messageTextView.setBackgroundResource(R.drawable.other_message_background);
+        }
+
+        if (message.getUserId().equals(currentUserId)) {
+            holder.itemView.setOnLongClickListener(v -> {
+                MessageOptionBottomSheet bottomSheet = new MessageOptionBottomSheet(
+                        message.getId(),
+                        currentUserId,
+                        url_delete_message,
+                        messageId -> {
+                            // Remove the message from the list and notify the adapter
+                            messages.removeIf(msg -> msg.getId().equals(messageId));
+                            notifyDataSetChanged();
+                        }
+                );
+                bottomSheet.show(((FragmentActivity) v.getContext()).getSupportFragmentManager(), bottomSheet.getTag());
+                return true;
+            });
         }
     }
 
