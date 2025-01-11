@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MessageOptionBottomSheet extends BottomSheetDialogFragment {
+    private static final String url_edit_message = StaffMainActivity.ipBaseAddress + "/edit_message.php";
     private String messageId;
     private String userId;
     private String urlDeleteMessage;
@@ -56,6 +57,7 @@ public class MessageOptionBottomSheet extends BottomSheetDialogFragment {
 
         deleteButton.setOnClickListener(v -> deleteMessage());
         editButton.setOnClickListener(v -> showEditPage());
+        saveEditedMessageButton.setOnClickListener(v -> saveEditedMessage());
 
         return dialog;
     }
@@ -66,24 +68,50 @@ public class MessageOptionBottomSheet extends BottomSheetDialogFragment {
 
         // Optionally, populate the EditText with the existing message text if available
         // editMessageInput.setText(existingMessageText);
+
     }
 
     private void saveEditedMessage() {
         // Get the edited message input
-        String editedMessage = editMessageInput.getText().toString();
+        String editedMessage = editMessageInput.getText().toString().trim();
 
-        if (editedMessage.trim().isEmpty()) {
+        if (editedMessage.isEmpty()) {
             Log.e("EditError", "Edited message cannot be empty");
             return;
         }
 
-        // Logic to save the edited message (e.g., make a network request to update the message)
+        // Create a map of parameters for the request
+        Map<String, String> params = new HashMap<>();
+        params.put("messageId", messageId); // the ID of the message to be updated
+        params.put("description", editedMessage); // the new message text
 
-        // After saving the edited message, dismiss the dialog or show a success message
-        Log.d("EditSuccess", "Message saved: " + editedMessage);
+        // Create the StringRequest for updating the message
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url_edit_message,
+                response -> {
+                    Log.d("Reponese",response);// Handle the server response
+                    if (response.trim().equals("success")) {
+                        Log.d("EditSuccess", "Message updated successfully");
+                        // Optionally, you can notify the adapter or the activity to update the message list
+                        // In this case, you might want to trigger a callback or refresh the message list
+                        dismiss(); // Close the dialog after the update
+                    } else {
+                        Log.e("EditError", "Failed to update message: " + response);
+                    }
+                },
+                error -> Log.e("VolleyError", "Error updating message: " + error.getMessage())) {
 
-        dismiss();
+            @Override
+            protected Map<String, String> getParams() {
+                // Return the parameters to be sent in the POST request body
+                return params;
+            }
+        };
+
+        // Add the request to the request queue to be sent
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        queue.add(stringRequest);
     }
+
     private void deleteMessage() {
         if (getContext() != null) {
             StringRequest stringRequest = new StringRequest(Request.Method.POST, urlDeleteMessage,
@@ -111,4 +139,5 @@ public class MessageOptionBottomSheet extends BottomSheetDialogFragment {
             queue.add(stringRequest);
         }
     }
+
 }
