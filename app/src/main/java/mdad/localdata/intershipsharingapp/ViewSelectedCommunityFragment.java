@@ -5,6 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -52,8 +53,12 @@ public class ViewSelectedCommunityFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private boolean isToggled = false; // Initial state
     private static final String url_get_message = StaffMainActivity.ipBaseAddress + "/get_all_message.php";
+    private static final String url_get_userchat = StaffMainActivity.ipBaseAddress + "/get_all_userchat.php";
     private static final String url_create_message = StaffMainActivity.ipBaseAddress + "/create_message.php";
+    private static final String url_create_userchat = StaffMainActivity.ipBaseAddress + "/create_userchat.php";
+    private static final String url_delete_userchat = StaffMainActivity.ipBaseAddress + "/delete_userchat.php";
 
 
     // TODO: Rename and change types of parameters
@@ -105,6 +110,7 @@ public class ViewSelectedCommunityFragment extends Fragment {
         ImageView imageView = view.findViewById(R.id.communityPhoto);
         EditText editText = view.findViewById(R.id.editMessage);
         Button sendButton = view.findViewById(R.id.btnSendMessage);
+        Button joinButton = view.findViewById(R.id.btnJoin);
 
         sharedPreferences = getActivity().getSharedPreferences("UserSession", MODE_PRIVATE);
         String currentUserId = sharedPreferences.getString("username", "");
@@ -120,6 +126,13 @@ public class ViewSelectedCommunityFragment extends Fragment {
 
             if (imageBitmap != null) {
                 imageView.setImageBitmap(imageBitmap);
+            }
+            String communityId = args.getString(ARG_CHATID);
+            if (communityId != null && !communityId.isEmpty()) {
+                // Use checkUserChatStatus to set the initial state of the button
+                checkUserChatStatus(currentUserId, communityId, joinButton);
+            } else {
+                Log.e("CommunityIDError", "Community ID is missing.");
             }
         }
 
@@ -145,6 +158,33 @@ public class ViewSelectedCommunityFragment extends Fragment {
                 Toast.makeText(getContext(), "Message cannot be empty", Toast.LENGTH_SHORT).show();
             }
         });
+
+
+        joinButton.setOnClickListener(v -> {
+            isToggled = !isToggled; // Toggle the state
+            if (isToggled) {
+                joinButton.setText("Joined");
+                joinButton.setTextColor(Color.parseColor("#000000"));
+                joinButton.setBackgroundColor(Color.parseColor("#D3D3D3"));
+                String communityId = getArguments() != null ? getArguments().getString(ARG_CHATID) : null;
+                if (communityId != null && !communityId.isEmpty()) {
+                    createUserchat(currentUserId, communityId);
+                } else {
+                    Toast.makeText(getContext(), "Community ID is missing", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                joinButton.setText("Join");
+                joinButton.setTextColor(Color.parseColor("#FFFFFF"));
+                joinButton.setBackgroundColor(Color.parseColor("#673AB7"));
+                String communityId = getArguments() != null ? getArguments().getString(ARG_CHATID) : null;
+                if (communityId != null && !communityId.isEmpty()) {
+                    deleteUserchat(currentUserId, communityId);
+                } else {
+                    Toast.makeText(getContext(), "Community ID is missing", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
 
         // Start the polling for new messages
         startPolling();
@@ -261,6 +301,77 @@ public class ViewSelectedCommunityFragment extends Fragment {
         }
     }
 
+    private void checkUserChatStatus(String userId, String communityId, Button joinButton) {
+        if (getContext() != null) {
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url_get_userchat,
+                    response -> {
+                        Log.d("CheckUserChatResponse", response);
+
+                        if (!response.trim().equals("Error")) {
+                            try {
+                                // Response is a list of user-community relationships
+                                boolean isMember = false;
+                                String[] userChatData = response.split(":");
+
+                                for (String userChat : userChatData) {
+                                    if (!userChat.isEmpty()) {
+                                        String[] details = userChat.split(";");
+
+                                        // Ensure there are two details (userId and chatId)
+                                        if (details.length >= 3) {
+                                            String fetchedUserId = details[1];
+                                            String fetchedChatId = details[2];
+
+                                            if (fetchedUserId.equals(userId) && fetchedChatId.equals(communityId)) {
+                                                isMember = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Update the button state based on membership
+                                if (isMember) {
+                                    isToggled = true; // User is a member
+                                    joinButton.setText("Joined");
+                                    joinButton.setTextColor(Color.parseColor("#000000"));
+                                    joinButton.setBackgroundColor(Color.parseColor("#D3D3D3"));
+                                } else {
+                                    isToggled = false; // User is not a member
+                                    joinButton.setText("Join");
+                                    joinButton.setTextColor(Color.parseColor("#FFFFFF"));
+                                    joinButton.setBackgroundColor(Color.parseColor("#673AB7"));
+                                }
+
+                            } catch (Exception e) {
+                                Log.e("ParseError", "Error parsing user chat response: " + e.getMessage());
+                            }
+                        } else {
+                            Log.e("CheckUserChatError", "Error in response: User not found in community.");
+                        }
+                    },
+                    error -> {
+                        Log.e("VolleyError", "Error checking user chat status: " + error.getMessage());
+                        Toast.makeText(getContext(), "Error checking user chat status", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Add POST parameters to the request
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userId", userId);
+                    params.put("chatId", communityId);
+                    return params;
+                }
+            };
+
+            // Add the request to the Volley request queue
+            RequestQueue queue = Volley.newRequestQueue(requireContext());
+            queue.add(stringRequest);
+        } else {
+            Log.w("FragmentError", "Fragment is not attached to a context, skipping checkUserChatStatus call.");
+        }
+    }
+
     // Add this method in your ViewSelectedCommunityFragment class
     private void createMessage(String userId, String communityId, String messageText) {
         if (getContext() != null) {
@@ -290,6 +401,83 @@ public class ViewSelectedCommunityFragment extends Fragment {
                     params.put("userId", userId);
                     params.put("chatId", communityId);
                     params.put("description", messageText);
+                    return params;
+                }
+            };
+
+            // Add the request to the Volley request queue
+            RequestQueue queue = Volley.newRequestQueue(requireContext());
+            queue.add(stringRequest);
+        } else {
+            Log.w("FragmentError", "Fragment is not attached to a context, skipping createMessage call.");
+        }
+    }
+
+    private void createUserchat(String userId, String communityId) {
+        if (getContext() != null) {
+            // API endpoint for creating a message
+
+            // Use Volley to make the POST request
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url_create_userchat,
+                    response -> {
+                        Log.d("CreateUserchatResponse", response);
+
+                        if (response.trim().equals("Error")) {
+                            Toast.makeText(getContext(), "Error joining this community", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "You have succesfully joined this community", Toast.LENGTH_SHORT).show();
+                            // Optionally, refresh messages after sending
+                            fetchMessages();
+                        }
+                    },
+                    error -> {
+                        Log.e("VolleyError", "Error joining community: " + error.getMessage());
+                        Toast.makeText(getContext(), "Error joining coummnity", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Add POST parameters to the request
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userId", userId);
+                    params.put("chatId", communityId);
+                    return params;
+                }
+            };
+
+            // Add the request to the Volley request queue
+            RequestQueue queue = Volley.newRequestQueue(requireContext());
+            queue.add(stringRequest);
+        } else {
+            Log.w("FragmentError", "Fragment is not attached to a context, skipping createMessage call.");
+        }
+    }
+    private void deleteUserchat(String userId, String communityId) {
+        if (getContext() != null) {
+            // API endpoint for creating a message
+
+            // Use Volley to make the POST request
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url_delete_userchat,
+                    response -> {
+                        Log.d("CreateUserchatResponse", response);
+
+                        if (response.trim().equals("Error")) {
+                            Toast.makeText(getContext(), "Error leaving this community", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "You have succesfully leave this community", Toast.LENGTH_SHORT).show();
+                            // Optionally, refresh messages after sending
+                            fetchMessages();
+                        }
+                    },
+                    error -> {
+                        Log.e("VolleyError", "Error leaving community: " + error.getMessage());
+                        Toast.makeText(getContext(), "Error leaving coummnity", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Add POST parameters to the request
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userId", userId);
+                    params.put("chatId", communityId);
                     return params;
                 }
             };
