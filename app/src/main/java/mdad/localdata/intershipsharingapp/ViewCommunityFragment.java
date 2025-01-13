@@ -7,6 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +26,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -33,9 +37,11 @@ import java.util.List;
 public class ViewCommunityFragment extends Fragment {
 
     private static final String url_get_communities = StaffMainActivity.ipBaseAddress + "/get_all_communities.php";
+    private static final String url_get_userchat = StaffMainActivity.ipBaseAddress + "/get_all_userchat.php";
     private RecyclerView recyclerView;
     private CarouselAdapter adapter;
     private List<CarouselAdapter.CarouselItem> items;
+    private LinearLayout lv;
 
     @Nullable
     @Override
@@ -44,6 +50,7 @@ public class ViewCommunityFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.carouselRecyclerView);
         items = new ArrayList<>();
+        lv = view.findViewById(R.id.list);
         adapter = new CarouselAdapter(items, item -> {
             // When an item is clicked, navigate to the detail fragment
 
@@ -67,6 +74,7 @@ public class ViewCommunityFragment extends Fragment {
         // Fetch the community data from the URL
         fetchCommunityData();
 
+
         TextView textView = view.findViewById(R.id.tvshowAll);
         textView.setOnClickListener(v -> {
             // Create a new fragment
@@ -78,13 +86,13 @@ public class ViewCommunityFragment extends Fragment {
             transaction.addToBackStack(null); // Add to the back stack to allow navigation back
             transaction.commit(); // Commit the transaction
         });
+        fetchuserChat();
 
 
         return view;
     }
 
     private void fetchCommunityData() {
-        String url_get_communities = StaffMainActivity.ipBaseAddress + "/get_all_communities.php";
         RequestQueue queue = Volley.newRequestQueue(requireContext());
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url_get_communities,
@@ -106,7 +114,7 @@ public class ViewCommunityFragment extends Fragment {
                                 map.put("title", details[1]);
                                 map.put("description", details[2]);
                                 map.put("photo", details.length > 3 ? details[3] : "");
-                                Log.d("CommunityDetails", "Size: " + details.length + ", Content: " + Arrays.toString(details));
+                                Log.d("carouselDetails", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                 addCommunityToCarousel(map);
                             }
                         }
@@ -139,7 +147,10 @@ public class ViewCommunityFragment extends Fragment {
                     // Add new CarouselItem with the image and title
                     items.add(new CarouselAdapter.CarouselItem(bitmap, item.get("title"), item.get("description"),item.get("communityId")));
                     Log.d("CommunityDetails", "Item Added: " + item.get("communityId"));
-                    adapter.notifyDataSetChanged();
+                    getActivity().runOnUiThread(() -> {
+                        adapter.notifyDataSetChanged();
+                    });
+
                 } else {
                     Log.e("ImageError", "Failed to decode bitmap from file.");
                 }
@@ -147,10 +158,120 @@ public class ViewCommunityFragment extends Fragment {
         } else {
             // Add a default item if no image is available
             items.add(new CarouselAdapter.CarouselItem( imageResId , item.get("title"), item.get("description"),item.get("communityId")));
-            adapter.notifyDataSetChanged();
+            getActivity().runOnUiThread(() -> {
+                adapter.notifyDataSetChanged();
+            });
+
         }
     }
 
+    private void fetchuserChat() {
+        RequestQueue queue = Volley.newRequestQueue(requireContext());
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url_get_userchat,
+                response -> {
+                    if (response.equals("Error")) {
+                        Toast.makeText(requireContext(), "Error in retrieving community data", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    String[] communities = response.split(":");
+                    items.clear();  // Clear the existing items before adding new ones
+
+                    for (String community : communities) {
+                        if (!community.isEmpty()) {
+                            String[] details = community.split(";");
+                            if (details.length >= 5) {
+                                HashMap<String, String> map = new HashMap<>();
+                                map.put("userchatId", details[0]);
+                                map.put("userId", details[1]);
+                                map.put("communityId", details[2]);
+                                map.put("photo", details[3]);
+                                map.put("name", details[4]);
+                                map.put("description", details[5]);
+                                Log.d("CommunityDetails", "Size: " + details.length + ", Content: " + Arrays.toString(details));
+                                addUserchatToLayout(map);
+                            }
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged();
+                },
+
+                error -> {
+                    Log.e("VolleyError", error.toString());
+                    Toast.makeText(requireContext(), "Error retrieving community data", Toast.LENGTH_LONG).show();
+                });
+
+        queue.add(stringRequest);
+    }
+
+    private void addUserchatToLayout(final HashMap<String, String> item) {
+        // Inflate the custom layout
+        View postView = LayoutInflater.from(requireContext()).inflate(R.layout.joined_community_item, lv, false);
+
+        // Set data for user info
+        ImageView communityPhoto = postView.findViewById(R.id.communityPhoto);
+        TextView communityName = postView.findViewById(R.id.post_community_name);
+        TextView communityDescription = postView.findViewById(R.id.post_community_description);
+
+        // Populate the fields with dynamic data
+        communityName.setText(item.get("name"));
+        communityDescription.setText(item.get("description"));
+
+        String photoData = item.get("photo");
+        Log.d("UserDetails", "Photo Data: " + item.get("photo"));
+        if (photoData != null && !photoData.isEmpty()) {
+            saveBase64ToFile(photoData, file -> {
+                Log.d("UserDetails", "File Path: " + file.getAbsolutePath());
+                // Once the image is saved, decode the file to Bitmap
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                if (bitmap != null) {
+                    communityPhoto.setImageBitmap(bitmap);
+                } else {
+                    Log.e("ImageError", "Failed to decode bitmap from file.");
+                    communityPhoto.setImageResource(R.drawable.no_image); // Default image
+                }
+
+                // Handle the post view click event and pass the data to the next fragment
+                postView.setOnClickListener(v -> {
+                    String communityId = item.get("communityId");
+                    String title = item.get("name");
+                    String description = item.get("description");
+
+                    Log.d("ItemClick", "Clicked on community ID: " + communityId);
+
+                    // Serialize Bitmap to ByteArray
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+
+                    // Navigate to ViewSelectedCommunityFragment
+                    ViewSelectedCommunityFragment detailFragment = new ViewSelectedCommunityFragment();
+
+                    // Pass data to the fragment
+                    Bundle args = new Bundle();
+                    args.putString("communityId", communityId);
+                    args.putString("title", title);
+                    args.putString("description", description);
+                    args.putParcelable("image_bitmap", bitmap); // Pass image as ByteArray
+
+                    detailFragment.setArguments(args);
+
+                    // Begin the fragment transaction
+                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragment_container, detailFragment);  // Replace with the appropriate container ID
+                    transaction.addToBackStack(null);  // Add to back stack for navigation
+                    transaction.commit();
+                });
+            });
+        } else {
+            communityPhoto.setImageResource(R.drawable.no_image); // Default image
+        }
+
+        // Add the postView to the parent layout
+        lv.addView(postView);
+    }
 
     private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
         try {
