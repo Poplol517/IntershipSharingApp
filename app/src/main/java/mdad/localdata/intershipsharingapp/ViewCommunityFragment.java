@@ -3,6 +3,7 @@ package mdad.localdata.intershipsharingapp;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -97,6 +98,12 @@ public class ViewCommunityFragment extends Fragment {
             transaction.commit(); // Commit the transaction
         });
         fetchuserChat();
+
+        Button createCommunity = view.findViewById(R.id.btncreateCommunity);
+        createCommunity.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), CreateCommunityActivity.class); // Replace with the target activity
+            startActivity(intent); // Start the new activity
+        });
 
 
         return view;
