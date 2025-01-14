@@ -1,7 +1,12 @@
 package mdad.localdata.intershipsharingapp;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,13 +38,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ViewCommunityFragment extends Fragment {
 
     private static final String url_get_communities = StaffMainActivity.ipBaseAddress + "/get_all_communities.php";
     private static final String url_get_userchat = StaffMainActivity.ipBaseAddress + "/get_all_userchat.php";
+    private static final String url_create_userchat = StaffMainActivity.ipBaseAddress + "/create_userchat.php";
+    private static final String url_delete_userchat = StaffMainActivity.ipBaseAddress + "/delete_userchat.php";
     private RecyclerView recyclerView;
+    private boolean isJoined = true;
     private CarouselAdapter adapter;
+
     private List<CarouselAdapter.CarouselItem> items;
     private LinearLayout lv;
 
@@ -175,8 +185,17 @@ public class ViewCommunityFragment extends Fragment {
                         return;
                     }
 
+                    // Get the current user's ID
+                    SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", MODE_PRIVATE);
+                    String currentUserId = sharedPreferences.getString("username", ""); // Replace with your key
+
+                    if (currentUserId.isEmpty()) {
+                        Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     String[] communities = response.split(":");
-                    items.clear();  // Clear the existing items before adding new ones
+                    items.clear(); // Clear the existing items before adding new ones
 
                     for (String community : communities) {
                         if (!community.isEmpty()) {
@@ -189,8 +208,11 @@ public class ViewCommunityFragment extends Fragment {
                                 map.put("photo", details[3]);
                                 map.put("name", details[4]);
                                 map.put("description", details[5]);
-                                Log.d("CommunityDetails", "Size: " + details.length + ", Content: " + Arrays.toString(details));
-                                addUserchatToLayout(map);
+
+                                // Only add items matching the current user's ID
+                                if (details[1].equals(currentUserId)) {
+                                    addUserchatToLayout(map);
+                                }
                             }
                         }
                     }
@@ -207,6 +229,9 @@ public class ViewCommunityFragment extends Fragment {
     }
 
     private void addUserchatToLayout(final HashMap<String, String> item) {
+        // Add a boolean to track the join state for this item
+        boolean[] isJoined = {true}; // Default state (true = joined, false = not joined)
+
         // Inflate the custom layout
         View postView = LayoutInflater.from(requireContext()).inflate(R.layout.joined_community_item, lv, false);
 
@@ -214,50 +239,68 @@ public class ViewCommunityFragment extends Fragment {
         ImageView communityPhoto = postView.findViewById(R.id.communityPhoto);
         TextView communityName = postView.findViewById(R.id.post_community_name);
         TextView communityDescription = postView.findViewById(R.id.post_community_description);
+        Button btnJoin = postView.findViewById(R.id.btnJoin);
 
         // Populate the fields with dynamic data
         communityName.setText(item.get("name"));
         communityDescription.setText(item.get("description"));
 
+        // Update button state based on `isJoined`
+        updateJoinButtonState(btnJoin, isJoined[0]);
+
+        // Handle Join button click
+        btnJoin.setOnClickListener(v -> {
+            isJoined[0] = !isJoined[0]; // Toggle the state
+            updateJoinButtonState(btnJoin, isJoined[0]);
+
+            // Get current user ID from SharedPreferences (or another source)
+            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", MODE_PRIVATE);
+            String userId = sharedPreferences.getString("username", ""); // Replace with your method of obtaining the user ID
+
+            if (userId != null) {
+                if (isJoined[0]) {
+                    Toast.makeText(requireContext(), "Joined " + item.get("name"), Toast.LENGTH_SHORT).show();
+                    joinCommunity(userId, item.get("communityId"));
+                } else {
+                    Toast.makeText(requireContext(), "Left " + item.get("name"), Toast.LENGTH_SHORT).show();
+                    leaveCommunity(userId, item.get("communityId"));
+                }
+            } else {
+                Toast.makeText(requireContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        // Handle the image data
         String photoData = item.get("photo");
-        Log.d("UserDetails", "Photo Data: " + item.get("photo"));
+        Bitmap[] bitmapHolder = new Bitmap[1];
         if (photoData != null && !photoData.isEmpty()) {
             saveBase64ToFile(photoData, file -> {
-                Log.d("UserDetails", "File Path: " + file.getAbsolutePath());
-                // Once the image is saved, decode the file to Bitmap
                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                bitmapHolder[0] = bitmap;
                 if (bitmap != null) {
                     communityPhoto.setImageBitmap(bitmap);
                 } else {
-                    Log.e("ImageError", "Failed to decode bitmap from file.");
-                    communityPhoto.setImageResource(R.drawable.no_image); // Default image
+                    communityPhoto.setImageResource(R.drawable.no_image);
                 }
-
-                // Handle the post view click event and pass the data to the next fragment
+                // Handle the post view click event and pass the file path to the next fragment
                 postView.setOnClickListener(v -> {
                     String communityId = item.get("communityId");
                     String title = item.get("name");
                     String description = item.get("description");
-
                     Log.d("ItemClick", "Clicked on community ID: " + communityId);
-
                     // Serialize Bitmap to ByteArray
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] byteArray = stream.toByteArray();
-
                     // Navigate to ViewSelectedCommunityFragment
                     ViewSelectedCommunityFragment detailFragment = new ViewSelectedCommunityFragment();
-
                     // Pass data to the fragment
                     Bundle args = new Bundle();
                     args.putString("communityId", communityId);
                     args.putString("title", title);
                     args.putString("description", description);
                     args.putParcelable("image_bitmap", bitmap); // Pass image as ByteArray
-
                     detailFragment.setArguments(args);
-
                     // Begin the fragment transaction
                     FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
                     transaction.replace(R.id.fragment_container, detailFragment);  // Replace with the appropriate container ID
@@ -266,12 +309,104 @@ public class ViewCommunityFragment extends Fragment {
                 });
             });
         } else {
-            communityPhoto.setImageResource(R.drawable.no_image); // Default image
+            communityPhoto.setImageResource(R.drawable.no_image);
         }
+        // Prevent the disappearing of carousel items
+        fetchCommunityData();
 
         // Add the postView to the parent layout
         lv.addView(postView);
     }
+
+
+    private void updateJoinButtonState(Button btnJoin, boolean isJoined) {
+        if (isJoined) {
+            btnJoin.setText("Joined");
+            btnJoin.setTextColor(Color.parseColor("#000000"));
+            btnJoin.setBackgroundColor(Color.parseColor("#D3D3D3")); // Update to your chosen color
+        } else {
+            btnJoin.setText("Join");
+            btnJoin.setTextColor(Color.parseColor("#FFFFFF"));
+            btnJoin.setBackgroundColor(Color.parseColor("#673AB7")); // Update to your chosen color
+        }
+    }
+
+    private void joinCommunity(String userId,String communityId) {
+        if (getContext() != null) {
+            // API endpoint for creating a message
+
+            // Use Volley to make the POST request
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url_create_userchat,
+                    response -> {
+                        Log.d("CreateUserchatResponse", response);
+
+                        if (response.trim().equals("Error")) {
+                            Toast.makeText(getContext(), "Error joining this community", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "You have succesfully joined this community", Toast.LENGTH_SHORT).show();
+                        }
+                    },
+                    error -> {
+                        Log.e("VolleyError", "Error joining community: " + error.getMessage());
+                        Toast.makeText(getContext(), "Error joining coummnity", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Add POST parameters to the request
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userId", userId);
+                    params.put("chatId", communityId);
+                    return params;
+                }
+            };
+
+            // Add the request to the Volley request queue
+            RequestQueue queue = Volley.newRequestQueue(requireContext());
+            queue.add(stringRequest);
+        } else {
+            Log.w("FragmentError", "Fragment is not attached to a context, skipping createMessage call.");
+        }
+    }
+
+    private void leaveCommunity(String userId,String communityId) {
+        if (getContext() != null) {
+            // API endpoint for creating a message
+
+            // Use Volley to make the POST request
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url_delete_userchat,
+                    response -> {
+                        Log.d("CreateUserchatResponse", response);
+
+                        if (response.trim().equals("Error")) {
+                            Toast.makeText(getContext(), "Error leaving this community", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getContext(), "You have succesfully leave this community", Toast.LENGTH_SHORT).show();
+
+
+                        }
+                    },
+                    error -> {
+                        Log.e("VolleyError", "Error leaving community: " + error.getMessage());
+                        Toast.makeText(getContext(), "Error leaving coummnity", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Add POST parameters to the request
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userId", userId);
+                    params.put("chatId", communityId);
+                    return params;
+                }
+            };
+
+            // Add the request to the Volley request queue
+            RequestQueue queue = Volley.newRequestQueue(requireContext());
+            queue.add(stringRequest);
+        } else {
+            Log.w("FragmentError", "Fragment is not attached to a context, skipping createMessage call.");
+        }
+    }
+
 
     private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
         try {
@@ -294,5 +429,4 @@ public class ViewCommunityFragment extends Fragment {
             Log.e("FileSaveError", "Error saving Base64 to file: " + e.getMessage());
         }
     }
-
 }
