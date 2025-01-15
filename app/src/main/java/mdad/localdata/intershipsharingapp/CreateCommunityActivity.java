@@ -1,27 +1,44 @@
 package mdad.localdata.intershipsharingapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CreateCommunityActivity extends AppCompatActivity {
+    private static String url_create_community = StaffMainActivity.ipBaseAddress + "/create_community.php";
 
     private static final int GALLERY_REQUEST_CODE = 1;
+
     private ImageView uploadIcon;
+    private EditText inputName, inputDescription;
+    private Bitmap selectedImageBitmap = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,14 +47,19 @@ public class CreateCommunityActivity extends AppCompatActivity {
 
         // Initialize views
         uploadIcon = findViewById(R.id.uploadIcon);
+        inputName = findViewById(R.id.inputName);
+        inputDescription = findViewById(R.id.inputDescription);
         Button btnBrowseFile = findViewById(R.id.btnBrowseFile);
+        Button btnCreateCommunity = findViewById(R.id.btnCreateCommunity);
 
-        // Set button click listener
+        // Set button click listener for gallery
         btnBrowseFile.setOnClickListener(v -> openGallery());
+
+        // Set button click listener for creating community
+        btnCreateCommunity.setOnClickListener(v -> createCommunity());
     }
 
     private void openGallery() {
-        // Intent to open gallery
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         startActivityForResult(intent, GALLERY_REQUEST_CODE);
@@ -51,10 +73,8 @@ public class CreateCommunityActivity extends AppCompatActivity {
             Uri selectedImageUri = data.getData();
             if (selectedImageUri != null) {
                 try {
-                    // Convert URI to Bitmap
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
-                    // Set the image to the ImageView
-                    uploadIcon.setImageBitmap(bitmap);
+                    selectedImageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                    uploadIcon.setImageBitmap(selectedImageBitmap);
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
@@ -62,4 +82,62 @@ public class CreateCommunityActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void createCommunity() {
+        String name = inputName.getText().toString().trim();
+        String description = inputDescription.getText().toString().trim();
+
+        if (name.isEmpty() || description.isEmpty()) {
+            Toast.makeText(this, "Name and description are required.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
+        String userId = sharedPreferences.getString("username", null); // Replace with the actual user ID from your app's session
+
+        // If there's no photo, set photoBase64 to an empty string
+        String photoBase64 = (selectedImageBitmap != null) ? bitmapToBase64(selectedImageBitmap) : "";
+
+        // Create Volley request
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url_create_community,
+                response -> {
+                    if (response.trim().equalsIgnoreCase("success")) {
+                        Toast.makeText(this, "Community created successfully!", Toast.LENGTH_SHORT).show();
+                        finish(); // Close the activity
+                    } else {
+                        Toast.makeText(this, "Error: " + response, Toast.LENGTH_SHORT).show();
+                        Log.d("Response", response);
+                    }
+                },
+                error -> Toast.makeText(this, "Error creating community: " + error.getMessage(), Toast.LENGTH_SHORT).show()) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("userId", userId);
+                params.put("name", name);
+                params.put("description", description);
+                params.put("photo", photoBase64); // Can be empty if no photo
+                return params;
+            }
+        };
+        Volley.newRequestQueue(this).add(stringRequest);
+    }
+
+
+    private String bitmapToBase64(Bitmap bitmap) {
+        // Define the desired width and height for the resized image
+        int desiredWidth = 140; // Adjust as needed
+        int desiredHeight = 78; // Adjust as needed
+
+        // Resize the bitmap
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, desiredWidth, desiredHeight, true);
+
+        // Convert the resized bitmap to Base64
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    }
+
 }
