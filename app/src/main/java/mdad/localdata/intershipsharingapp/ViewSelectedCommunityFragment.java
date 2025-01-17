@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -104,6 +106,7 @@ public class ViewSelectedCommunityFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_view_selected_community, container, false);
 
+        LinearLayout communityDescription = view.findViewById(R.id.communityDetails);
         chatRecyclerView = view.findViewById(R.id.chatRecyclerView);
         TextView titleTextView = view.findViewById(R.id.tvName);
         TextView descriptionTextView = view.findViewById(R.id.tvDescription);
@@ -143,6 +146,17 @@ public class ViewSelectedCommunityFragment extends Fragment {
         layoutManager.setReverseLayout(false);
         chatRecyclerView.setLayoutManager(layoutManager);
         chatRecyclerView.setAdapter(chatAdapter);
+
+        communityDescription.setOnClickListener(v -> {
+            ViewCommunityDetailFragment newFragment = new ViewCommunityDetailFragment();
+            newFragment.setArguments(getArguments());
+
+            // Begin the fragment transaction
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, newFragment); // Replace with the container ID of your activity
+            transaction.addToBackStack(null); // Add to the back stack to allow navigation back
+            transaction.commit();
+        });
 
         sendButton.setOnClickListener(v -> {
             String messageText = editText.getText().toString().trim();

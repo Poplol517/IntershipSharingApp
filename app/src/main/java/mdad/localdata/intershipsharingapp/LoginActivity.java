@@ -100,6 +100,8 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("roleId", roleId);     // Save role ID
         editor.putBoolean("isLoggedIn", true);  // Save login status
         editor.apply();
+        Log.d("SessionCheck", "Session saved: UserId: " + username + ", RoleId: " + roleId);
+
         checkUserSession();
     }
 

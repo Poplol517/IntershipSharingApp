@@ -105,15 +105,6 @@ public class AllUserActivity extends AppCompatActivity {
                                 userList.add(map);
                             }
                         }
-
-                        // Populate the ListView with user information from HashMap
-                        ListAdapter adapter = new SimpleAdapter(
-                                AllUserActivity.this, userList,
-                                R.layout.user_list_item, new String[]{"UserId", "name", "email", "username", "password", "course", "year_of_study", "graduated_year","RoleId"},
-                                new int[]{R.id.UserId, R.id.name, R.id.email, R.id.username, R.id.password, R.id.course, R.id.year_of_study,R.id.graduated_year, R.id.RoleId});
-
-                        // Update ListView
-                        lv.setAdapter(adapter);
                     }
                 },
 
