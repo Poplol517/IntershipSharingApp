@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditCommunityFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <EditText
+                android:id="@+id/inputName"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dip"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/edittext_border"
+                android:hint="Enter Community Name"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:padding="12dp" />
+
+            <EditText
+                android:id="@+id/inputDescription"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dip"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/edittext_border"
+                android:hint="Enter Community Description"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:padding="12dp" />
+
+            <!-- Drag and Drop Area -->
+            <FrameLayout
+                android:id="@+id/uploadArea"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/dashed_border">
+
+                <!-- Upload Icon -->
+                <ImageView
+                    android:id="@+id/uploadIcon"
+                    android:layout_width="286dp"
+                    android:layout_height="286dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/select" /> <!-- Replace with your upload icon -->
+
+            </FrameLayout>
+
+            <!-- Drag & Drop Label -->
+            <TextView
+                android:id="@+id/tvSelectFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif"
+                android:text="Choose a photo to preview"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <!-- Browse File Button -->
+            <Button
+                android:id="@+id/btnBrowseFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#673AB7"
+                android:fontFamily="sans-serif-medium"
+                android:text="Browse File"
+                android:textColor="#FBFBFB" />
+
+            <Button
+                android:id="@+id/btnEditCommunity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#673AB7"
+                android:fontFamily="sans-serif-medium"
+                android:text="Edit Community"
+                android:textColor="#FBFBFB" />
+
+            <Button
+                android:id="@+id/btnDeleteCommunity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#673AB7"
+                android:fontFamily="sans-serif-medium"
+                android:text="Delete Community"
+                android:textColor="#FBFBFB" />
+
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

@@ -2,6 +2,7 @@ package mdad.localdata.intershipsharingapp;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -124,15 +125,44 @@ public class ViewCommunityDetailFragment extends Fragment {
         // Get references to the buttons
         View view = getView();  // Get the fragment's view
         if (view == null) return; // Ensure view is not null
-
+        // Get references to the buttons
+        Button btnKickCommunity = getView().findViewById(R.id.btnkickCommunity);
         Button btnEditCommunity = view.findViewById(R.id.btneditCommunity);
 
         // If the current user is the owner, make the buttons visible
         if (ownerId.equals(currentUserId)) {
             btnEditCommunity.setVisibility(View.VISIBLE);
-        } else {
+            btnEditCommunity.setOnClickListener(v -> {
+                // Get the arguments passed to the fragment
+                if (getArguments() != null) {
+                    String name = getArguments().getString("title", "Default Name");
+                    String description = getArguments().getString("description", "Default Description");
+                    String communityId = getArguments().getString("communityId", "Default ID");
+
+                    // Create a new instance of EditCommunityFragment
+                    EditCommunityFragment editCommunityFragment = new EditCommunityFragment();
+
+                    // Pass the data to the EditCommunityFragment using Bundle
+                    Bundle bundle = new Bundle();
+                    bundle.putString("title", name);
+                    bundle.putString("description", description);
+                    bundle.putString("communityId", communityId);
+                    editCommunityFragment.setArguments(bundle);
+
+                    // Begin the fragment transaction
+                    getParentFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, editCommunityFragment) // Replace with your fragment container ID
+                            .addToBackStack(null) // Add to back stack to enable back navigation
+                            .commit(); // Commit the transaction
+                }
+            });
+
+            btnKickCommunity.setVisibility(View.VISIBLE); // Make the button visible for the owner
+        }
+        else {
             // Otherwise, keep the buttons hidden
             btnEditCommunity.setVisibility(View.GONE);
+            btnKickCommunity.setVisibility(View.GONE); // Hide the button for non-owners
         }
     }
 
@@ -211,34 +241,15 @@ public class ViewCommunityDetailFragment extends Fragment {
         TextView user_Role = postView.findViewById(R.id.post_user_role);
         TextView roleTag = postView.findViewById(R.id.role_tag);
 
-
         // Populate the fields with dynamic data
         user_Name.setText(item.get("user_name"));
         user_Role.setText(item.get("course"));
 
-        String role = item.get("role");
-        if (role != null) {
-            switch (role) {
-                case "Student":
-                    roleTag.setText("Active Student");
-                    roleTag.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
-                    roleTag.setBackgroundResource(R.drawable.internship_tag_background);
-                    break;
-                case "Alumni":
-                    roleTag.setText("Alumni");
-                    roleTag.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
-                    roleTag.setBackgroundResource(R.drawable.question_tag_background);
-                    break;
-            }
-        }
-
         // Handle the image data for profile photo
         String photoData = item.get("user_photo");
-        Bitmap[] bitmapHolder = new Bitmap[1];
         if (photoData != null && !photoData.isEmpty()) {
             saveBase64ToFile(photoData, file -> {
                 Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                bitmapHolder[0] = bitmap;
                 if (bitmap != null) {
                     profilePhoto.setImageBitmap(bitmap);
                 } else {
@@ -249,29 +260,43 @@ public class ViewCommunityDetailFragment extends Fragment {
             profilePhoto.setImageResource(R.drawable.no_image);
         }
 
-        // Get references to the buttons
-        Button btnKickCommunity = getView().findViewById(R.id.btnkickCommunity);
 
-        // Get the current user's ID and the owner ID from the item
-        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", MODE_PRIVATE);
-        String currentUserId = sharedPreferences.getString("username", null); // Replace with your key
-        String ownerId = item.get("ownerid"); // Get the owner ID from the item
 
-        // Check if ownerId matches currentUserId
-        if (ownerId != null && ownerId.equals(currentUserId)) {
-            Log.d("UserChatDetails", "User is the owner");
-            // If the logged-in user is the owner, make the buttons visible
+        // Get details[1] and details[12] from the item
+        String userid = item.get("userId");
+        String ownerid = item.get("ownerid");
 
-            btnKickCommunity.setVisibility(View.VISIBLE);
+        // Check if details[1] matches details[12]
+        if (userid != null && userid.equals(ownerid)) {
+            Log.d("UserChatDetails", "User is the owner based on details[1] and details[12]");
+            // If they match, display the "Owner" tag
+            roleTag.setText("Owner");
+            roleTag.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+            roleTag.setBackgroundResource(R.drawable.owner_tag_background);
+
         } else {
-            // Otherwise, keep the buttons hidden
-            btnKickCommunity.setVisibility(View.GONE);
+            // Otherwise, assign role tags based on the role in the item
+
+            String role = item.get("role");
+            if (role != null) {
+                switch (role) {
+                    case "Student":
+                        roleTag.setText("Active Student");
+                        roleTag.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+                        roleTag.setBackgroundResource(R.drawable.internship_tag_background);
+                        break;
+                    case "Alumni":
+                        roleTag.setText("Alumni");
+                        roleTag.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+                        roleTag.setBackgroundResource(R.drawable.question_tag_background);
+                        break;
+                }
+            }
         }
 
         // Add the postView to the parent layout (list of users)
         lv.addView(postView);
     }
-
 
     private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
         try {
