@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -15,9 +16,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +32,9 @@ import com.android.volley.toolbox.Volley;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,6 +49,7 @@ public class ViewCommunityDetailFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
+    private List<HashMap<String, String>> memberList = new ArrayList<>();
     private static final String url_get_userchat = StaffMainActivity.ipBaseAddress + "/get_all_userchat.php";
     private LinearLayout lv;
 
@@ -158,12 +164,62 @@ public class ViewCommunityDetailFragment extends Fragment {
             });
 
             btnKickCommunity.setVisibility(View.VISIBLE); // Make the button visible for the owner
+            btnKickCommunity.setOnClickListener(v -> showKickMemberDialog());
         }
         else {
             // Otherwise, keep the buttons hidden
             btnEditCommunity.setVisibility(View.GONE);
             btnKickCommunity.setVisibility(View.GONE); // Hide the button for non-owners
         }
+    }
+
+    private void showKickMemberDialog() {
+        // Check if there are members to display
+        if (memberList.isEmpty()) {
+            Toast.makeText(requireContext(), "No members available to kick", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create an AlertDialog
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View dialogView = inflater.inflate(R.layout.dialog_member_list, null);
+
+        // Initialize the ListView from the dialog's layout
+        ListView listView = dialogView.findViewById(R.id.member_list_view);
+
+        // Create an adapter and set it to the ListView
+        MemberAdapter adapter = new MemberAdapter(requireContext(), memberList);
+        listView.setAdapter(adapter);
+
+        // Create the AlertDialog and set its custom view
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Kick Member")
+                .setMessage("Select a member to remove from the community:")
+                .setView(dialogView)  // Set the custom view with the ListView
+                .setPositiveButton("Confirm", (dialog, which) -> {
+                    // Handle the selection here
+                    int selectedPosition = listView.getCheckedItemPosition();
+                    if (selectedPosition != ListView.INVALID_POSITION) {
+                        HashMap<String, String> selectedMember = memberList.get(selectedPosition);
+                        String selectedMemberName = selectedMember.get("user_name");
+                        kickMemberFromCommunity(selectedMemberName);
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    // Dismiss the dialog
+                    dialog.dismiss();
+                })
+                .create()
+                .show();
+    }
+
+
+    private void kickMemberFromCommunity(String member) {
+        // Example: Send a request to the server to remove the member
+        Toast.makeText(requireContext(), "Member removed successfully!", Toast.LENGTH_SHORT).show();
+
+        // TODO: Replace this with actual logic to kick a member
+        // For example, send a POST request to your backend API
     }
 
     private void fetchuserChat() {
@@ -232,6 +288,9 @@ public class ViewCommunityDetailFragment extends Fragment {
     private void addUserchatToLayout(final HashMap<String, String> item) {
         Log.d("UserChatDetails", "Item: " + item);
 
+        // Add item to memberList for later use in the dialog
+        memberList.add(item);
+
         // Inflate the custom layout for displaying user chat info
         View postView = LayoutInflater.from(requireContext()).inflate(R.layout.user_item, lv, false);
 
@@ -260,8 +319,6 @@ public class ViewCommunityDetailFragment extends Fragment {
             profilePhoto.setImageResource(R.drawable.no_image);
         }
 
-
-
         // Get details[1] and details[12] from the item
         String userid = item.get("userId");
         String ownerid = item.get("ownerid");
@@ -273,10 +330,8 @@ public class ViewCommunityDetailFragment extends Fragment {
             roleTag.setText("Owner");
             roleTag.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
             roleTag.setBackgroundResource(R.drawable.owner_tag_background);
-
         } else {
             // Otherwise, assign role tags based on the role in the item
-
             String role = item.get("role");
             if (role != null) {
                 switch (role) {
