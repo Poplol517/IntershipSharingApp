@@ -51,6 +51,7 @@ public class ViewCommunityDetailFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private List<HashMap<String, String>> memberList = new ArrayList<>();
     private static final String url_get_userchat = StaffMainActivity.ipBaseAddress + "/get_all_userchat.php";
+    private static final String url_delete_userchat = StaffMainActivity.ipBaseAddress + "/delete_user_chat.php";
     private LinearLayout lv;
 
     private String mParam1;
@@ -174,6 +175,7 @@ public class ViewCommunityDetailFragment extends Fragment {
     }
 
     private void showKickMemberDialog() {
+        String communityId = getArguments().getString("communityId", "Default ID");
         // Check if there are members to display
         if (memberList.isEmpty()) {
             Toast.makeText(requireContext(), "No members available to kick", Toast.LENGTH_SHORT).show();
@@ -187,8 +189,8 @@ public class ViewCommunityDetailFragment extends Fragment {
         // Initialize the ListView from the dialog's layout
         ListView listView = dialogView.findViewById(R.id.member_list_view);
 
-        // Create an adapter and set it to the ListView
-        MemberAdapter adapter = new MemberAdapter(requireContext(), memberList);
+        // Create the adapter and set it to the ListView
+        MemberAdapter adapter = new MemberAdapter(requireContext(), memberList, communityId); // Pass the chatId to the adapter
         listView.setAdapter(adapter);
 
         // Create the AlertDialog and set its custom view
@@ -197,13 +199,9 @@ public class ViewCommunityDetailFragment extends Fragment {
                 .setMessage("Select a member to remove from the community:")
                 .setView(dialogView)  // Set the custom view with the ListView
                 .setPositiveButton("Confirm", (dialog, which) -> {
-                    // Handle the selection here
-                    int selectedPosition = listView.getCheckedItemPosition();
-                    if (selectedPosition != ListView.INVALID_POSITION) {
-                        HashMap<String, String> selectedMember = memberList.get(selectedPosition);
-                        String selectedMemberName = selectedMember.get("user_name");
-                        kickMemberFromCommunity(selectedMemberName);
-                    }
+                    // Call the deleteSelectedMembers method to process the removal
+                    adapter.deleteSelectedMembers(); // Trigger the deletion request in the adapter
+                    fetchuserChat();
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
                     // Dismiss the dialog
@@ -211,15 +209,6 @@ public class ViewCommunityDetailFragment extends Fragment {
                 })
                 .create()
                 .show();
-    }
-
-
-    private void kickMemberFromCommunity(String member) {
-        // Example: Send a request to the server to remove the member
-        Toast.makeText(requireContext(), "Member removed successfully!", Toast.LENGTH_SHORT).show();
-
-        // TODO: Replace this with actual logic to kick a member
-        // For example, send a POST request to your backend API
     }
 
     private void fetchuserChat() {
@@ -284,11 +273,10 @@ public class ViewCommunityDetailFragment extends Fragment {
         queue.add(stringRequest);
     }
 
-
     private void addUserchatToLayout(final HashMap<String, String> item) {
         Log.d("UserChatDetails", "Item: " + item);
 
-        // Add item to memberList for later use in the dialog
+        // Add the new item to the memberList for later use in the dialog
         memberList.add(item);
 
         // Inflate the custom layout for displaying user chat info

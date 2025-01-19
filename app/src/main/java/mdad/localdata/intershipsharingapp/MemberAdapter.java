@@ -8,11 +8,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,11 +28,15 @@ public class MemberAdapter extends ArrayAdapter<HashMap<String, String>> {
 
     private final Context context;
     private final List<HashMap<String, String>> memberList;
+    private final HashMap<Integer, HashMap<String, String>> selectedMembers = new HashMap<>();
+    private static final String url_delete_userchat = StaffMainActivity.ipBaseAddress + "/delete_user_chat.php";
+    private final String chatId; // Assuming chatId is passed from the calling activity
 
-    public MemberAdapter(Context context, List<HashMap<String, String>> members) {
+    public MemberAdapter(Context context, List<HashMap<String, String>> members, String chatId) {
         super(context, R.layout.dialog_member_list_item, members);
         this.context = context;
         this.memberList = members;
+        this.chatId = chatId; // Set the chatId for use in delete request
     }
 
     @Override
@@ -36,6 +48,39 @@ public class MemberAdapter extends ArrayAdapter<HashMap<String, String>> {
 
         // Get member data
         HashMap<String, String> member = memberList.get(position);
+
+        // Retrieve user ID and chat ID
+        String userId = member.get("userId");
+        String userchatId = member.get("userchatId");
+
+        // Log or process the user and chat IDs
+        Log.d("MemberAdapter", "User ID: " + userId + ", Chat ID: " + userchatId);
+
+        CheckBox checkBox = convertView.findViewById(R.id.member_checkbox);
+        checkBox.setOnCheckedChangeListener(null); // Avoid triggering on recycled views
+        checkBox.setChecked(selectedMembers.get(position) != null);
+
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // When checked, add userId and userchatId to selectedMembers map
+                HashMap<String, String> selectedMember = new HashMap<>();
+                selectedMember.put("userId", userId);
+                selectedMember.put("userchatId", userchatId);
+                selectedMembers.put(position, selectedMember);
+
+                // Log the user details if the checkbox is checked
+                String userName = member.get("user_name");
+                String role = member.get("role");
+                String userRoleText = member.get("course");
+                Log.d("UserDetails", "User Name: " + userName + ", Role: " + role + ", Course: " + userRoleText);
+            } else {
+                // When unchecked, remove from selectedMembers map
+                selectedMembers.remove(position);
+            }
+
+            // Log the current state of selectedMembers list
+            logSelectedMembers();
+        });
 
         // Bind user info to the views
         TextView roleTag = convertView.findViewById(R.id.role_tag);
@@ -79,6 +124,66 @@ public class MemberAdapter extends ArrayAdapter<HashMap<String, String>> {
         return convertView;
     }
 
+    private void logSelectedMembers() {
+        Log.d("SelectedMembers", "Current Selected Members: " + selectedMembers.toString());
+    }
+
+    // Function to send the selected members' data to PHP script for deletion
+    public void deleteSelectedMembers() {
+        // Extract userIds from selectedMembers
+        StringBuilder userIdsBuilder = new StringBuilder();
+        for (HashMap<String, String> selectedMember : selectedMembers.values()) {
+            String userId = selectedMember.get("userId");
+            if (userIdsBuilder.length() > 0) {
+                userIdsBuilder.append(",");
+            }
+            userIdsBuilder.append(userId);
+        }
+
+        String userIdsString = userIdsBuilder.toString();
+
+        // Send the data to the PHP script (using HttpURLConnection)
+        new Thread(() -> {
+            try {
+                URL url = new URL(url_delete_userchat);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+
+                // Prepare the data to send
+                String postData = "chatId=" + URLEncoder.encode(chatId, "UTF-8") +
+                        "&userIds=" + URLEncoder.encode(userIdsString, "UTF-8");
+
+                // Send the data
+                OutputStream outputStream = connection.getOutputStream();
+                outputStream.write(postData.getBytes("UTF-8"));
+                outputStream.flush();
+                outputStream.close();
+
+                // Get the response
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    // Handle success
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder responseBuilder = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        responseBuilder.append(line);
+                    }
+                    String response = responseBuilder.toString();
+                    // Handle the response
+                    Log.d("PHP Response", response);
+                } else {
+                    // Handle error
+                    Log.e("HTTP Error", "Error: " + responseCode);
+                }
+            } catch (Exception e) {
+                Log.e("Network Error", "Error sending request: " + e.getMessage());
+            }
+        }).start();
+    }
+
     private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
         try {
             // Decode the base64 data into a byte array
@@ -101,4 +206,3 @@ public class MemberAdapter extends ArrayAdapter<HashMap<String, String>> {
         }
     }
 }
-
