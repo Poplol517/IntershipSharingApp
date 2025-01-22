@@ -51,7 +51,6 @@ public class ViewCommunityDetailFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private List<HashMap<String, String>> memberList = new ArrayList<>();
     private static final String url_get_userchat = StaffMainActivity.ipBaseAddress + "/get_all_userchat.php";
-    private static final String url_delete_userchat = StaffMainActivity.ipBaseAddress + "/delete_user_chat.php";
     private LinearLayout lv;
 
     private String mParam1;
@@ -135,6 +134,7 @@ public class ViewCommunityDetailFragment extends Fragment {
         // Get references to the buttons
         Button btnKickCommunity = getView().findViewById(R.id.btnkickCommunity);
         Button btnEditCommunity = view.findViewById(R.id.btneditCommunity);
+        ImageView viewGraph = view.findViewById(R.id.viewGraph);
 
         // If the current user is the owner, make the buttons visible
         if (ownerId.equals(currentUserId)) {
@@ -166,11 +166,37 @@ public class ViewCommunityDetailFragment extends Fragment {
 
             btnKickCommunity.setVisibility(View.VISIBLE); // Make the button visible for the owner
             btnKickCommunity.setOnClickListener(v -> showKickMemberDialog());
+            viewGraph.setVisibility(View.VISIBLE);
+            viewGraph.setVisibility(View.VISIBLE);
+            viewGraph.setOnClickListener(v -> {
+                ViewGraphFragment fragment = new ViewGraphFragment();
+
+                // Get the communityId from the arguments
+                String communityId = getArguments().getString("communityId", "Default ID");
+
+                // Pass the communityId to the ViewGraphFragment
+                Bundle bundle = new Bundle();
+                bundle.putString("communityId", communityId);
+                fragment.setArguments(bundle);
+
+                // Use the FragmentManager to begin a transaction
+                FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+
+                // Replace the existing container with the new fragment
+                transaction.replace(R.id.fragment_container, fragment);
+
+                // Add the transaction to the back stack, so the user can navigate back
+                transaction.addToBackStack(null);
+
+                // Commit the transaction
+                transaction.commit();
+            });
         }
         else {
             // Otherwise, keep the buttons hidden
             btnEditCommunity.setVisibility(View.GONE);
             btnKickCommunity.setVisibility(View.GONE); // Hide the button for non-owners
+            viewGraph.setVisibility(View.GONE);
         }
     }
 
