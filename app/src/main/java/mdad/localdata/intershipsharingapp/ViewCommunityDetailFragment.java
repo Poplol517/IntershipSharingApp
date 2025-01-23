@@ -176,6 +176,7 @@ public class ViewCommunityDetailFragment extends Fragment {
 
                 // Pass the communityId to the ViewGraphFragment
                 Bundle bundle = new Bundle();
+                bundle.putString("ownerId",ownerId);
                 bundle.putString("communityId", communityId);
                 fragment.setArguments(bundle);
 

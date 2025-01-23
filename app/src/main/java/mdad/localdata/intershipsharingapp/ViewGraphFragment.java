@@ -88,6 +88,7 @@ public class ViewGraphFragment extends Fragment {
         try {
             // Get the communityId passed through the Bundle
             String communityId = getArguments().getString("communityId", "Default ID");
+            String owenerId = getArguments().getString("ownerId", "Default ID");
 
             // Parse the response
             String[] rows = response.split(":");
@@ -98,11 +99,15 @@ public class ViewGraphFragment extends Fragment {
                 if (fields.length >= 14) {
                     String chatId = fields[2]; // Assuming ChatID is at index 2
                     String dateJoined = fields[13]; // Assuming date_joined is at index 13
+                    String userId = fields[1]; // Assuming userId is at index 1
 
                     // Only process if the chatId matches the bundled communityId
                     if (chatId.equals(communityId)) {
-                        // Increment count for the date
-                        dateCountMap.put(dateJoined, dateCountMap.getOrDefault(dateJoined, 0) + 1);
+                        // Only increment count if the ownerId does not match userId
+                        if (!userId.equals(owenerId)) {
+                            // Increment count for the date
+                            dateCountMap.put(dateJoined, dateCountMap.getOrDefault(dateJoined, 0) + 1);
+                        }
                     }
                 }
             }

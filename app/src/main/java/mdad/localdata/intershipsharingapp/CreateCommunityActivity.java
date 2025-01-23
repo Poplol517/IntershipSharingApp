@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class CreateCommunityActivity extends AppCompatActivity {
     private static String url_create_community = StaffMainActivity.ipBaseAddress + "/create_community.php";
-
+    private static String url_create_userchat = StaffMainActivity.ipBaseAddress + "/create_userchat.php";
     private static final int GALLERY_REQUEST_CODE = 1;
 
     private ImageView uploadIcon;
@@ -98,16 +98,29 @@ public class CreateCommunityActivity extends AppCompatActivity {
         // If there's no photo, set photoBase64 to an empty string
         String photoBase64 = (selectedImageBitmap != null) ? bitmapToBase64(selectedImageBitmap) : "";
 
-        // Create Volley request
+        // Create Volley request to create community
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url_create_community,
                 response -> {
-                    if (response.trim().equalsIgnoreCase("success")) {
-                        Toast.makeText(this, "Community created successfully!", Toast.LENGTH_SHORT).show();
-                        finish(); // Close the activity
-                    } else {
-                        Toast.makeText(this, "Error: " + response, Toast.LENGTH_SHORT).show();
-                        Log.d("Response", response);
+                    try {
+                        // Parse the response and extract the communityId
+                        JSONObject jsonResponse = new JSONObject(response);
+                        if (jsonResponse.getBoolean("success")) {
+                            String communityId = jsonResponse.getString("communityId");
+
+                            // After community creation, create a user chat
+                            createUserChat(userId, communityId);
+
+                            Toast.makeText(this, "Community created successfully!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "Error: " + response, Toast.LENGTH_SHORT).show();
+                            Log.d("Response", response);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Error extracting community ID", Toast.LENGTH_SHORT).show();
                     }
+
+                    finish(); // Close the activity after community is created
                 },
                 error -> Toast.makeText(this, "Error creating community: " + error.getMessage(), Toast.LENGTH_SHORT).show()) {
 
@@ -121,9 +134,37 @@ public class CreateCommunityActivity extends AppCompatActivity {
                 return params;
             }
         };
+
+        // Add the community creation request to the Volley queue
         Volley.newRequestQueue(this).add(stringRequest);
     }
 
+    private void createUserChat(String userId, String communityId) {
+        Log.d("community", communityId);
+        // Create Volley request to create user chat
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url_create_userchat,
+                response -> {
+                    if (response.trim().equalsIgnoreCase("success")) {
+                        Toast.makeText(this, "User chat created successfully!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Error creating user chat: " + response, Toast.LENGTH_SHORT).show();
+                        Log.d("Response", response);
+                    }
+                },
+                error -> Toast.makeText(this, "Error creating user chat: " + error.getMessage(), Toast.LENGTH_SHORT).show()) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("userId", userId);
+                params.put("chatId", communityId);
+                return params;
+            }
+        };
+
+        // Add the user chat creation request to the Volley queue
+        Volley.newRequestQueue(this).add(stringRequest);
+    }
 
     private String bitmapToBase64(Bitmap bitmap) {
         // Define the desired width and height for the resized image
