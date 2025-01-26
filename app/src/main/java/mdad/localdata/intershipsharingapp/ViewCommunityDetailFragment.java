@@ -226,6 +226,8 @@ public class ViewCommunityDetailFragment extends Fragment {
                 .setMessage("Select a member to remove from the community:")
                 .setView(dialogView)  // Set the custom view with the ListView
                 .setPositiveButton("Confirm", (dialog, which) -> {
+                    lv.removeAllViews();
+                    memberList.clear();
                     // Call the deleteSelectedMembers method to process the removal
                     adapter.deleteSelectedMembers(); // Trigger the deletion request in the adapter
                     fetchuserChat();

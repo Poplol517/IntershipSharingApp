@@ -7,7 +7,11 @@
     <item
         android:id="@+id/nav_new_account"
         android:icon="@drawable/new_account"
-        android:title="Create New Account" />
+        android:title="Create Account" />
+    <item
+        android:id="@+id/nav_new_post"
+        android:icon="@drawable/create"
+        android:title="Create Post" />
     <item
         android:id="@+id/nav_logout"
         android:icon="@drawable/account"

@@ -143,6 +143,7 @@ public class ViewGraphFragment extends Fragment {
             // Customize chart axes
             XAxis xAxis = lineChart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+            lineChart.getXAxis().setLabelRotationAngle(-45);
             xAxis.setGranularity(1f); // Ensure one date per tick
 
             // Set custom X-Axis date formatter

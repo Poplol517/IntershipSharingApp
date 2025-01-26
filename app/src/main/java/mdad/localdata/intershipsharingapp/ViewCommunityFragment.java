@@ -82,8 +82,6 @@ public class ViewCommunityFragment extends Fragment {
         PagerSnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(recyclerView);
 
-        // Fetch the community data from the URL
-        fetchCommunityData();
 
 
         TextView textView = view.findViewById(R.id.tvshowAll);
@@ -188,7 +186,7 @@ public class ViewCommunityFragment extends Fragment {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url_get_userchat,
                 response -> {
                     if (response.equals("Error")) {
-                        Toast.makeText(requireContext(), "Error in retrieving community data", Toast.LENGTH_LONG).show();
+                        Toast.makeText(requireContext(), "Error in retrieving chat data", Toast.LENGTH_LONG).show();
                         return;
                     }
 
@@ -201,12 +199,12 @@ public class ViewCommunityFragment extends Fragment {
                         return;
                     }
 
-                    String[] communities = response.split(":");
+                    String[] chats = response.split(":");
                     items.clear(); // Clear the existing items before adding new ones
 
-                    for (String community : communities) {
-                        if (!community.isEmpty()) {
-                            String[] details = community.split(";");
+                    for (String chat : chats) {
+                        if (!chat.isEmpty()) {
+                            String[] details = chat.split(";");
                             if (details.length >= 5) {
                                 HashMap<String, String> map = new HashMap<>();
                                 map.put("userchatId", details[0]);
@@ -223,7 +221,7 @@ public class ViewCommunityFragment extends Fragment {
                             }
                         }
                     }
-
+                    fetchCommunityData();
                     adapter.notifyDataSetChanged();
                 },
 
@@ -319,7 +317,7 @@ public class ViewCommunityFragment extends Fragment {
             communityPhoto.setImageResource(R.drawable.no_image);
         }
         // Prevent the disappearing of carousel items
-        fetchCommunityData();
+
 
         // Add the postView to the parent layout
         lv.addView(postView);

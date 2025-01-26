@@ -54,7 +54,12 @@ public class StaffMainActivity extends AppCompatActivity {
 
                 } else if (item.getItemId() == R.id.nav_new_account) {
                     // Navigate to New Account fragment
-                    selectedFragment = new NewAccountFragment();
+                    selectedFragment = new NewAccountFragment();}
+                else if (item.getItemId() == R.id.nav_new_post) {
+                    // Navigate to New Account fragment
+                    Intent intent = new Intent(StaffMainActivity.this, CreatePostActivity.class);
+                    startActivity(intent);
+                    return true;
 
                 } else if (item.getItemId() == R.id.nav_logout) {
                     // Logout the user
