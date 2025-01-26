@@ -64,7 +64,7 @@ public class ViewAllCommunityFragment extends Fragment {
             // When an item is clicked, navigate to the detail fragment
 
             // Create a new instance of the CommunityDetailFragment
-            ViewSelectedCommunityFragment detailFragment =ViewSelectedCommunityFragment.newInstance(item.getTitle(),item.getDescription(), item.getChatID(),item.getImageBitmap());
+            ViewSelectedCommunityFragment detailFragment = ViewSelectedCommunityFragment.newInstance(item.getTitle(),item.getDescription(), item.getChatID(),item.getImageBitmap());
 
             // Begin the fragment transaction
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();

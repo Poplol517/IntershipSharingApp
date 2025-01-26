@@ -65,7 +65,6 @@ public class NewUserActivity extends AppCompatActivity {
         roleSpinner = findViewById(R.id.Role);
         studyYearSpinner = findViewById(R.id.StudyYear);
         labelStudyYear = findViewById(R.id.labelStudyYear);
-        labelGraduatedYear = findViewById(R.id.labelGraduatedYear);
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
 
         // Initialize years of study locally
@@ -83,12 +82,10 @@ public class NewUserActivity extends AppCompatActivity {
                 if ("Student".equals(roleNames.get(position))) {
                     labelStudyYear.setVisibility(View.VISIBLE);
                     studyYearSpinner.setVisibility(View.VISIBLE);
-                    labelGraduatedYear.setVisibility(View.GONE);
                     inputGraduatedYear.setVisibility(View.GONE);
                     inputGraduatedYear.setText("");
 
                 } else if ("Alumni".equals(roleNames.get(position))) {
-                    labelGraduatedYear.setVisibility(View.VISIBLE);
                     inputGraduatedYear.setVisibility(View.VISIBLE);
                     labelStudyYear.setVisibility(View.GONE);
                     studyYearSpinner.setVisibility(View.GONE);
@@ -96,7 +93,6 @@ public class NewUserActivity extends AppCompatActivity {
                 } else {
                     labelStudyYear.setVisibility(View.GONE);
                     studyYearSpinner.setVisibility(View.GONE);
-                    labelGraduatedYear.setVisibility(View.GONE);
                     inputGraduatedYear.setVisibility(View.GONE);
                     inputGraduatedYear.setText("");
                     studyYearSpinner.setSelection(0);

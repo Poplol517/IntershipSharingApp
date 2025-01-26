@@ -132,7 +132,7 @@
         android:inputType="text"
         android:minHeight="48dp"
         android:padding="12dp"
-        />
+        android:visibility="gone"/>
     <!-- Button Create Product -->
     <Button android:id="@+id/btnCreateAccount"
         android:layout_width="370dp"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_view_stats"
+        android:icon="@drawable/graph"
+        android:title="View Stats" />
+    <item
+        android:id="@+id/nav_new_account"
+        android:icon="@drawable/new_account"
+        android:title="Create New Account" />
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@drawable/account"
+        android:title="Logout" />
+</menu>
