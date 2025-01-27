@@ -66,6 +66,7 @@ public class ViewUserStatFragment extends Fragment {
     }
 
     private void setupPieChart() {
+
         // Make the network request to fetch user data
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlViewAllUser, new Response.Listener<String>() {
             @Override
@@ -93,7 +94,7 @@ public class ViewUserStatFragment extends Fragment {
 
                 // Create entries for the pie chart
                 ArrayList<PieEntry> entries = new ArrayList<>();
-                entries.add(new PieEntry(studentCount, "Students"));
+                entries.add(new PieEntry(studentCount, "Student"));
                 entries.add(new PieEntry(alumniCount, "Alumni"));
                 entries.add(new PieEntry(staffCount, "Staff"));
 
@@ -119,6 +120,7 @@ public class ViewUserStatFragment extends Fragment {
                 pieChart.setCenterText("User Distribution");
                 pieChart.setCenterTextSize(18f);
                 pieChart.animateY(1000);
+                pieChart.getDescription().setEnabled(false);
                 pieChart.invalidate(); // Refresh the chart
 
                 // Set listener for chart clicks
@@ -188,7 +190,7 @@ public class ViewUserStatFragment extends Fragment {
 
                 // Setup BarDataSet
                 BarDataSet dataSet = new BarDataSet(entries, "Users Joined");
-                dataSet.setColors(new int[]{Color.BLUE, Color.GREEN, Color.RED, Color.YELLOW,Color.MAGENTA});
+                dataSet.setColors(new int[]{Color.BLUE});
                 dataSet.setValueTextSize(14f);
 
                 // Setup BarData
@@ -208,11 +210,7 @@ public class ViewUserStatFragment extends Fragment {
                 barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
                 barChart.getXAxis().setTextSize(8f); // Smaller font size for x-axis labels
                 barChart.setExtraBottomOffset(30f);
-
-
-                // Setup chart description
-                Description description = new Description();
-                barChart.setDescription(description);
+                barChart.getDescription().setEnabled(false);
                 barChart.getLegend().setEnabled(false);
                 barChart.invalidate(); // Refresh the chart
             }
