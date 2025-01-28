@@ -130,7 +130,6 @@ public class ViewUserStatFragment extends Fragment {
                         if (e instanceof PieEntry) {
                             PieEntry pieEntry = (PieEntry) e;
                             String label = pieEntry.getLabel();
-                            float value = pieEntry.getValue();
 
                             // Create an Intent to navigate to the next activity
                             Intent intent = new Intent(requireContext(), ViewPieDetailActivity.class);
@@ -213,6 +212,29 @@ public class ViewUserStatFragment extends Fragment {
                 barChart.getDescription().setEnabled(false);
                 barChart.getLegend().setEnabled(false);
                 barChart.invalidate(); // Refresh the chart
+                barChart.setOnChartValueSelectedListener(new com.github.mikephil.charting.listener.OnChartValueSelectedListener() {
+                    @Override
+                    public void onValueSelected(com.github.mikephil.charting.data.Entry e, com.github.mikephil.charting.highlight.Highlight h) {
+                        if (e instanceof BarEntry) {
+                            // Get the x-axis index of the selected bar
+                            int index = (int) h.getX(); // Highlight contains the x index
+
+                            // Use the index to get the corresponding x-axis label
+                            String selectedLabel = labels.get(index); // Labels array from your code
+
+
+                            // Create an Intent to navigate to the next activity
+                            Intent intent = new Intent(requireContext(), ViewBarDetailActivity.class);
+                            intent.putExtra("category", selectedLabel); // Pass the selected x-axis label
+                            startActivity(intent);
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected() {
+                        // No action needed
+                    }
+                });
             }
         }, new Response.ErrorListener() {
             @Override

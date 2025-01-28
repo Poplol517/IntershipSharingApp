@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -31,6 +32,16 @@ public class ViewStatFragment extends Fragment {
         // Initialize TabLayout and ViewPager2
         tabLayout = view.findViewById(R.id.tabLayout);
         viewPager = view.findViewById(R.id.viewPager);
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
+
+        if (requireActivity() instanceof StaffMainActivity) { // Ensure it's attached to an activity
+            StaffMainActivity activity = (StaffMainActivity) requireActivity();
+            activity.setSupportActionBar(toolbar); // Set the toolbar as ActionBar
+            if (activity.getSupportActionBar() != null) {
+                activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
+        }
+
 
         // Setup ViewPager2 with a FragmentStateAdapter
         viewPager.setAdapter(new TabAdapter(this));
