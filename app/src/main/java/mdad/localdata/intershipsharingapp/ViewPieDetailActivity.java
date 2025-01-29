@@ -1,6 +1,8 @@
 package mdad.localdata.intershipsharingapp;
 
-import android.content.SharedPreferences;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -8,6 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -114,9 +118,7 @@ public class ViewPieDetailActivity extends AppCompatActivity {
     private void addUserToLayout(final HashMap<String, String> item) {
         Log.d("UserDetails", "Item: " + item);
 
-        // Add the new item to the memberList for later use in the dialog
-
-        // Inflate the custom layout for displaying user chat info
+        // Inflate the custom layout for displaying user info
         View postView = LayoutInflater.from(this).inflate(R.layout.user_item, lv, false);
 
         // Set data for user info
@@ -137,7 +139,7 @@ public class ViewPieDetailActivity extends AppCompatActivity {
                 if (bitmap != null) {
                     profilePhoto.setImageBitmap(bitmap);
                 } else {
-                    profilePhoto.setImageResource(R.drawable.no_image);
+                    profilePhoto.setImageResource(R.drawable.account);
                 }
             });
         } else {
@@ -145,9 +147,59 @@ public class ViewPieDetailActivity extends AppCompatActivity {
         }
         roleTag.setVisibility(View.GONE);
 
+        // Add long press listener to show Bottom Sheet
+        postView.setOnLongClickListener(v -> {
+            showBottomSheetDialog(item);
+            return true; // Indicate that the long press was handled
+        });
+
+        postView.setOnClickListener(v -> {
+            openUserDetailActivity(item);
+        });
+
         // Add the postView to the parent layout (list of users)
         lv.addView(postView);
     }
+
+    private void showBottomSheetDialog(HashMap<String, String> user) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_user, null);
+
+        Button editUser = sheetView.findViewById(R.id.btn_edit_user);
+        Button deleteUser = sheetView.findViewById(R.id.btn_delete_user);
+
+        editUser.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Toast.makeText(this, "Edit Message clicked for " + user.get("name"), Toast.LENGTH_SHORT).show();
+            // Implement your edit message logic here
+        });
+
+        // Handle Delete Message button click
+        deleteUser.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Toast.makeText(this, "Delete Message clicked for " + user.get("name"), Toast.LENGTH_SHORT).show();
+            // Implement your delete message logic here
+        });
+
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
+    }
+
+    private void openUserDetailActivity(HashMap<String, String> user) {
+
+        // Create an intent to navigate to the ViewSelectedAccountActivity
+        Intent intent = new Intent(this, ViewSelectedAccountActivity.class);
+
+        // Pass the user data as extras
+        intent.putExtra("userId", user.get("userId"));
+        intent.putExtra("name", user.get("name"));
+        intent.putExtra("course", user.get("course"));
+        intent.putExtra("role", user.get("role"));
+
+        // Start the activity
+        startActivity(intent);
+    }
+
 
     private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
         try {

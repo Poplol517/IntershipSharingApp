@@ -50,6 +50,9 @@
             android:name=".AllUserActivity"
             android:exported="false" />
         <activity
+            android:name=".ViewSelectedAccountActivity"
+            android:exported="false" />
+        <activity
             android:name=".UserMainActivity"
             android:exported="true">
             <intent-filter>

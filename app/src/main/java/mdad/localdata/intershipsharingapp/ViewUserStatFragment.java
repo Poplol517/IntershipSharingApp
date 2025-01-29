@@ -99,7 +99,7 @@ public class ViewUserStatFragment extends Fragment {
                 entries.add(new PieEntry(staffCount, "Staff"));
 
                 // Setup PieDataSet
-                PieDataSet dataSet = new PieDataSet(entries, "User Distribution");
+                PieDataSet dataSet = new PieDataSet(entries, "");
                 dataSet.setColors(new int[]{Color.BLUE, Color.RED, Color.GREEN});
                 dataSet.setValueTextSize(14f);
                 dataSet.setValueTextColor(Color.WHITE);
