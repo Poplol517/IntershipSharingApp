@@ -6,12 +6,14 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,8 +72,27 @@ public class ViewSelectedAccountActivity extends AppCompatActivity {
             }
         }).attach();
 
+        Toolbar toolbar = findViewById(R.id.top_toolbar);
+        setSupportActionBar(toolbar);
+
+        // Enable the back button
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Edit Selected User"); // Set title
+        }
+
         // Fetch user details
         fetchUser();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle the back button click
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed(); // Go back to the previous activity
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void fetchUser() {
@@ -96,6 +117,7 @@ public class ViewSelectedAccountActivity extends AppCompatActivity {
                                     HashMap<String, String> map = new HashMap<>();
                                     map.put("userId", userId);
                                     map.put("name", details[1]);
+                                    map.put("email", details[2]);
                                     map.put("course", details[5]);
                                     map.put("study_year", details[6]);
                                     map.put("graduated_year", details[7]);
@@ -146,6 +168,33 @@ public class ViewSelectedAccountActivity extends AppCompatActivity {
             tvRole.setText(userDetails.get("role"));
             tvCourse.setText(userDetails.get("course"));
             tvStudyYear.setText("Graduated Year: " + userDetails.get("graduated_year"));
+
+            String photoData = userDetails.get("user_photo");
+            if (photoData != null && !photoData.isEmpty()) {
+                try {
+                    photoData = photoData.replace("\n", "").replace("\r", "");
+                    saveBase64ToFile(photoData, file -> {
+                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        if (bitmap != null) {
+                            profileIcon.setImageBitmap(bitmap);
+                        } else {
+                            Log.e("ImageError", "Failed to decode bitmap from file.");
+                            profileIcon.setImageResource(R.drawable.account); // Default image
+                        }
+                    });
+                } catch (IllegalArgumentException e) {
+                    Log.e("Base64Error", "Invalid Base64 data: " + e.getMessage());
+                    profileIcon.setImageResource(R.drawable.account); // Default image
+                }
+            } else {
+                profileIcon.setImageResource(R.drawable.account); // Default image
+            }
+        }
+        else if ("3".equals(role)) { // Role 2 - Alumni
+            tvName.setText(userDetails.get("name"));
+            tvRole.setText(userDetails.get("role"));
+            tvCourse.setText(userDetails.get("course"));
+            tvStudyYear.setText("Email: " + userDetails.get("email"));
 
             String photoData = userDetails.get("user_photo");
             if (photoData != null && !photoData.isEmpty()) {

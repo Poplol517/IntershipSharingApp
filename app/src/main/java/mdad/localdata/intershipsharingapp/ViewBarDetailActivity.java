@@ -1,5 +1,6 @@
 package mdad.localdata.intershipsharingapp;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,13 +26,16 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ViewBarDetailActivity extends AppCompatActivity {
     private static final String urlViewAllUser = StaffMainActivity.ipBaseAddress + "/get_all_user.php";
+    private static final String url_delete_user = StaffMainActivity.ipBaseAddress + "/delete_user.php";
 
     private LinearLayout lv;
 
@@ -93,6 +98,7 @@ public class ViewBarDetailActivity extends AppCompatActivity {
                                     map.put("userId", details[0]);
                                     map.put("name", details[1]);
                                     map.put("course", details[5]);
+                                    map.put("roleId", details[8]);
                                     map.put("role", details[9]);
                                     map.put("user_photo", details[10]);
                                     addUserToLayout(map);
@@ -145,9 +151,104 @@ public class ViewBarDetailActivity extends AppCompatActivity {
         }
         roleTag.setVisibility(View.GONE);
 
+        postView.setOnLongClickListener(v -> {
+            showBottomSheetDialog(item);
+            return true; // Indicate that the long press was handled
+        });
+
+        postView.setOnClickListener(v -> {
+            openUserDetailActivity(item);
+        });
+
         // Add the postView to the parent layout (list of users)
         lv.addView(postView);
     }
+
+    private void showBottomSheetDialog(HashMap<String, String> user) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_user, null);
+
+        Button editUser = sheetView.findViewById(R.id.btn_edit_user);
+        Button deleteUser = sheetView.findViewById(R.id.btn_delete_user);
+
+        editUser.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EditSelectedAccountActivity.class);
+
+            // Pass the user data as extras
+            intent.putExtra("userId", user.get("userId"));
+            intent.putExtra("name", user.get("name"));
+            intent.putExtra("course", user.get("course"));
+            intent.putExtra("role", user.get("role"));
+            intent.putExtra("roleId", user.get("roleId"));
+
+            // Start the activity
+            startActivity(intent);
+            bottomSheetDialog.dismiss();
+        });
+
+        // Handle Delete Message button click
+        deleteUser.setOnClickListener(v -> {
+            String userId = user.get("userId");
+            deleteUser(userId);
+        });
+
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
+    }
+
+    private void openUserDetailActivity(HashMap<String, String> user) {
+
+        // Create an intent to navigate to the ViewSelectedAccountActivity
+        Intent intent = new Intent(this, ViewSelectedAccountActivity.class);
+
+        // Pass the user data as extras
+        intent.putExtra("userId", user.get("userId"));
+        intent.putExtra("name", user.get("name"));
+        intent.putExtra("course", user.get("course"));
+        intent.putExtra("role", user.get("role"));
+
+        // Start the activity
+        startActivity(intent);
+    }
+
+    private void deleteUser(String userId) {
+        if (this != null) {
+            // API endpoint for creating a message
+
+            // Use Volley to make the POST request
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url_delete_user,
+                    response -> {
+                        Log.d("CreateUserchatResponse", response);
+
+                        if (response.trim().equals("Error")) {
+                            Toast.makeText(this, "Error deleting user", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(this, "You have succesfully deleted a user", Toast.LENGTH_SHORT).show();
+
+
+                        }
+                    },
+                    error -> {
+                        Log.e("VolleyError", "Error leaving community: " + error.getMessage());
+                        Toast.makeText(this, "Error leaving coummnity", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Add POST parameters to the request
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userId", userId);
+                    return params;
+                }
+            };
+
+            // Add the request to the Volley request queue
+            RequestQueue queue = Volley.newRequestQueue(this);
+            queue.add(stringRequest);
+        } else {
+            Log.w("FragmentError", "Fragment is not attached to a context, skipping createMessage call.");
+        }
+    }
+
 
     private void saveBase64ToFile(String base64Data, ViewAccountFragment.OnFileSavedListener listener) {
         try {

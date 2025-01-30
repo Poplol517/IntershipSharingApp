@@ -33,9 +33,11 @@ import com.android.volley.toolbox.Volley;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ViewPieDetailActivity extends AppCompatActivity {
     private static final String urlViewAllUser = StaffMainActivity.ipBaseAddress + "/get_all_user.php";
+    private static final String url_delete_user = StaffMainActivity.ipBaseAddress + "/delete_user.php";
     private LinearLayout lv;
 
     @Override
@@ -97,6 +99,7 @@ public class ViewPieDetailActivity extends AppCompatActivity {
                                     map.put("userId", details[0]);
                                     map.put("name", details[1]);
                                     map.put("course", details[5]);
+                                    map.put("roleId", details[8]);
                                     map.put("role", role);
                                     map.put("user_photo", details[10]);
                                     addUserToLayout(map);
@@ -169,16 +172,24 @@ public class ViewPieDetailActivity extends AppCompatActivity {
         Button deleteUser = sheetView.findViewById(R.id.btn_delete_user);
 
         editUser.setOnClickListener(v -> {
+            Intent intent = new Intent(this, EditSelectedAccountActivity.class);
+
+            // Pass the user data as extras
+            intent.putExtra("userId", user.get("userId"));
+            intent.putExtra("name", user.get("name"));
+            intent.putExtra("course", user.get("course"));
+            intent.putExtra("role", user.get("role"));
+            intent.putExtra("roleId", user.get("roleId"));
+
+            // Start the activity
+            startActivity(intent);
             bottomSheetDialog.dismiss();
-            Toast.makeText(this, "Edit Message clicked for " + user.get("name"), Toast.LENGTH_SHORT).show();
-            // Implement your edit message logic here
         });
 
         // Handle Delete Message button click
         deleteUser.setOnClickListener(v -> {
-            bottomSheetDialog.dismiss();
-            Toast.makeText(this, "Delete Message clicked for " + user.get("name"), Toast.LENGTH_SHORT).show();
-            // Implement your delete message logic here
+            String userId = user.get("userId");
+            deleteUser(userId);
         });
 
         bottomSheetDialog.setContentView(sheetView);
@@ -198,6 +209,44 @@ public class ViewPieDetailActivity extends AppCompatActivity {
 
         // Start the activity
         startActivity(intent);
+    }
+
+    private void deleteUser(String userId) {
+        if (this != null) {
+            // API endpoint for creating a message
+
+            // Use Volley to make the POST request
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, url_delete_user,
+                    response -> {
+                        Log.d("CreateUserchatResponse", response);
+
+                        if (response.trim().equals("Error")) {
+                            Toast.makeText(this, "Error deleting user", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(this, "You have succesfully deleted a user", Toast.LENGTH_SHORT).show();
+
+
+                        }
+                    },
+                    error -> {
+                        Log.e("VolleyError", "Error leaving community: " + error.getMessage());
+                        Toast.makeText(this, "Error leaving coummnity", Toast.LENGTH_LONG).show();
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Add POST parameters to the request
+                    Map<String, String> params = new HashMap<>();
+                    params.put("userId", userId);
+                    return params;
+                }
+            };
+
+            // Add the request to the Volley request queue
+            RequestQueue queue = Volley.newRequestQueue(this);
+            queue.add(stringRequest);
+        } else {
+            Log.w("FragmentError", "Fragment is not attached to a context, skipping createMessage call.");
+        }
     }
 
 

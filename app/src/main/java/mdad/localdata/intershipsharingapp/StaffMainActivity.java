@@ -23,7 +23,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class StaffMainActivity extends AppCompatActivity {
-    public static String ipBaseAddress = "http://192.168.0.19/project";
+    public static String ipBaseAddress = "http://192.168.0.31/project";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
