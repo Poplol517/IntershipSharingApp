@@ -20,10 +20,12 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -32,6 +34,7 @@ import com.android.volley.toolbox.Volley;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,28 +42,48 @@ public class ViewPieDetailActivity extends AppCompatActivity {
     private static final String urlViewAllUser = StaffMainActivity.ipBaseAddress + "/get_all_user.php";
     private static final String url_delete_user = StaffMainActivity.ipBaseAddress + "/delete_user.php";
     private LinearLayout lv;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private ArrayList<HashMap<String, String>> userList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_pie_detail);
+
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(this::fetchUser);
         lv = findViewById(R.id.list);
 
         Toolbar toolbar = findViewById(R.id.top_toolbar);
-        TextView title = findViewById(R.id.title);
         setSupportActionBar(toolbar);
 
-        // Enable the back button
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("User Details"); // Set title
+            getSupportActionBar().setTitle("User Details");
         }
 
-        // Retrieve the intent data
         String category = getIntent().getStringExtra("category");
-        title.setText("Users registered as "+ category);
+        TextView title = findViewById(R.id.title);
+        title.setText("Users registered as " + category);
+
+        SearchView searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterUsers(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterUsers(newText);
+                return false;
+            }
+        });
+
         fetchUser();
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle the back button click
@@ -72,16 +95,19 @@ public class ViewPieDetailActivity extends AppCompatActivity {
     }
 
     private void fetchUser() {
+        swipeRefreshLayout.setRefreshing(true);
+        lv.removeAllViews();
+        userList.clear(); // Clear the list before adding new data
         RequestQueue queue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, urlViewAllUser,
                 response -> {
+                    swipeRefreshLayout.setRefreshing(false);
                     if (response.equals("Error")) {
-                        Toast.makeText(this, "Error in retrieving user data", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Error retrieving user data", Toast.LENGTH_LONG).show();
                         return;
                     }
 
-                    // Retrieve the communityId from the arguments
                     String category = getIntent().getStringExtra("category");
                     Log.d("Category", "Category: " + category);
 
@@ -91,9 +117,7 @@ public class ViewPieDetailActivity extends AppCompatActivity {
                         if (!user.isEmpty()) {
                             String[] details = user.split(";");
                             if (details.length >= 5) {
-                                // Extract the communityId and ownerId from the response
                                 String role = details[9];
-                                // Check if the communityId matches the target communityId
                                 if (role.equals(category)) {
                                     HashMap<String, String> map = new HashMap<>();
                                     map.put("userId", details[0]);
@@ -102,21 +126,24 @@ public class ViewPieDetailActivity extends AppCompatActivity {
                                     map.put("roleId", details[8]);
                                     map.put("role", role);
                                     map.put("user_photo", details[10]);
-                                    addUserToLayout(map);
-
+                                    userList.add(map); // Store all users
                                 }
                             }
                         }
                     }
+
+                    updateUserList(userList); // Display all users initially
                 },
 
                 error -> {
+                    swipeRefreshLayout.setRefreshing(false);
                     Log.e("VolleyError", error.toString());
                     Toast.makeText(this, "Error retrieving user data", Toast.LENGTH_LONG).show();
                 });
 
         queue.add(stringRequest);
     }
+
 
     private void addUserToLayout(final HashMap<String, String> item) {
         Log.d("UserDetails", "Item: " + item);
@@ -163,6 +190,27 @@ public class ViewPieDetailActivity extends AppCompatActivity {
         // Add the postView to the parent layout (list of users)
         lv.addView(postView);
     }
+    private void filterUsers(String query) {
+        ArrayList<HashMap<String, String>> filteredList = new ArrayList<>();
+
+        for (HashMap<String, String> user : userList) {
+            String name = user.get("name").toLowerCase();
+            String course = user.get("course").toLowerCase();
+
+            if (name.contains(query.toLowerCase()) || course.contains(query.toLowerCase())) {
+                filteredList.add(user);
+            }
+        }
+
+        updateUserList(filteredList);
+    }
+    private void updateUserList(ArrayList<HashMap<String, String>> list) {
+        lv.removeAllViews(); // Clear the UI before adding new views
+        for (HashMap<String, String> user : list) {
+            addUserToLayout(user);
+        }
+    }
+
 
     private void showBottomSheetDialog(HashMap<String, String> user) {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);

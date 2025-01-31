@@ -78,7 +78,7 @@ public class ViewSelectedAccountActivity extends AppCompatActivity {
         // Enable the back button
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Edit Selected User"); // Set title
+            getSupportActionBar().setTitle("View Selected User Profile"); // Set title
         }
 
         // Fetch user details

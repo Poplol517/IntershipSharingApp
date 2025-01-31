@@ -27,6 +27,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -47,7 +48,7 @@ public class ViewAccountFragment extends Fragment {
 
     private TextView tvName, tvRole, tvCourse, tvStudyYear;
     private ImageView profileIcon;
-    private Button btnEditProfile, btnLogout,btnEditProfilePic,btnRemoveProfilePic;
+    private Button  btnLogout;
     private LinearLayout accountSection;
 
     public ViewAccountFragment() {
@@ -64,10 +65,7 @@ public class ViewAccountFragment extends Fragment {
         tvRole = view.findViewById(R.id.tvRole);
         tvCourse = view.findViewById(R.id.tvCourse);
         tvStudyYear = view.findViewById(R.id.tvStudyYear);
-        btnEditProfile = view.findViewById(R.id.btnEditProfile);
-        btnEditProfilePic = view.findViewById(R.id.btnEditProfilePic);
         btnLogout = view.findViewById(R.id.btnLogout);
-        btnRemoveProfilePic = view.findViewById(R.id.btnRemoveProfilePic);
         accountSection = view.findViewById(R.id.accountSection);
 
         // Initialize TabLayout and ViewPager2
@@ -94,35 +92,11 @@ public class ViewAccountFragment extends Fragment {
         // Fetch and display logged-in user account details
         fetchUserDetails();
 
-        btnEditProfilePic.setOnClickListener(v -> {
-            // Navigate to EditProfileFragment
-            UpdateProfilePictureFragment updateProfilePictureFragment = new UpdateProfilePictureFragment();
-
-            // Start the fragment transaction
-            requireActivity()
-                    .getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, updateProfilePictureFragment) // Replace with your container ID
-                    .addToBackStack(null) // Adds the transaction to the back stack
-                    .commit();
+        accountSection.setOnClickListener(v -> {
+            showBottomSheetDialog();
         });
 
-        btnRemoveProfilePic.setOnClickListener(v -> {
-            removeProfilePicture();
-        });
 
-        btnEditProfile.setOnClickListener(v -> {
-            // Navigate to EditProfileFragment
-            EditAccountFragment editProfileFragment = new EditAccountFragment();
-
-            // Start the fragment transaction
-            requireActivity()
-                    .getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, editProfileFragment) // Replace with your container ID
-                    .addToBackStack(null) // Adds the transaction to the back stack
-                    .commit();
-        });
 
 
         btnLogout.setOnClickListener(v -> {
@@ -180,6 +154,7 @@ public class ViewAccountFragment extends Fragment {
                                 if (currentUserId.equals(userId)) {
                                     HashMap<String, String> userDetails = new HashMap<>();
                                     userDetails.put("name", details[1]);
+                                    userDetails.put("email", details[2]);
                                     userDetails.put("username", details[3]);
                                     userDetails.put("role", details[9]);
                                     userDetails.put("course", details[5]);
@@ -257,6 +232,36 @@ public class ViewAccountFragment extends Fragment {
                 profileIcon.setImageResource(R.drawable.account); // Default image
             }
         }
+        else if ("3".equals(role)) { // Role 3 - Staff
+            tvName.setText(userDetails.get("name"));
+            tvRole.setText(userDetails.get("role"));
+            tvCourse.setText(userDetails.get("course"));
+            tvStudyYear.setText("Email: " + userDetails.get("email"));
+
+            String photoData = userDetails.get("photo");
+            if (photoData != null && !photoData.isEmpty()) {
+                try {
+                    photoData = photoData.replace("\n", "").replace("\r", "");
+                    Log.d("UserDetails", "Photo Data: " + photoData);
+                    saveBase64ToFile(photoData, file -> {
+                        // Once the image is saved, decode the file to Bitmap
+                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        if (bitmap != null) {
+                            profileIcon.setImageBitmap(bitmap);
+                        } else {
+                            Log.e("ImageError", "Failed to decode bitmap from file.");
+                            profileIcon.setImageResource(R.drawable.account); // Default image
+                        }
+                    });
+                } catch (IllegalArgumentException e) {
+                    Log.e("Base64Error", "Invalid Base64 data: " + e.getMessage());
+                    profileIcon.setImageResource(R.drawable.account); // Default image
+                }
+            } else {
+                profileIcon.setImageResource(R.drawable.account); // Default image
+            }
+        }
+
     }
 
     // Method to decode Base64 string and save it to a file
@@ -282,6 +287,53 @@ public class ViewAccountFragment extends Fragment {
     // Callback interface for file saving completion
     public interface OnFileSavedListener {
         void onFileSaved(File file);
+    }
+
+    private void showBottomSheetDialog() {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_account_options, null);
+
+        Button editProfile = sheetView.findViewById(R.id.btnEditProfile);
+        Button editProfilePic = sheetView.findViewById(R.id.btnEditProfilePic);
+        Button removeProfilePic = sheetView.findViewById(R.id.btnRemoveProfilePic);
+
+        removeProfilePic.setOnClickListener(v -> {
+            removeProfilePicture();
+            bottomSheetDialog.dismiss();
+        });
+
+        // Handle Delete Message button click
+        editProfilePic.setOnClickListener(v -> {
+            UpdateProfilePictureFragment updateProfilePictureFragment = new UpdateProfilePictureFragment();
+
+            // Start the fragment transaction
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, updateProfilePictureFragment) // Replace with your container ID
+                    .addToBackStack(null) // Adds the transaction to the back stack
+                    .commit();
+            bottomSheetDialog.dismiss();
+
+        });
+
+        // Handle Delete Message button click
+        editProfile.setOnClickListener(v -> {
+            // Navigate to EditProfileFragment
+            EditAccountFragment editProfileFragment = new EditAccountFragment();
+
+            // Start the fragment transaction
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, editProfileFragment) // Replace with your container ID
+                    .addToBackStack(null) // Adds the transaction to the back stack
+                    .commit();
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetDialog.setContentView(sheetView);
+        bottomSheetDialog.show();
     }
 
     private static class FragmentAdapter extends FragmentStateAdapter {

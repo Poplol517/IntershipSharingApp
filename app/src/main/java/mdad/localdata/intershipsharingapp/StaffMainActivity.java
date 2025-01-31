@@ -61,10 +61,8 @@ public class StaffMainActivity extends AppCompatActivity {
                     startActivity(intent);
                     return true;
 
-                } else if (item.getItemId() == R.id.nav_logout) {
-                    // Logout the user
-                    logoutUser();
-                    return true;
+                } else if (item.getItemId() == R.id.nav_account) {
+                    selectedFragment = new ViewAccountFragment();
                 }
 
                 if (selectedFragment != null) {

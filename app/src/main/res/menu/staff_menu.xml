@@ -13,7 +13,7 @@
         android:icon="@drawable/create"
         android:title="Create Post" />
     <item
-        android:id="@+id/nav_logout"
+        android:id="@+id/nav_account"
         android:icon="@drawable/account"
-        android:title="Logout" />
+        android:title="Account" />
 </menu>
