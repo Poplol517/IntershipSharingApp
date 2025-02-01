@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -51,6 +53,13 @@ public class CreateCommunityActivity extends AppCompatActivity {
         inputDescription = findViewById(R.id.inputDescription);
         Button btnBrowseFile = findViewById(R.id.btnBrowseFile);
         Button btnCreateCommunity = findViewById(R.id.btnCreateCommunity);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         // Set button click listener for gallery
         btnBrowseFile.setOnClickListener(v -> openGallery());
@@ -58,6 +67,17 @@ public class CreateCommunityActivity extends AppCompatActivity {
         // Set button click listener for creating community
         btnCreateCommunity.setOnClickListener(v -> createCommunity());
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle the back button click
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed(); // Go back to the previous activity
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);

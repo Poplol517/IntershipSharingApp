@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -28,21 +29,80 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class HomeFragment extends Fragment {
 
     private LinearLayout lv;
+    private ArrayList<HashMap<String, String>> allInternships = new ArrayList<>();
+    private ArrayList<HashMap<String, String>> allQuestions = new ArrayList<>();
+    private SearchView searchView;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         lv = view.findViewById(R.id.list);
+        searchView = view.findViewById(R.id.searchView);
+
+        // Setup SearchView listener
+        setupSearchView();
         fetchInternships();
         fetchQuestions();
         return view;
+    }
+
+    private void setupSearchView() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterPosts(newText);
+                return false;
+            }
+        });
+    }
+
+    private void filterPosts(String query) {
+        lv.removeAllViews(); // Clear current posts
+
+        String queryLower = query.toLowerCase();
+
+        // Filter internships
+        for (HashMap<String, String> internship : allInternships) {
+            if (matchesQuery(internship, queryLower)) {
+                addInternshipToLayout(internship);
+            }
+        }
+
+        // Filter questions
+        for (HashMap<String, String> question : allQuestions) {
+            if (matchesQuery(question, queryLower)) {
+                addQuestionToLayout(question);
+            }
+        }
+    }
+
+    private boolean matchesQuery(HashMap<String, String> item, String query) {
+        String title = item.get("title").toLowerCase();
+        //String description = item.get("description").toLowerCase();
+        String company = item.get("company").toLowerCase();
+        String role = item.get("role").toLowerCase();
+        String userName = item.get("user_name").toLowerCase();
+        String postType = item.get("isInternship") != null && item.get("isInternship").equals("true") ? "internship" : "question"; // Assuming "isInternship" determines post type
+
+        // Check if query matches title, description, company, role, user name, or post type
+        return title.contains(query) ||  company.contains(query) || role.contains(query) ||
+                userName.contains(query) || postType.contains(query);
+
+        //Inlcude if want to search by description
+        //description.contains(query) ||
     }
 
     private void fetchInternships() {
@@ -76,6 +136,7 @@ public class HomeFragment extends Fragment {
                                 map.put("role", details[11]);
                                 map.put("photo", details.length > 12 ? details[12] : "");
                                 Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
+                                allInternships.add(map);  // Add to the list
                                 addInternshipToLayout(map);
                             }
                         }
@@ -187,6 +248,7 @@ public class HomeFragment extends Fragment {
                                 map.put("role", details[7]);
                                 map.put("photo", details.length > 8 ? details[8] : "");
                                 Log.d("DetailsArray", "Size: " + details.length + ", Content: " + Arrays.toString(details));
+                                allQuestions.add(map);  // Add to the list
                                 addQuestionToLayout(map);
                             }
                         }

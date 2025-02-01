@@ -1,70 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="16dp"
-    android:background="#F7F8FA">
+    android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/uploadArea"
-        android:layout_width="400dp"
-        android:layout_height="400dp"
-        android:layout_marginBottom="16dp">
-
-
-        <!-- ImageView to show the profile image -->
-        <ImageView
-            android:id="@+id/profileImageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:contentDescription="Profile Picture"
-            android:scaleType="centerCrop"
-            android:src="@drawable/upload" />
+            android:paddingLeft="10dp"
+            android:text="Edit Your Profile Picture"
+            android:textColor="@android:color/white"
+            android:textSize="25dp"
+            android:textStyle="bold" />
+    </androidx.appcompat.widget.Toolbar>
 
-        <!-- Grey overlay (covers entire area initially) -->
-        <View
-            android:id="@+id/greyOverlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#80000000"
-            android:visibility="gone"/>
-        <!-- Custom HoleView with transparent hole effect -->
-        <mdad.localdata.intershipsharingapp.HoleView
-            android:id="@+id/holeView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"/>
-    </FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#F7F8FA">
 
-    <!-- Button to select image -->
-    <Button
-        android:id="@+id/selectImageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Choose image"
-        android:backgroundTint="#2196F3"
-        android:textColor="#FFFFFF"
-        android:padding="10dp"
-        android:elevation="4dp" />
-    <Button
-        android:id="@+id/previewImageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Preview Profile Picture"
-        android:backgroundTint="#2196F3"
-        android:textColor="#FFFFFF"
-        android:padding="10dp"
-        android:elevation="4dp" />
-    <Button
-        android:id="@+id/updateButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Update Profile Picture"
-        android:backgroundTint="#2196F3"
-        android:textColor="#FFFFFF"
-        android:padding="10dp"
-        android:elevation="4dp" />
+        <FrameLayout
+            android:id="@+id/uploadArea"
+            android:layout_width="400dp"
+            android:layout_height="400dp"
+            android:layout_marginBottom="16dp">
+
+
+            <!-- ImageView to show the profile image -->
+            <ImageView
+                android:id="@+id/profileImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:contentDescription="Profile Picture"
+                android:scaleType="centerCrop"
+                android:src="@drawable/upload" />
+
+            <!-- Grey overlay (covers entire area initially) -->
+            <View
+                android:id="@+id/greyOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#80000000"
+                android:visibility="gone"/>
+            <!-- Custom HoleView with transparent hole effect -->
+            <mdad.localdata.intershipsharingapp.HoleView
+                android:id="@+id/holeView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
+        </FrameLayout>
+
+        <!-- Button to select image -->
+        <Button
+            android:id="@+id/selectImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose image"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:padding="10dp"
+            android:elevation="4dp" />
+        <Button
+            android:id="@+id/previewImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Preview Profile Picture"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:padding="10dp"
+            android:elevation="4dp" />
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Update Profile Picture"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:padding="10dp"
+            android:elevation="4dp" />
+    </LinearLayout>
 </LinearLayout>
 

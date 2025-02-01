@@ -23,10 +23,12 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_margin="16dp"
-            android:background="@android:color/transparent"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="13dp"
+            android:background="#787878"
             android:padding="8dp"
             android:text="Sample Title"
-            android:textColor="#FDFDFD"
+            android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold" />
     </RelativeLayout>

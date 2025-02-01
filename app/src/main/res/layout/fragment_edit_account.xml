@@ -1,180 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <!-- Title -->
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <TextView
-            android:id="@+id/loginTitle"
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"
+            android:paddingLeft="10dp"
             android:text="Edit Your Profile"
-            android:textSize="24sp"
+            android:textColor="@android:color/white"
+            android:textSize="25dp"
             android:textStyle="bold" />
+    </androidx.appcompat.widget.Toolbar>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <!-- Name Label -->
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Name"
-            android:paddingTop="10dp"
-            android:textSize="17sp" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <!-- Input Name -->
-        <EditText
-            android:id="@+id/inputName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:inputType="textPersonName" />
-
-        <!-- Email Label -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Email"
-            android:paddingTop="10dp"
-            android:textSize="17sp" />
-
-        <!-- Input Email -->
-        <EditText
-            android:id="@+id/inputEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:inputType="textEmailAddress" />
-
-        <!-- Username Label -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Username"
-            android:paddingTop="10dp"
-            android:textSize="17sp" />
-
-        <!-- Input Username -->
-        <EditText
-            android:id="@+id/inputUsername"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp" />
-
-        <!-- Password Label -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Password"
-            android:paddingTop="10dp"
-            android:textSize="17sp" />
-
-        <!-- Input Password -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp">
-
-            <EditText
-                android:id="@+id/inputPassword"
+            <!-- Name Label -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"
-                android:paddingEnd="50dp"
-                android:hint="Enter your password" />
+                android:text="Name"
+                android:paddingTop="10dp"
+                android:textSize="17sp" />
 
-            <ImageView
-                android:id="@+id/togglePassword"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:padding="8dp"
-                android:src="@drawable/hidden"
-                android:contentDescription="Toggle Password Visibility" />
-        </RelativeLayout>
+            <!-- Input Name -->
+            <EditText
+                android:id="@+id/inputName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:inputType="textPersonName" />
 
-        <!-- Course Label -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Department/Course"
-            android:paddingTop="10dp"
-            android:textSize="17sp" />
+            <!-- Email Label -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:paddingTop="10dp"
+                android:textSize="17sp" />
 
-        <!-- Input Course -->
-        <EditText
-            android:id="@+id/inputCourse"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp" />
+            <!-- Input Email -->
+            <EditText
+                android:id="@+id/inputEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:inputType="textEmailAddress" />
 
-        <!-- Role Label -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Role"
-            android:paddingTop="10dp"
-            android:textSize="17sp" />
+            <!-- Username Label -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:paddingTop="10dp"
+                android:textSize="17sp" />
 
-        <!-- Role Dropdown -->
-        <Spinner
-            android:id="@+id/Role"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp" />
+            <!-- Input Username -->
+            <EditText
+                android:id="@+id/inputUsername"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp" />
 
-        <!-- Study Year Label -->
-        <TextView
-            android:id="@+id/labelStudyYear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Study Year"
-            android:paddingTop="10dp"
-            android:textSize="17sp"
-            android:visibility="gone" />
+            <!-- Password Label -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Password"
+                android:paddingTop="10dp"
+                android:textSize="17sp" />
 
-        <!-- Study Year Dropdown -->
-        <Spinner
-            android:id="@+id/StudyYear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:visibility="gone" />
+            <!-- Input Password -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp">
 
-        <!-- Graduated Year Label -->
-        <TextView
-            android:id="@+id/labelGraduatedYear"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Graduated Year"
-            android:paddingTop="10dp"
-            android:textSize="17sp"
-            android:visibility="gone" />
+                <EditText
+                    android:id="@+id/inputPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:paddingEnd="50dp"
+                    android:hint="Enter your password" />
 
-        <!-- Input Graduated Year -->
-        <EditText
-            android:id="@+id/inputGrad"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:inputType="number"
-            android:maxLength="4"
-            android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/togglePassword"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:padding="8dp"
+                    android:src="@drawable/hidden"
+                    android:contentDescription="Toggle Password Visibility" />
+            </RelativeLayout>
 
-        <!-- Button to Save Changes -->
-        <Button
-            android:id="@+id/editAccount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Save Changes" />
+            <!-- Course Label -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Department/Course"
+                android:paddingTop="10dp"
+                android:textSize="17sp" />
 
-    </LinearLayout>
-</ScrollView>
+            <!-- Input Course -->
+            <EditText
+                android:id="@+id/inputCourse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp" />
+
+            <!-- Role Label -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Role"
+                android:paddingTop="10dp"
+                android:textSize="17sp" />
+
+            <!-- Role Dropdown -->
+            <Spinner
+                android:id="@+id/Role"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp" />
+
+            <!-- Study Year Label -->
+            <TextView
+                android:id="@+id/labelStudyYear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Study Year"
+                android:paddingTop="10dp"
+                android:textSize="17sp"
+                android:visibility="gone" />
+
+            <!-- Study Year Dropdown -->
+            <Spinner
+                android:id="@+id/StudyYear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:visibility="gone" />
+
+            <!-- Graduated Year Label -->
+            <TextView
+                android:id="@+id/labelGraduatedYear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Graduated Year"
+                android:paddingTop="10dp"
+                android:textSize="17sp"
+                android:visibility="gone" />
+
+            <!-- Input Graduated Year -->
+            <EditText
+                android:id="@+id/inputGrad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:inputType="number"
+                android:maxLength="4"
+                android:visibility="gone" />
+
+            <!-- Button to Save Changes -->
+            <Button
+                android:id="@+id/editAccount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Changes" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

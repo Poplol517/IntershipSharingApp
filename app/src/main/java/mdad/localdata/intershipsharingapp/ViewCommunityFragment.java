@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -50,6 +51,10 @@ public class ViewCommunityFragment extends Fragment {
     private RecyclerView recyclerView;
     private boolean isJoined = true;
     private CarouselAdapter adapter;
+    private SearchView searchView;
+    private List<HashMap<String, String>> allUserChats = new ArrayList<>();
+    private List<HashMap<String, String>> filteredUserChats = new ArrayList<>();
+
 
     private List<CarouselAdapter.CarouselItem> items;
     private LinearLayout lv;
@@ -95,6 +100,22 @@ public class ViewCommunityFragment extends Fragment {
             transaction.addToBackStack(null); // Add to the back stack to allow navigation back
             transaction.commit(); // Commit the transaction
         });
+
+        searchView = view.findViewById(R.id.searchview);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterUserChats(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterUserChats(newText);
+                return false;
+            }
+        });
+
         fetchuserChat();
 
         Button createCommunity = view.findViewById(R.id.btncreateCommunity);
@@ -200,7 +221,8 @@ public class ViewCommunityFragment extends Fragment {
                     }
 
                     String[] chats = response.split(":");
-                    items.clear(); // Clear the existing items before adding new ones
+                    allUserChats.clear(); // Clear the existing data
+                    filteredUserChats.clear(); // Clear the filtered data
 
                     for (String chat : chats) {
                         if (!chat.isEmpty()) {
@@ -216,13 +238,16 @@ public class ViewCommunityFragment extends Fragment {
 
                                 // Only add items matching the current user's ID
                                 if (details[1].equals(currentUserId)) {
-                                    addUserchatToLayout(map);
+                                    allUserChats.add(map);
                                 }
                             }
                         }
                     }
-                    fetchCommunityData();
-                    adapter.notifyDataSetChanged();
+
+                    // Initially, show all user chats
+                    filteredUserChats.addAll(allUserChats);
+                    displayUserChats(filteredUserChats);
+                    fetchCommunityData(); // Fetch community data for the carousel as usual
                 },
 
                 error -> {
@@ -232,6 +257,31 @@ public class ViewCommunityFragment extends Fragment {
 
         queue.add(stringRequest);
     }
+
+    private void filterUserChats(String query) {
+        filteredUserChats.clear();
+
+        if (query.isEmpty()) {
+            filteredUserChats.addAll(allUserChats);
+        } else {
+            for (HashMap<String, String> chat : allUserChats) {
+                //chat.get("description").toLowerCase().contains(query.toLowerCase())
+                if (chat.get("name").toLowerCase().contains(query.toLowerCase())) {
+                    filteredUserChats.add(chat);
+                }
+            }
+        }
+
+        displayUserChats(filteredUserChats); // Update the UI with the filtered list
+    }
+    private void displayUserChats(List<HashMap<String, String>> userChats) {
+        lv.removeAllViews(); // Clear the layout before adding the filtered chats
+
+        for (HashMap<String, String> item : userChats) {
+            addUserchatToLayout(item);
+        }
+    }
+
 
     private void addUserchatToLayout(final HashMap<String, String> item) {
         // Add a boolean to track the join state for this item

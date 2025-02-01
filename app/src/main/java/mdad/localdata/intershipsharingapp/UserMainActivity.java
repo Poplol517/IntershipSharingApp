@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserMainActivity extends AppCompatActivity {
-    private SearchView searchView;
-    private Toolbar toolbar;
     private ImageView accountIcon;
     private static final String url_all_internship = StaffMainActivity.ipBaseAddress + "/get_all_internship.php";
     private static final String url_all_user = StaffMainActivity.ipBaseAddress + "/get_all_user.php";
@@ -34,12 +32,6 @@ public class UserMainActivity extends AppCompatActivity {
         checkLoginSession();
         setContentView(R.layout.activity_user_main);
 
-        // Initialize toolbar and account icon
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        accountIcon = findViewById(R.id.account_icon);
-        accountIcon.setOnClickListener(v -> showAccountDropdown(accountIcon));
 
         // Initialize bottom navigation and fragments
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -47,8 +39,6 @@ public class UserMainActivity extends AppCompatActivity {
         fragmentMap.put(R.id.menu_home, new HomeFragment());
         fragmentMap.put(R.id.menu_account, new ViewAccountFragment());
         fragmentMap.put(R.id.menu_chat, new ViewCommunityFragment());
-        // Add other fragments if necessary
-        searchView = findViewById(R.id.search_view);
 
         // Load the default fragment
         if (savedInstanceState == null) {
@@ -71,22 +61,6 @@ public class UserMainActivity extends AppCompatActivity {
             return false;
         });
 
-        // SearchView query listener
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // Handle search query submission
-                Toast.makeText(UserMainActivity.this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
-                // Add logic to filter content or make API calls here
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                // Handle live search suggestions or filtering (optional)
-                return false;
-            }
-        });
     }
 
     /**
