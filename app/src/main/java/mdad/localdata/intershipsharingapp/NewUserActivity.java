@@ -6,13 +6,16 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -20,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.Request;
@@ -48,6 +52,7 @@ public class NewUserActivity extends AppCompatActivity {
     ArrayList<String> roleNames = new ArrayList<>();
     ArrayList<String> roleIds = new ArrayList<>();
     ArrayList<String> yearsOfStudy = new ArrayList<>();
+    boolean isPasswordVisible = false;
 
 
     @Override
@@ -66,12 +71,20 @@ public class NewUserActivity extends AppCompatActivity {
         studyYearSpinner = findViewById(R.id.StudyYear);
         labelStudyYear = findViewById(R.id.labelStudyYear);
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
+        ImageView eyeIcon = findViewById(R.id.togglePassword);
+
 
         // Initialize years of study locally
         initializeYearsOfStudy();
 
         // Fetch roles
         fetchRoles();
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // Set role change behavior
         roleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -98,6 +111,7 @@ public class NewUserActivity extends AppCompatActivity {
                     studyYearSpinner.setSelection(0);
                 }
             }
+
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
@@ -176,8 +190,45 @@ public class NewUserActivity extends AppCompatActivity {
                 postData(urlCreateAccount, params);
             }
         });
+        // Initialize the visibility toggle for password
+        eyeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Toggle password visibility
+                if (isPasswordVisible) {
+                    // Hide password
+                    inputPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    eyeIcon.setImageResource(R.drawable.hidden); // Use the hidden icon
+                } else {
+                    // Show password
+                    inputPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
+                    eyeIcon.setImageResource(R.drawable.visible); // Use the visible icon
+                }
+
+                // Move the cursor to the end of the password after toggling visibility
+                inputPassword.setSelection(inputPassword.getText().length());
+
+                // Update the state of the toggle
+                isPasswordVisible = !isPasswordVisible;
+            }
+        });
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle the back button press
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed(); // This will call the back stack and finish the activity
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed(); // Ensure the default back press behavior occurs
+        // This will navigate back to the previous activity in the stack
+    }
 
     private void initializeYearsOfStudy() {
         yearsOfStudy.add("");

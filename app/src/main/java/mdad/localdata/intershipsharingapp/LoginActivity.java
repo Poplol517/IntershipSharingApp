@@ -6,11 +6,13 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
@@ -40,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     // remeber to change the IP address on different laptop after pulling
     private static String url_all_products = StaffMainActivity.ipBaseAddress+"/get_all_user.php";
     private String roleId, username, userId; // To store the role of the logged-in user
+    boolean isPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         EditText passwordInput = findViewById(R.id.passwordInput);
         Button loginButton = findViewById(R.id.loginButton);
         TextView textViewButton = findViewById(R.id.textViewRegister);
+        ImageView eyeIcon = findViewById(R.id.togglePassword);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +91,28 @@ public class LoginActivity extends AppCompatActivity {
                 // Create New Product Activity
                 Intent i = new Intent(getApplicationContext(), NewUserActivity.class);
                 startActivity(i);
+            }
+        });
+
+        eyeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Toggle password visibility
+                if (isPasswordVisible) {
+                    // Hide password
+                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    eyeIcon.setImageResource(R.drawable.hidden); // Use the hidden icon
+                } else {
+                    // Show password
+                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
+                    eyeIcon.setImageResource(R.drawable.visible); // Use the visible icon
+                }
+
+                // Move the cursor to the end of the password after toggling visibility
+                passwordInput.setSelection(passwordInput.getText().length());
+
+                // Update the state of the toggle
+                isPasswordVisible = !isPasswordVisible;
             }
         });
 

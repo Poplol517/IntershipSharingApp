@@ -33,11 +33,12 @@ public class CreatePostActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Set up the ViewPager2 Adapter
         pagerAdapter = new MyPagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // Use TabLayoutMediator to link TabLayout with ViewPager2
         TabLayoutMediator tlm = new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> tab.setText(titles[position]));

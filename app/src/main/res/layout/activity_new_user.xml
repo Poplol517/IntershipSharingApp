@@ -4,140 +4,171 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/loginTitle"
-        android:layout_width="187dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="105dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="10dp"
-        android:text="Create a Account"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-    <EditText
-        android:id="@+id/inputName"
-        android:hint="Please Enter Your Name*"
-        android:layout_width="370dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dip"
-        android:layout_marginBottom="15dip"
-        android:singleLine="true"
-        android:background="@drawable/edittext_border"
-        android:inputType="textPersonName"
-        android:minHeight="48dp"
-        android:padding="12dp"/>
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Create Account"
+            android:textColor="@android:color/white"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+    </androidx.appcompat.widget.Toolbar>
 
-    <EditText
-        android:id="@+id/inputEmail"
-        android:hint="Email*"
-        android:layout_width="370dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dip"
-        android:layout_marginBottom="15dip"
-        android:singleLine="true"
-        android:background="@drawable/edittext_border"
-        android:inputType="textEmailAddress"
-        android:minHeight="48dp"
-        android:padding="12dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
 
-    <EditText
-        android:id="@+id/inputUsername"
-        android:hint="Username*"
-        android:layout_width="370dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dip"
-        android:layout_marginBottom="15dip"
-        android:singleLine="true"
-        android:background="@drawable/edittext_border"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:padding="12dp"/>
+        <EditText
+            android:id="@+id/inputName"
+            android:hint="Please Enter Your Name*"
+            android:layout_width="370dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dip"
+            android:layout_marginBottom="15dip"
+            android:singleLine="true"
+            android:background="@drawable/edittext_border"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
+            android:padding="12dp"/>
 
-    <EditText android:id="@+id/inputPassword"
-        android:hint="Enter a Password*"
-        android:layout_width="370dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dip"
-        android:layout_marginBottom="15dip"
-        android:singleLine="true"
-        android:background="@drawable/edittext_border"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:padding="12dp"/>
+        <EditText
+            android:id="@+id/inputEmail"
+            android:hint="Email*"
+            android:layout_width="370dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dip"
+            android:layout_marginBottom="15dip"
+            android:singleLine="true"
+            android:background="@drawable/edittext_border"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp"
+            android:padding="12dp"/>
 
-    <EditText android:id="@+id/inputCourse"
-        android:hint="Please Enter Your Course/Department*"
-        android:layout_width="370dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dip"
-        android:layout_marginBottom="15dip"
-        android:singleLine="true"
-        android:background="@drawable/edittext_border"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:padding="12dp"/>
-    <!-- role label-->
-    <TextView android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Role"
-        android:paddingLeft="20dip"
-        android:paddingRight="10dp"
-        android:paddingTop="10dip"
-        android:textSize="17dip"/>
-    <!-- Input role-->
-    <Spinner
-        android:id="@+id/Role"
-        android:layout_width="380dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="15dip"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"/>
-    <!-- year of study label-->
-    <TextView
-        android:id="@+id/labelStudyYear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Study Year"
-        android:paddingLeft="20dip"
-        android:paddingRight="10dip"
-        android:paddingTop="10dip"
-        android:textSize="17dip"
-        android:visibility="gone"/>
-    <!-- Input study year-->
-    <Spinner
-        android:id="@+id/StudyYear"
-        android:layout_width="380dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"
-        android:visibility="gone" />
+        <EditText
+            android:id="@+id/inputUsername"
+            android:hint="Username*"
+            android:layout_width="370dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dip"
+            android:layout_marginBottom="15dip"
+            android:singleLine="true"
+            android:background="@drawable/edittext_border"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:padding="12dp"/>
 
-    <EditText android:id="@+id/inputGrad"
-        android:hint="Please Enter Your Graduated Year*"
-        android:layout_width="370dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="5dip"
-        android:layout_marginBottom="15dip"
-        android:singleLine="true"
-        android:background="@drawable/edittext_border"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:padding="12dp"
-        />
-    <!-- Button Create Product -->
-    <Button android:id="@+id/btnCreateAccount"
-        android:layout_width="370dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="25dip"
-        android:text="Create Account"/>
+        <RelativeLayout
+            android:layout_width="385dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="5dp"
+            android:layout_marginBottom="15dp">
+
+            <EditText
+                android:id="@+id/inputPassword"
+                android:hint="Enter your password*"
+                android:layout_width="385dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dip"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:background="@drawable/edittext_border"
+                android:minHeight="48dp"
+                android:padding="12dp"/>
+
+            <ImageView
+                android:id="@+id/togglePassword"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:padding="8dp"
+                android:src="@drawable/hidden"
+                android:contentDescription="Toggle Password Visibility" />
+        </RelativeLayout>
+
+        <EditText android:id="@+id/inputCourse"
+            android:hint="Please Enter Your Course/Department*"
+            android:layout_width="370dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dip"
+            android:layout_marginBottom="15dip"
+            android:singleLine="true"
+            android:background="@drawable/edittext_border"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:padding="12dp"/>
+        <!-- role label-->
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Role"
+            android:paddingLeft="20dip"
+            android:paddingRight="10dp"
+            android:paddingTop="10dip"
+            android:textSize="17dip"/>
+        <!-- Input role-->
+        <Spinner
+            android:id="@+id/Role"
+            android:layout_width="380dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="15dip"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown"/>
+        <!-- year of study label-->
+        <TextView
+            android:id="@+id/labelStudyYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Study Year"
+            android:paddingLeft="20dip"
+            android:paddingRight="10dip"
+            android:paddingTop="10dip"
+            android:textSize="17dip"
+            android:visibility="gone"/>
+        <!-- Input study year-->
+        <Spinner
+            android:id="@+id/StudyYear"
+            android:layout_width="380dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown"
+            android:visibility="gone" />
+
+        <EditText android:id="@+id/inputGrad"
+            android:hint="Please Enter Your Graduated Year*"
+            android:layout_width="370dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dip"
+            android:layout_marginBottom="15dip"
+            android:singleLine="true"
+            android:background="@drawable/edittext_border"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:padding="12dp"
+            />
+        <!-- Button Create Product -->
+        <Button android:id="@+id/btnCreateAccount"
+            android:layout_width="370dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="25dip"
+            android:text="Create Account"/>
+    </LinearLayout>
 </LinearLayout>
