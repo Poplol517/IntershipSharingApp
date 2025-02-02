@@ -220,7 +220,7 @@ public class ViewCommunityStatFragment extends Fragment {
 
 
                             // Create an Intent to navigate to the next activity
-                            Intent intent = new Intent(requireContext(), ViewBarDetailActivity.class);
+                            Intent intent = new Intent(requireContext(), ViewCommunityBarDetailsActivity.class);
                             intent.putExtra("category", selectedLabel); // Pass the selected x-axis label
                             startActivity(intent);
                         }
