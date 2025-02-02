@@ -3,14 +3,11 @@ package mdad.localdata.intershipsharingapp;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -19,7 +16,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
@@ -34,29 +30,27 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * A simple {@link Fragment} subclass.
- * create an instance of this fragment.
- */
-public class ViewUserStatFragment extends Fragment {
+public class ViewCommunityStatFragment extends Fragment {
 
-    private static final String urlViewAllUser = StaffMainActivity.ipBaseAddress + "/get_all_user.php";
+    private static final String urlViewAllCommunity = StaffMainActivity.ipBaseAddress + "/get_all_communities.php";
+    private static final String urlViewAllUserChat = StaffMainActivity.ipBaseAddress + "/get_all_userchat.php";
 
     private PieChart pieChart;
     private BarChart barChart;
 
-    public ViewUserStatFragment() {
+
+    public ViewCommunityStatFragment() {
         // Required empty public constructor
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_view_user_stat, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_view_community_stat, container, false);
 
-        // Initialize PieChart and BarChart
         pieChart = view.findViewById(R.id.pieChart);
         barChart = view.findViewById(R.id.barChart);
+        pieChart.setUsePercentValues(true);
 
         return view;
     }
@@ -71,7 +65,7 @@ public class ViewUserStatFragment extends Fragment {
     private void setupPieChart() {
 
         // Make the network request to fetch user data
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlViewAllUser, new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlViewAllUserChat, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 // Parse the PHP response
@@ -83,8 +77,8 @@ public class ViewUserStatFragment extends Fragment {
                 // Count the number of students and alumni
                 for (String record : records) {
                     String[] fields = record.split(";");
-                    if (fields.length >= 10) {
-                        String category = fields[9];
+                    if (fields.length >= 12) {
+                        String category = fields[11];
                         if ("Student".equalsIgnoreCase(category)) {
                             studentCount++;
                         } else if ("Alumni".equalsIgnoreCase(category)) {
@@ -120,7 +114,7 @@ public class ViewUserStatFragment extends Fragment {
                 pieChart.setData(data);
                 pieChart.setUsePercentValues(true);
                 pieChart.setEntryLabelTextSize(12f);
-                pieChart.setCenterText("User Distribution");
+                pieChart.setCenterText("Community Owner Distribution");
                 pieChart.setCenterTextSize(18f);
                 pieChart.animateY(1000);
                 pieChart.getDescription().setEnabled(false);
@@ -135,7 +129,7 @@ public class ViewUserStatFragment extends Fragment {
                             String label = pieEntry.getLabel();
 
                             // Create an Intent to navigate to the next activity
-                            Intent intent = new Intent(requireContext(), ViewPieDetailActivity.class);
+                            Intent intent = new Intent(requireContext(), ViewCommunityPieDetailActivity.class);
                             intent.putExtra("category", label); // Pass category (e.g., "Students")
                             startActivity(intent);
                         }
@@ -158,10 +152,9 @@ public class ViewUserStatFragment extends Fragment {
         Volley.newRequestQueue(requireContext()).add(stringRequest);
     }
 
-
     private void setupBarChart() {
         // Make the network request to fetch user data
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlViewAllUser, new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlViewAllCommunity, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 // Parse the PHP response
@@ -171,8 +164,8 @@ public class ViewUserStatFragment extends Fragment {
                 // Count occurrences of each date_joined
                 for (String record : records) {
                     String[] fields = record.split(";");
-                    if (fields.length >= 12) { // Ensure the field index exists
-                        String dateJoined = fields[11];
+                    if (fields.length >= 5) { // Ensure the field index exists
+                        String dateJoined = fields[4];
                         if (!dateJoined.isEmpty()) {
                             dateCounts.put(dateJoined, dateCounts.getOrDefault(dateJoined, 0) + 1);
                         }

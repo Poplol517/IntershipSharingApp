@@ -139,7 +139,7 @@ public class ViewCommunityDetailFragment extends Fragment {
         // Get the current user's ID
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", MODE_PRIVATE);
         String currentUserId = sharedPreferences.getString("username", ""); // Replace with your key
-
+        String roleId=sharedPreferences.getString("roleId","");
         // Ensure the currentUserId and ownerId are both valid before comparing
         if (currentUserId.isEmpty() || ownerId.isEmpty()) {
             return;
@@ -154,7 +154,7 @@ public class ViewCommunityDetailFragment extends Fragment {
         ImageView viewGraph = view.findViewById(R.id.viewGraph);
 
         // If the current user is the owner, make the buttons visible
-        if (ownerId.equals(currentUserId)) {
+        if (ownerId.equals(currentUserId)||roleId.equals("3")) {
             btnEditCommunity.setVisibility(View.VISIBLE);
             btnEditCommunity.setOnClickListener(v -> {
                 // Get the arguments passed to the fragment

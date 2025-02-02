@@ -142,7 +142,8 @@ public class ViewSelectedCommunityFragment extends Fragment {
         }
 
         messages = new ArrayList<>();
-        chatAdapter = new ChatAdapter(messages, currentUserId);
+        int roleId = 0;
+        chatAdapter = new ChatAdapter(messages, currentUserId,roleId);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setReverseLayout(false);

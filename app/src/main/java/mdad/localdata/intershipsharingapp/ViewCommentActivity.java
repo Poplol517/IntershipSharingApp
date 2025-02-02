@@ -363,7 +363,7 @@ public class ViewCommentActivity extends AppCompatActivity {
         // Retrieve the logged-in user's ID from SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
         String loggedInUserId = sharedPreferences.getString("username", null); // Replace "user_id" with the actual key
-
+        String roleId = sharedPreferences.getString("roleId", null);
         // Determine the ID key and value dynamically
         boolean isInternship = "true".equals(itemDetails.get("isInternship"));
         String idKey = isInternship ? "internshipId" : "questionId";
@@ -393,7 +393,7 @@ public class ViewCommentActivity extends AppCompatActivity {
             commentContent.setText(commentData.get("description"));
 
             // Check if the logged-in user ID matches the comment's user ID
-            if (loggedInUserId != null && loggedInUserId.equals(commentData.get("userId"))) {
+            if (loggedInUserId != null && loggedInUserId.equals(commentData.get("userId")) || roleId.equals("3")) {
                 // Set up long-click listener for the comment view
                 commentView.setOnLongClickListener(view -> {
                     // Create and show a BottomSheetDialog

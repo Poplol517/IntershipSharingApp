@@ -19,11 +19,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     private final List<Message> messages;
     private final String currentUserId;
+    private final Integer roleId;
     private static final String url_delete_message = StaffMainActivity.ipBaseAddress + "/delete_message.php";
 
-    public ChatAdapter(List<Message> messages, String currentUserId) {
+    public ChatAdapter(List<Message> messages, String currentUserId, int roleId) {
         this.messages = messages;
         this.currentUserId = currentUserId;
+        this.roleId = roleId;
         Log.d("ChatAdapter", "Constructor called with message: " + messages);
         Log.d("ChatAdapter", "Constructor called with currentUserId: " + currentUserId);
     }
@@ -54,7 +56,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             holder.messageTextView.setBackgroundResource(R.drawable.other_message_background);
         }
 
-        if (message.getUserId().equals(currentUserId)) {
+        // Only show the bottom sheet if the current user has roleId 3
+        if (message.getUserId().equals(currentUserId) || roleId == 3) {
             holder.itemView.setOnLongClickListener(v -> {
                 MessageOptionBottomSheet bottomSheet = new MessageOptionBottomSheet(
                         message.getId(),
@@ -71,6 +74,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             });
         }
     }
+
 
     @Override
     public int getItemCount() {

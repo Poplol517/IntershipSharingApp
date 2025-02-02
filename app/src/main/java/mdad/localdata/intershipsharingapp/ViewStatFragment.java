@@ -9,9 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -53,7 +50,7 @@ public class ViewStatFragment extends Fragment {
                     tab.setText("User Statistics");
                     break;
                 case 1:
-                    tab.setText("Post Statistics");
+                    tab.setText("Community Statistics");
                     break;
             }
         }).attach();
@@ -74,7 +71,7 @@ public class ViewStatFragment extends Fragment {
                 case 0:
                     return new ViewUserStatFragment(); // Fragment displaying Pie Chart
                 case 1:
-                    return new ViewPostStatFragment(); // Fragment displaying Bar Chart
+                    return new ViewCommunityStatFragment(); // Fragment displaying Bar Chart
                 default:
                     return new Fragment(); // Default case (optional)
             }

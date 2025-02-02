@@ -391,7 +391,6 @@ public class CreateQuestionFragment extends Fragment {
                     dialog.dismiss();
                     refreshMainChipGroup();
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 

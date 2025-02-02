@@ -493,7 +493,6 @@ public class CreateInternshipFragment extends Fragment {
                     dialog.dismiss();
                     refreshMainChipGroup();
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
