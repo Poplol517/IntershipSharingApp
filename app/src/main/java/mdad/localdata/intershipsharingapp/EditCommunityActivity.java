@@ -3,6 +3,7 @@ package mdad.localdata.intershipsharingapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -31,6 +32,7 @@ import java.util.Map;
 public class EditCommunityActivity extends AppCompatActivity {
     private static final String url_edit_community = StaffMainActivity.ipBaseAddress + "/edit_community.php";
     private static final String url_delete_community = StaffMainActivity.ipBaseAddress + "/delete_community.php";
+    private static String url_delete_photo = StaffMainActivity.ipBaseAddress + "/delete_community_picture.php";
     private static final int GALLERY_REQUEST_CODE = 1;
     private Bitmap selectedImageBitmap = null;
     private EditText inputName, inputDescription;
@@ -68,6 +70,8 @@ public class EditCommunityActivity extends AppCompatActivity {
         btnBrowseFile.setOnClickListener(v -> openGallery());
         btnSave.setOnClickListener(v -> editCommunity());
         btnDelete.setOnClickListener(v -> deleteCommunity());
+        Button btnRemovePic = findViewById(R.id.btnDeletePic);
+        btnRemovePic.setOnClickListener(v -> deleteCommunityPicture());
     }
 
     private void openGallery() {
@@ -122,14 +126,50 @@ public class EditCommunityActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
-                params.put("communityId", communityId);
-                params.put("title", name);
+                params.put("chatId", communityId);
+                params.put("name", name);
                 params.put("description", description);
                 params.put("photo", photoBase64);
                 return params;
             }
         };
         Volley.newRequestQueue(this).add(stringRequest);
+    }
+    private void deleteCommunityPicture() {
+
+        String photoBase64 = drawableToBase64(R.drawable.no_image); // Replace with your actual drawable resource
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url_delete_photo,
+                response -> {
+                    if (response.trim().equalsIgnoreCase("success")) {
+                        Toast.makeText(this, "Community created successfully!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Error: " + response, Toast.LENGTH_SHORT).show();
+                        Log.e("EditCommunityFragment", "Error: " + response);
+                    }
+                },
+                error -> Toast.makeText(this, "Error creating community: " + error.getMessage(), Toast.LENGTH_SHORT).show()) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("chatId", communityId);
+                params.put("photo", photoBase64);
+                return params;
+            }
+        };
+        Volley.newRequestQueue(this).add(stringRequest);
+    }
+
+    private String drawableToBase64(int drawableResId) {
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), drawableResId);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
     private String bitmapToBase64(Bitmap bitmap) {

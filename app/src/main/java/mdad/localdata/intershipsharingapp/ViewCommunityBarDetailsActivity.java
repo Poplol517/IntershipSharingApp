@@ -48,11 +48,12 @@ public class ViewCommunityBarDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_community_bar_details);
 
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(this::fetchUser);
+        swipeRefreshLayout.setOnRefreshListener(this::fetchCommunities);
         lv = findViewById(R.id.list);
 
         Toolbar toolbar = findViewById(R.id.top_toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -78,7 +79,7 @@ public class ViewCommunityBarDetailsActivity extends AppCompatActivity {
             }
         });
 
-        fetchUser();
+        fetchCommunities();
     }
 
     @Override
@@ -91,7 +92,7 @@ public class ViewCommunityBarDetailsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void fetchUser() {
+    private void fetchCommunities() {
         swipeRefreshLayout.setRefreshing(true);
         lv.removeAllViews();
         userList.clear(); // Clear the list before adding new data
@@ -113,14 +114,14 @@ public class ViewCommunityBarDetailsActivity extends AppCompatActivity {
                     for (String user : users) {
                         if (!user.isEmpty()) {
                             String[] details = user.split(";");
-                            if (details.length >= 6) {
+                            if (details.length >= 3) {
                                 String date_created = details[4];
                                 if (date_created.equals(category)) {
                                     HashMap<String, String> map = new HashMap<>();
                                     map.put("communityId", details[0]);
                                     map.put("name", details[1]);
                                     map.put("description", details[2]);
-                                    map.put("photo", details[3]);
+                                    map.put("photo", details[7]);
                                     map.put("date_created", date_created);
                                     map.put("owner", details[5]);
                                     map.put("role", details[6]);
@@ -220,9 +221,19 @@ public class ViewCommunityBarDetailsActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
 
             if (bitmap != null) {
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                intent.putExtra("image_bitmap", bitmap);
+                try {
+                    File cacheDir = this.getCacheDir();
+                    File imageFile = new File(cacheDir, "community_image.png");
+                    FileOutputStream fos = new FileOutputStream(imageFile);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.flush();
+                    fos.close();
+
+                    // Pass the file path instead of the bitmap
+                    intent.putExtra("image_path", imageFile.getAbsolutePath());
+                } catch (Exception e) {
+                    Log.e("FileSaveError", "Error saving Bitmap: " + e.getMessage());
+                }
             }
         }
 

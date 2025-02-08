@@ -149,7 +149,7 @@ public class ViewCommunityFragment extends Fragment {
                                 map.put("communityId", details[0]);
                                 map.put("title", details[1]);
                                 map.put("description", details[2]);
-                                map.put("photo", details.length > 3 ? details[3] : "");
+                                map.put("photo", details.length > 7 ? details[7] : "");
                                 Log.d("carouselDetails", "Size: " + details.length + ", Content: " + Arrays.toString(details));
                                 addCommunityToCarousel(map);
                             }

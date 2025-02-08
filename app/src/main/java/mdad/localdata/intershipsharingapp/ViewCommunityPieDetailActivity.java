@@ -110,7 +110,7 @@ public class ViewCommunityPieDetailActivity extends AppCompatActivity {
                     for (String user : users) {
                         if (!user.isEmpty()) {
                             String[] details = user.split(";");
-                            if (details.length >= 6) {
+                            if (details.length >= 7) {
                                 String role = details[6];
                                 if (role.equals(category)) {
                                     HashMap<String, String> map = new HashMap<>();
@@ -119,7 +119,7 @@ public class ViewCommunityPieDetailActivity extends AppCompatActivity {
                                     map.put("description", details[2]);
                                     map.put("owner", details[5]);
                                     map.put("role", role);
-                                    map.put("photo", details[3]);
+                                    map.put("photo", details[7]);
                                     userList.add(map); // Store all users
                                 }
                             }
@@ -216,9 +216,19 @@ public class ViewCommunityPieDetailActivity extends AppCompatActivity {
             Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
 
             if (bitmap != null) {
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                intent.putExtra("image_bitmap", bitmap);
+                try {
+                    File cacheDir = this.getCacheDir();
+                    File imageFile = new File(cacheDir, "community_image.png");
+                    FileOutputStream fos = new FileOutputStream(imageFile);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.flush();
+                    fos.close();
+
+                    // Pass the file path instead of the bitmap
+                    intent.putExtra("image_path", imageFile.getAbsolutePath());
+                } catch (Exception e) {
+                    Log.e("FileSaveError", "Error saving Bitmap: " + e.getMessage());
+                }
             }
         }
 

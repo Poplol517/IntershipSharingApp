@@ -3,6 +3,7 @@ package mdad.localdata.intershipsharingapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -76,22 +77,27 @@ public class ViewSelectedCommunityActivity extends AppCompatActivity {
         if (args != null) {
             String title = args.getString(ARG_TITLE);
             String description = args.getString(ARG_DESCRIPTION);
-            Bitmap imageBitmap = args.getParcelable(ARG_IMAGE_BITMAP);
-
             titleTextView.setText(title);
             descriptionTextView.setText(description);
 
-            if (imageBitmap != null) {
-                imageView.setImageBitmap(imageBitmap);
-            }
-            String communityId = args.getString(ARG_CHATID);
-            if (communityId != null && !communityId.isEmpty()) {
-                checkUserChatStatus(currentUserId, communityId, joinButton);
+            // First, try to load the image from the provided file path
+            String imagePath = getIntent().getStringExtra("image_path");
+            if (imagePath != null) {
+                Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+                if (bitmap != null) {
+                    imageView.setImageBitmap(bitmap);
+                } else {
+                    imageView.setImageResource(R.drawable.no_image);
+                }
             } else {
-                Log.e("CommunityIDError", "Community ID is missing.");
-            }
-        }
-
+                // If image_path is not available, fall back to the bitmap from the intent
+                Bitmap imageBitmap = args.getParcelable(ARG_IMAGE_BITMAP);
+                if (imageBitmap != null) {
+                    imageView.setImageBitmap(imageBitmap);
+                } else {
+                    imageView.setImageResource(R.drawable.no_image); // Set default image
+                }
+            }}
         messages = new ArrayList<>();
         int roleId=3;
         chatAdapter = new ChatAdapter(messages, currentUserId,roleId);

@@ -3,6 +3,7 @@ package mdad.localdata.intershipsharingapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -35,6 +36,7 @@ import java.util.Map;
 public class EditCommunityFragment extends Fragment {
     private static String url_edit_community = StaffMainActivity.ipBaseAddress + "/edit_community.php";
     private static String url_delete_community = StaffMainActivity.ipBaseAddress + "/delete_community.php";
+    private static String url_delete_photo = StaffMainActivity.ipBaseAddress + "/delete_community_picture.php";
     private static final int GALLERY_REQUEST_CODE = 1;
     private Bitmap selectedImageBitmap = null;
     private EditText inputName, inputDescription;
@@ -69,6 +71,12 @@ public class EditCommunityFragment extends Fragment {
         btnDelete.setOnClickListener(v -> {
             RequestQueue queue = Volley.newRequestQueue(getContext());
             deleteCommunity(communityId, queue);
+        });
+
+        Button btnRemovePic = view.findViewById(R.id.btnDeletePic);
+        btnRemovePic.setOnClickListener(v -> {
+            RequestQueue queue = Volley.newRequestQueue(getContext());
+            deleteCommunityPicture(communityId);
         });
 
         return view;
@@ -135,6 +143,7 @@ public class EditCommunityFragment extends Fragment {
                         getActivity().getSupportFragmentManager().popBackStack(); // Return to the previous fragment
                     } else {
                         Toast.makeText(getContext(), "Error: " + response, Toast.LENGTH_SHORT).show();
+                        Log.e("EditCommunityFragment", "Error: " + response);
                     }
                 },
                 error -> Toast.makeText(getContext(), "Error creating community: " + error.getMessage(), Toast.LENGTH_SHORT).show()) {
@@ -145,6 +154,35 @@ public class EditCommunityFragment extends Fragment {
                 params.put("chatId", communityId);
                 params.put("name", name);
                 params.put("description", description);
+                params.put("photo", photoBase64);
+                return params;
+            }
+        };
+        Volley.newRequestQueue(getContext()).add(stringRequest);
+    }
+
+    private void deleteCommunityPicture(String communityId) {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("UserSession", getContext().MODE_PRIVATE);
+        String userId = sharedPreferences.getString("username", null);
+
+        String photoBase64 = drawableToBase64(R.drawable.no_image); // Replace with your actual drawable resource
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url_delete_photo,
+                response -> {
+                    if (response.trim().equalsIgnoreCase("success")) {
+                        Toast.makeText(getContext(), "Community created successfully!", Toast.LENGTH_SHORT).show();
+                        getActivity().getSupportFragmentManager().popBackStack(); // Return to the previous fragment
+                    } else {
+                        Toast.makeText(getContext(), "Error: " + response, Toast.LENGTH_SHORT).show();
+                        Log.e("EditCommunityFragment", "Error: " + response);
+                    }
+                },
+                error -> Toast.makeText(getContext(), "Error creating community: " + error.getMessage(), Toast.LENGTH_SHORT).show()) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("chatId", communityId);
                 params.put("photo", photoBase64);
                 return params;
             }
@@ -193,4 +231,15 @@ public class EditCommunityFragment extends Fragment {
                 .addToBackStack(null)
                 .commit();
     }
+
+    private String drawableToBase64(int drawableResId) {
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), drawableResId);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(byteArray, Base64.DEFAULT);
+    }
+
 }

@@ -55,14 +55,17 @@ public class ViewCommunityDetailActivity extends AppCompatActivity {
         String name = intent.getStringExtra("title");
         String description = intent.getStringExtra("description");
         String communityId = intent.getStringExtra("communityId");
-        Bitmap imageBitmap = intent.getParcelableExtra("image_bitmap");
+        String imagePath = getIntent().getStringExtra("image_path");
 
         // Set the values to the views
         tvName.setText(name);
         tvDescription.setText(description);
 
-        if (imageBitmap != null) {
-            communityPhoto.setImageBitmap(imageBitmap);
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        if (bitmap != null) {
+            communityPhoto.setImageBitmap(bitmap);
+        } else {
+            communityPhoto.setImageResource(R.drawable.no_image);
         }
 
         fetchuserChat();
