@@ -309,8 +309,6 @@ public class ViewSelectedCommunityFragment extends Fragment {
                         }
                     },
                     error -> {
-                        Log.e("VolleyError", "Error retrieving messages: " + error.getMessage());
-                        Toast.makeText(getContext(), "Error retrieving messages", Toast.LENGTH_LONG).show();
                     }) {
                 @Override
                 protected Map<String, String> getParams() {
@@ -414,7 +412,6 @@ public class ViewSelectedCommunityFragment extends Fragment {
                         if (response.trim().equals("Error")) {
                             Toast.makeText(getContext(), "Error sending message", Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(getContext(), "Message sent successfully", Toast.LENGTH_SHORT).show();
                             // Optionally, refresh messages after sending
                             fetchMessages();
                         }

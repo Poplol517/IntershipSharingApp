@@ -127,7 +127,8 @@ public class ViewGraphActivity extends AppCompatActivity {
             YAxis leftAxis = lineChart.getAxisLeft();
             leftAxis.setGranularity(1f);
             lineChart.getAxisRight().setEnabled(false);
-
+            lineChart.animateY(1000);
+            lineChart.animateX(1000);
             lineChart.setData(new LineData(lineDataSet));
             lineChart.invalidate();
         } catch (Exception e) {

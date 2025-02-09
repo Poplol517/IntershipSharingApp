@@ -134,12 +134,6 @@ public class ViewCommunityDetailFragment extends Fragment {
         toolbar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        fetchuserChat(); // Refresh the user chat data
-    }
-
     private void checkAndShowOwnerButtons(String ownerId) {
         // Get the current user's ID
         SharedPreferences sharedPreferences = requireContext().getSharedPreferences("UserSession", MODE_PRIVATE);

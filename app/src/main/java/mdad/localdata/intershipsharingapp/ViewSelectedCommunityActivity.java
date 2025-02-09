@@ -206,7 +206,6 @@ public class ViewSelectedCommunityActivity extends AppCompatActivity {
                     Log.d("VolleyResponse", response);
 
                     if (response.trim().equals("Error")) {
-                        Toast.makeText(this, "Error in retrieving messages", Toast.LENGTH_LONG).show();
                         return;
                     }
 
