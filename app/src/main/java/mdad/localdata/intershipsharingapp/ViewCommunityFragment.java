@@ -258,6 +258,13 @@ public class ViewCommunityFragment extends Fragment {
         queue.add(stringRequest);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchuserChat(); // Refresh the user chat data
+    }
+
+
     private void filterUserChats(String query) {
         filteredUserChats.clear();
 

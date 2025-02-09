@@ -65,7 +65,7 @@ public class ViewCommunityStatFragment extends Fragment {
     private void setupPieChart() {
 
         // Make the network request to fetch user data
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlViewAllUserChat, new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlViewAllCommunity, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 // Parse the PHP response
@@ -77,8 +77,8 @@ public class ViewCommunityStatFragment extends Fragment {
                 // Count the number of students and alumni
                 for (String record : records) {
                     String[] fields = record.split(";");
-                    if (fields.length >= 12) {
-                        String category = fields[11];
+                    if (fields.length >= 7) {
+                        String category = fields[6];
                         if ("Student".equalsIgnoreCase(category)) {
                             studentCount++;
                         } else if ("Alumni".equalsIgnoreCase(category)) {

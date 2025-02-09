@@ -116,7 +116,13 @@ public class EditCommunityActivity extends AppCompatActivity {
                 response -> {
                     if (response.trim().equalsIgnoreCase("success")) {
                         Toast.makeText(this, "Community updated successfully!", Toast.LENGTH_SHORT).show();
+
+                        // Start ViewCommunityBarDetailsActivity after successful update
+                        Intent intent = new Intent(EditCommunityActivity.this, StaffMainActivity.class);
+                        intent.putExtra("communityId", communityId);  // Pass the community ID
+                        startActivity(intent);
                         finish();
+
                     } else {
                         Toast.makeText(this, "Error: " + response, Toast.LENGTH_SHORT).show();
                     }
@@ -135,6 +141,7 @@ public class EditCommunityActivity extends AppCompatActivity {
         };
         Volley.newRequestQueue(this).add(stringRequest);
     }
+
     private void deleteCommunityPicture() {
 
         String photoBase64 = drawableToBase64(R.drawable.no_image); // Replace with your actual drawable resource
@@ -201,4 +208,6 @@ public class EditCommunityActivity extends AppCompatActivity {
         };
         queue.add(deleteCommunityRequest);
     }
+
+
 }

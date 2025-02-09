@@ -206,6 +206,7 @@ public class ViewCommunityBarDetailsActivity extends AppCompatActivity {
         }
     }
 
+
     private void openCommunityDetailActivity(HashMap<String, String> user) {
         Intent intent = new Intent(this, ViewSelectedCommunityActivity.class);
 
