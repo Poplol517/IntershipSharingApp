@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="InternshipSharingApp">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-02-09T09:56:24.559050800Z">
+        <DropdownSelection timestamp="2025-02-10T14:30:24.483369800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\leau5\.android\avd\Pixel_3a_API_35.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=67f11102" />
             </handle>
           </Target>
         </DropdownSelection>

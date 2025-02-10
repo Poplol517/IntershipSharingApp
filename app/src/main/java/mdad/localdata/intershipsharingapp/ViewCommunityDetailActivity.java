@@ -244,6 +244,11 @@ public class ViewCommunityDetailActivity extends AppCompatActivity {
                         roleTag.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
                         roleTag.setBackgroundResource(R.drawable.question_tag_background);
                         break;
+                    case "Staff":
+                        roleTag.setText("Staff");
+                        roleTag.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                        roleTag.setBackgroundResource(R.drawable.staff_tag_background);
+                        break;
                 }
             }
         }

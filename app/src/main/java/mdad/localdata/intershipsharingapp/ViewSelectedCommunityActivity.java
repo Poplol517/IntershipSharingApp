@@ -79,6 +79,13 @@ public class ViewSelectedCommunityActivity extends AppCompatActivity {
             String description = args.getString(ARG_DESCRIPTION);
             titleTextView.setText(title);
             descriptionTextView.setText(description);
+            String communityId = args.getString(ARG_CHATID);
+            if (communityId != null && !communityId.isEmpty()) {
+                // Use checkUserChatStatus to set the initial state of the button
+                checkUserChatStatus(currentUserId, communityId, joinButton);
+            } else {
+                Log.e("CommunityIDError", "Community ID is missing.");
+            }
 
             // First, try to load the image from the provided file path
             String imagePath = getIntent().getStringExtra("image_path");
