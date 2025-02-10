@@ -5,7 +5,9 @@ import static androidx.core.content.ContentProviderCompat.requireContext;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -46,6 +48,8 @@ import java.util.Map;
 
 public class EditInternshipActivity extends AppCompatActivity {
     private ChipGroup chipGroupIndustries;
+    private static final int DESCRIPTION_MAX_LENGTH = 1000;
+    private TextView charCountText;
     private static final String url_edit_internship = StaffMainActivity.ipBaseAddress + "/edit_internship.php";
 
     private static final String url_internship_industry = StaffMainActivity.ipBaseAddress + "/edit_internship_industry.php";
@@ -59,6 +63,7 @@ public class EditInternshipActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_internship);
+        charCountText = findViewById(R.id.charCountText);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -76,6 +81,8 @@ public class EditInternshipActivity extends AppCompatActivity {
         String dateShared = intent.getStringExtra("date_shared");
         String locationName = intent.getStringExtra("location_name");
         String role = intent.getStringExtra("role");
+
+        charCountText.setText("0/" + DESCRIPTION_MAX_LENGTH);
 
         // Initialize the location spinner
         Spinner locationSpinner = findViewById(R.id.location);
@@ -103,6 +110,27 @@ public class EditInternshipActivity extends AppCompatActivity {
 
         // Fetch industries associated with this internship
         fetchIndustries();
+        descriptionField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                // Update the character count display
+                int charCount = charSequence.length();
+                charCountText.setText(charCount + "/" + DESCRIPTION_MAX_LENGTH);
+
+                // Check if the character limit is reached
+                if (charCount > DESCRIPTION_MAX_LENGTH) {
+                    // Trim the input to the max length if it exceeds the limit
+                    descriptionField.setText(charSequence.subSequence(0, DESCRIPTION_MAX_LENGTH));
+                    descriptionField.setSelection(DESCRIPTION_MAX_LENGTH); // Move cursor to the end
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
 
         // Set up the update button click listener
         findViewById(R.id.updateButton).setOnClickListener(v -> {

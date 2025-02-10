@@ -70,6 +70,8 @@ public class ViewSelectedCommunityActivity extends AppCompatActivity {
         Button sendButton = findViewById(R.id.btnSendMessage);
         Button joinButton = findViewById(R.id.btnJoin);
 
+
+
         sharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE);
         String currentUserId = sharedPreferences.getString("username", "");
 
